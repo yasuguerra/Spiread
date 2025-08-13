@@ -304,7 +304,7 @@ class BackendTester:
             except json.JSONDecodeError:
                 self.log_result("GET Session Schedules", False, "Invalid JSON response")
         else:
-            self.log_result("GET Session Schedules", False, f"Status code: {response.status_code}")
+            self.log_result("GET Session Schedules", False, f"Status code: {response.status_code}, Response: {response.text[:200]}")
             
         # Test GET sessionSchedules without user_id (should fail)
         response = self.make_request('GET', 'sessionSchedules')
@@ -313,17 +313,16 @@ class BackendTester:
         else:
             self.log_result("GET Session Schedules (no user_id)", False, "Should have returned 400 error")
         
-        # Test POST sessionSchedules with sample data from review request
+        # Test POST sessionSchedules with exact data from review request
         schedule_data = {
             "userId": TEST_USER_ID,
             "template": "15min",
             "totalDurationMs": 900000,
             "blocks": [
-                {
-                    "game": "accelerator",
-                    "score": 85,
-                    "duration_ms": 300000
-                }
+                {"game": "par_impar", "score": 85, "duration_ms": 120000, "difficulty_before": 2, "difficulty_after": 3},
+                {"game": "shuttle", "score": 78, "duration_ms": 300000, "difficulty_before": 3, "difficulty_after": 3},
+                {"game": "twin_words", "score": 82, "duration_ms": 240000, "difficulty_before": 2, "difficulty_after": 3},
+                {"game": "memory_digits", "score": 90, "duration_ms": 240000, "difficulty_before": 4, "difficulty_after": 5}
             ]
         }
         
@@ -340,7 +339,7 @@ class BackendTester:
             except json.JSONDecodeError:
                 self.log_result("POST Session Schedules", False, "Invalid JSON response")
         else:
-            self.log_result("POST Session Schedules", False, f"Status code: {response.status_code}")
+            self.log_result("POST Session Schedules", False, f"Status code: {response.status_code}, Response: {response.text[:200]}")
 
     def test_cors_headers(self):
         """Test CORS headers are present"""
