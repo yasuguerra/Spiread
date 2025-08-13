@@ -10,8 +10,8 @@ import time
 import os
 from datetime import datetime
 
-# Get base URL from environment - using external URL as specified in review request
-BASE_URL = "https://readfast-trainer.preview.emergentagent.com"
+# Get base URL from environment - testing localhost first due to external routing issues
+BASE_URL = "http://localhost:3000"
 API_BASE = f"{BASE_URL}/api"
 
 # Test user ID
