@@ -1,104 +1,246 @@
-import { MongoClient } from 'mongodb'
-import { v4 as uuidv4 } from 'uuid'
 import { NextResponse } from 'next/server'
-
-// MongoDB connection
-let client
-let db
-
-async function connectToMongo() {
-  if (!client) {
-    client = new MongoClient(process.env.MONGO_URL)
-    await client.connect()
-    db = client.db(process.env.DB_NAME)
-  }
-  return db
-}
+import { supabase } from '@/lib/supabase'
 
 // Helper function to handle CORS
-function handleCORS(response) {
-  response.headers.set('Access-Control-Allow-Origin', process.env.CORS_ORIGINS || '*')
-  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-  response.headers.set('Access-Control-Allow-Credentials', 'true')
-  return response
+function handleCors() {
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+  }
+  return corsHeaders
 }
 
-// OPTIONS handler for CORS
 export async function OPTIONS() {
-  return handleCORS(new NextResponse(null, { status: 200 }))
+  return new NextResponse(null, {
+    status: 200,
+    headers: handleCors()
+  })
 }
 
-// Route handler function
-async function handleRoute(request, { params }) {
-  const { path = [] } = params
-  const route = `/${path.join('/')}`
-  const method = request.method
+export async function GET(request, { params }) {
+  const { path } = params
+  const corsHeaders = handleCors()
 
   try {
-    const db = await connectToMongo()
-
-    // Root endpoint - GET /api/root (since /api/ is not accessible with catch-all)
-    if (route === '/root' && method === 'GET') {
-      return handleCORS(NextResponse.json({ message: "Hello World" }))
-    }
-    // Root endpoint - GET /api/root (since /api/ is not accessible with catch-all)
-    if (route === '/' && method === 'GET') {
-      return handleCORS(NextResponse.json({ message: "Hello World" }))
+    if (!path || path.length === 0) {
+      return NextResponse.json(
+        { message: "Campayo Spreeder Pro API is running!" },
+        { status: 200, headers: corsHeaders }
+      )
     }
 
-    // Status endpoints - POST /api/status
-    if (route === '/status' && method === 'POST') {
-      const body = await request.json()
-      
-      if (!body.client_name) {
-        return handleCORS(NextResponse.json(
-          { error: "client_name is required" }, 
-          { status: 400 }
-        ))
-      }
+    const endpoint = path[0]
 
-      const statusObj = {
-        id: uuidv4(),
-        client_name: body.client_name,
-        timestamp: new Date()
-      }
+    switch (endpoint) {
+      case 'health':
+        return NextResponse.json(
+          { status: 'healthy', timestamp: new Date().toISOString() },
+          { headers: corsHeaders }
+        )
 
-      await db.collection('status_checks').insertOne(statusObj)
-      return handleCORS(NextResponse.json(statusObj))
+      case 'sessions':
+        const userId = request.nextUrl.searchParams.get('user_id')
+        
+        if (!userId) {
+          return NextResponse.json(
+            { error: 'User ID required' },
+            { status: 400, headers: corsHeaders }
+          )
+        }
+
+        const { data: sessions, error: sessionsError } = await supabase
+          .from('sessions')
+          .select('*')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false })
+          .limit(50)
+
+        if (sessionsError) {
+          console.error('Error fetching sessions:', sessionsError)
+          return NextResponse.json(
+            { error: 'Failed to fetch sessions' },
+            { status: 500, headers: corsHeaders }
+          )
+        }
+
+        return NextResponse.json(sessions || [], { headers: corsHeaders })
+
+      case 'documents':
+        const docUserId = request.nextUrl.searchParams.get('user_id')
+        
+        if (!docUserId) {
+          return NextResponse.json(
+            { error: 'User ID required' },
+            { status: 400, headers: corsHeaders }
+          )
+        }
+
+        const { data: documents, error: docsError } = await supabase
+          .from('documents')
+          .select('*')
+          .eq('user_id', docUserId)
+          .order('created_at', { ascending: false })
+          .limit(20)
+
+        if (docsError) {
+          console.error('Error fetching documents:', docsError)
+          return NextResponse.json(
+            { error: 'Failed to fetch documents' },
+            { status: 500, headers: corsHeaders }
+          )
+        }
+
+        return NextResponse.json(documents || [], { headers: corsHeaders })
+
+      case 'settings':
+        const settingsUserId = request.nextUrl.searchParams.get('user_id')
+        
+        if (!settingsUserId) {
+          return NextResponse.json(
+            { error: 'User ID required' },
+            { status: 400, headers: corsHeaders }
+          )
+        }
+
+        const { data: userSettings, error: settingsError } = await supabase
+          .from('settings')
+          .select('*')
+          .eq('user_id', settingsUserId)
+          .single()
+
+        if (settingsError && settingsError.code !== 'PGRST116') {
+          console.error('Error fetching settings:', settingsError)
+          return NextResponse.json(
+            { error: 'Failed to fetch settings' },
+            { status: 500, headers: corsHeaders }
+          )
+        }
+
+        return NextResponse.json(userSettings || {}, { headers: corsHeaders })
+
+      default:
+        return NextResponse.json(
+          { error: 'Endpoint not found' },
+          { status: 404, headers: corsHeaders }
+        )
     }
-
-    // Status endpoints - GET /api/status
-    if (route === '/status' && method === 'GET') {
-      const statusChecks = await db.collection('status_checks')
-        .find({})
-        .limit(1000)
-        .toArray()
-
-      // Remove MongoDB's _id field from response
-      const cleanedStatusChecks = statusChecks.map(({ _id, ...rest }) => rest)
-      
-      return handleCORS(NextResponse.json(cleanedStatusChecks))
-    }
-
-    // Route not found
-    return handleCORS(NextResponse.json(
-      { error: `Route ${route} not found` }, 
-      { status: 404 }
-    ))
-
   } catch (error) {
     console.error('API Error:', error)
-    return handleCORS(NextResponse.json(
-      { error: "Internal server error" }, 
-      { status: 500 }
-    ))
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500, headers: corsHeaders }
+    )
   }
 }
 
-// Export all HTTP methods
-export const GET = handleRoute
-export const POST = handleRoute
-export const PUT = handleRoute
-export const DELETE = handleRoute
-export const PATCH = handleRoute
+export async function POST(request, { params }) {
+  const { path } = params
+  const corsHeaders = handleCors()
+
+  try {
+    const body = await request.json()
+    
+    if (!path || path.length === 0) {
+      return NextResponse.json(
+        { error: 'Endpoint not specified' },
+        { status: 400, headers: corsHeaders }
+      )
+    }
+
+    const endpoint = path[0]
+
+    switch (endpoint) {
+      case 'sessions':
+        const { data: sessionData, error: sessionError } = await supabase
+          .from('sessions')
+          .insert([{
+            id: `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            user_id: body.user_id,
+            wpm_start: body.wpm_start,
+            wpm_end: body.wmp_end || body.wpm_start,
+            comprehension_score: body.comprehension_score || 0,
+            exercise_type: body.exercise_type || 'rsvp',
+            duration_seconds: body.duration_seconds || 0,
+            text_length: body.text_length || 0,
+            created_at: new Date().toISOString()
+          }])
+          .select()
+          .single()
+
+        if (sessionError) {
+          console.error('Error creating session:', sessionError)
+          return NextResponse.json(
+            { error: 'Failed to create session' },
+            { status: 500, headers: corsHeaders }
+          )
+        }
+
+        return NextResponse.json(sessionData, { headers: corsHeaders })
+
+      case 'documents':
+        const { data: documentData, error: documentError } = await supabase
+          .from('documents')
+          .insert([{
+            id: `doc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            user_id: body.user_id,
+            title: body.title,
+            content: body.content,
+            document_type: body.document_type || 'text',
+            word_count: body.word_count || 0,
+            created_at: new Date().toISOString()
+          }])
+          .select()
+          .single()
+
+        if (documentError) {
+          console.error('Error creating document:', documentError)
+          return NextResponse.json(
+            { error: 'Failed to create document' },
+            { status: 500, headers: corsHeaders }
+          )
+        }
+
+        return NextResponse.json(documentData, { headers: corsHeaders })
+
+      case 'settings':
+        const { data: settingsData, error: settingsError } = await supabase
+          .from('settings')
+          .upsert({
+            user_id: body.user_id,
+            wpm_target: body.wpm_target,
+            chunk_size: body.chunk_size,
+            theme: body.theme,
+            language: body.language,
+            font_size: body.font_size,
+            sound_enabled: body.sound_enabled,
+            show_instructions: body.show_instructions,
+            updated_at: new Date().toISOString()
+          })
+          .select()
+          .single()
+
+        if (settingsError) {
+          console.error('Error updating settings:', settingsError)
+          return NextResponse.json(
+            { error: 'Failed to update settings' },
+            { status: 500, headers: corsHeaders }
+          )
+        }
+
+        return NextResponse.json(settingsData, { headers: corsHeaders })
+
+      default:
+        return NextResponse.json(
+          { error: 'Endpoint not found' },
+          { status: 404, headers: corsHeaders }
+        )
+    }
+  } catch (error) {
+    console.error('API Error:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500, headers: corsHeaders }
+    )
+  }
+}
