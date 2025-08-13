@@ -196,7 +196,7 @@ export default function RSVPReader() {
 
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [isActive, words.length, wmp, startReading, pauseReading, stopReading, setWmp, setChunkSize])
+  }, [isActive, words.length, wpm, startReading, pauseReading, stopReading, setWpm, setChunkSize])
 
   const loadSampleText = (difficulty) => {
     const text = sampleTexts[difficulty]
