@@ -430,7 +430,7 @@ export default function RSVPReader() {
               </div>
               <Slider
                 value={[wpm]}
-                onValueChange={([value]) => setWmp(value)}
+                onValueChange={([value]) => setWpm(value)}
                 max={1000}
                 min={50}
                 step={25}
