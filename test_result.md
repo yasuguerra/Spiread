@@ -221,13 +221,13 @@ metadata:
 
 test_plan:
   current_focus:
+    - "External URL Routing"
+  stuck_tasks:
+    - "External URL Routing"
     - "Sessions API Endpoints"
     - "Settings API Endpoints"
     - "Game Runs API Endpoints (NEW)"
     - "Session Schedules API Endpoints (NEW)"
-    - "External URL Routing"
-  stuck_tasks:
-    - "External URL Routing"
   test_all: false
   test_priority: "high_first"
 
