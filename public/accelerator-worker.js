@@ -59,7 +59,7 @@ function startReading() {
   isRunning = true
   
   // Calculate interval based on WPM and chunk size
-  const wordsPerSecond = wmp / 60
+  const wordsPerSecond = wpm / 60
   const intervalMs = (1000 * chunkSize) / wordsPerSecond
   
   sendTick() // Send immediate tick
