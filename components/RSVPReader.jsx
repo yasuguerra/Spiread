@@ -123,7 +123,7 @@ export default function RSVPReader() {
     try {
       await saveReadingSession(sessionId, {
         wpmStart: startWpm,
-        wmpEnd: wpm,
+        wpm_end: wpm,
         comprehensionScore: 0, // TODO: Add comprehension test
         exerciseType: 'rsvp',
         durationSeconds,
