@@ -284,6 +284,56 @@ export async function POST(request, { params }) {
 
         return NextResponse.json(settingsData, { headers: corsHeaders })
 
+      case 'gameRuns':
+        const { data: gameRunData, error: gameRunError } = await supabase
+          .from('gameRuns')
+          .insert([{
+            id: body.id || `gr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            userId: body.userId || body.user_id,
+            game: body.game,
+            difficultyLevel: body.difficultyLevel || body.difficulty_level || 1,
+            durationMs: body.durationMs || body.duration_ms || 0,
+            score: body.score || 0,
+            metrics: body.metrics || {},
+            createdAt: new Date().toISOString()
+          }])
+          .select()
+          .single()
+
+        if (gameRunError) {
+          console.error('Error creating game run:', gameRunError)
+          return NextResponse.json(
+            { error: 'Failed to create game run' },
+            { status: 500, headers: corsHeaders }
+          )
+        }
+
+        return NextResponse.json(gameRunData, { headers: corsHeaders })
+
+      case 'sessionSchedules':
+        const { data: scheduleData, error: scheduleError } = await supabase
+          .from('sessionSchedules')
+          .insert([{
+            id: body.id || `ss_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            userId: body.userId || body.user_id,
+            startedAt: body.startedAt || body.started_at || new Date().toISOString(),
+            template: body.template,
+            totalDurationMs: body.totalDurationMs || body.total_duration_ms || 0,
+            blocks: body.blocks || []
+          }])
+          .select()
+          .single()
+
+        if (scheduleError) {
+          console.error('Error creating session schedule:', scheduleError)
+          return NextResponse.json(
+            { error: 'Failed to create session schedule' },
+            { status: 500, headers: corsHeaders }
+          )
+        }
+
+        return NextResponse.json(scheduleData, { headers: corsHeaders })
+
       default:
         return NextResponse.json(
           { error: 'Endpoint not found' },
