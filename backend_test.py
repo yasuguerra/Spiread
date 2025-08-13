@@ -193,7 +193,7 @@ class BackendTester:
             except json.JSONDecodeError:
                 self.log_result("GET Game Runs", False, "Invalid JSON response")
         else:
-            self.log_result("GET Game Runs", False, f"Status code: {response.status_code}")
+            self.log_result("GET Game Runs", False, f"Status code: {response.status_code}, Response: {response.text[:200]}")
             
         # Test GET gameRuns without user_id (should fail)
         response = self.make_request('GET', 'gameRuns')
@@ -202,34 +202,92 @@ class BackendTester:
         else:
             self.log_result("GET Game Runs (no user_id)", False, "Should have returned 400 error")
         
-        # Test POST gameRuns with sample data from review request
-        game_run_data = {
-            "userId": TEST_USER_ID,
-            "game": "accelerator",
-            "difficultyLevel": 2,
-            "durationMs": 180000,
-            "score": 85,
-            "metrics": {
-                "wpm_avg": 320,
-                "chunk": 2,
-                "pauses": 3
+        # Test POST gameRuns with all new game types from review request
+        game_data_sets = [
+            {
+                "name": "shuttle game",
+                "data": {
+                    "userId": TEST_USER_ID,
+                    "game": "shuttle", 
+                    "difficultyLevel": 3,
+                    "durationMs": 120000,
+                    "score": 85,
+                    "metrics": {
+                        "tables_completed": 4,
+                        "total_points": 340,
+                        "avg_time_ms": 12000,
+                        "total_mistakes": 2
+                    }
+                }
+            },
+            {
+                "name": "twin_words game",
+                "data": {
+                    "userId": TEST_USER_ID, 
+                    "game": "twin_words",
+                    "difficultyLevel": 2,
+                    "durationMs": 180000,
+                    "score": 78,
+                    "metrics": {
+                        "rounds": 8,
+                        "total_score": 45,
+                        "accuracy_overall": 0.78,
+                        "mean_rt_ms": 1200
+                    }
+                }
+            },
+            {
+                "name": "par_impar game",
+                "data": {
+                    "userId": TEST_USER_ID,
+                    "game": "par_impar", 
+                    "difficultyLevel": 4,
+                    "durationMs": 120000,
+                    "score": 92,
+                    "metrics": {
+                        "trials": 150,
+                        "correct": 138,
+                        "wrong": 8,
+                        "misses": 4,
+                        "mean_rt_ms": 680,
+                        "current_isi_ms": 800
+                    }
+                }
+            },
+            {
+                "name": "memory_digits game",
+                "data": {
+                    "userId": TEST_USER_ID,
+                    "game": "memory_digits",
+                    "difficultyLevel": 5,
+                    "durationMs": 240000,
+                    "score": 75,
+                    "metrics": {
+                        "digits_shown": 6,
+                        "exposure_ms": 3000,
+                        "typed_correct": 12,
+                        "total_trials": 16,
+                        "longest_correct_digits": 7
+                    }
+                }
             }
-        }
+        ]
         
-        response = self.make_request('POST', 'gameRuns', data=game_run_data)
-        if response is None:
-            self.log_result("POST Game Runs", False, "Request failed")
-        elif response.status_code == 200:
-            try:
-                data = response.json()
-                if 'id' in data and 'userId' in data and 'game' in data:
-                    self.log_result("POST Game Runs", True, f"Created game run with ID: {data['id']}, Game: {data['game']}")
-                else:
-                    self.log_result("POST Game Runs", False, f"Missing required fields in response: {data}")
-            except json.JSONDecodeError:
-                self.log_result("POST Game Runs", False, "Invalid JSON response")
-        else:
-            self.log_result("POST Game Runs", False, f"Status code: {response.status_code}")
+        for game_set in game_data_sets:
+            response = self.make_request('POST', 'gameRuns', data=game_set["data"])
+            if response is None:
+                self.log_result(f"POST Game Runs ({game_set['name']})", False, "Request failed")
+            elif response.status_code == 200:
+                try:
+                    data = response.json()
+                    if 'id' in data and 'userId' in data and 'game' in data:
+                        self.log_result(f"POST Game Runs ({game_set['name']})", True, f"Created game run with ID: {data['id']}, Game: {data['game']}")
+                    else:
+                        self.log_result(f"POST Game Runs ({game_set['name']})", False, f"Missing required fields in response: {data}")
+                except json.JSONDecodeError:
+                    self.log_result(f"POST Game Runs ({game_set['name']})", False, "Invalid JSON response")
+            else:
+                self.log_result(f"POST Game Runs ({game_set['name']})", False, f"Status code: {response.status_code}, Response: {response.text[:200]}")
 
     def test_session_schedules_endpoints(self):
         """Test GET and POST /api/sessionSchedules (NEW ENDPOINTS)"""
