@@ -158,7 +158,7 @@ export async function POST(request, { params }) {
             id: `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
             user_id: body.user_id,
             wpm_start: body.wpm_start,
-            wpm_end: body.wmp_end || body.wpm_start,
+            wpm_end: body.wpm_end || body.wpm_start,
             comprehension_score: body.comprehension_score || 0,
             exercise_type: body.exercise_type || 'rsvp',
             duration_seconds: body.duration_seconds || 0,
