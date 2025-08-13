@@ -101,3 +101,127 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Test the new Campayo Spreeder Pro backend APIs including gameRuns and sessionSchedules endpoints, plus existing health, sessions, and settings APIs"
+
+backend:
+  - task: "Health Endpoint API"
+    implemented: true
+    working: true
+    file: "app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "GET /api/health endpoint working correctly, returns healthy status with timestamp"
+
+  - task: "Sessions API Endpoints"
+    implemented: true
+    working: false
+    file: "app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: false
+          agent: "testing"
+          comment: "GET/POST /api/sessions endpoints return 500 errors due to missing Supabase 'sessions' table. Error: 'Could not find the table public.sessions in the schema cache'. Validation for missing user_id works correctly (400 error)."
+
+  - task: "Settings API Endpoints"
+    implemented: true
+    working: false
+    file: "app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: false
+          agent: "testing"
+          comment: "GET/POST /api/settings endpoints return 500 errors due to missing Supabase 'settings' table. Error: 'Could not find the table public.settings in the schema cache'. Validation for missing user_id works correctly (400 error)."
+
+  - task: "Game Runs API Endpoints (NEW)"
+    implemented: true
+    working: false
+    file: "app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: false
+          agent: "testing"
+          comment: "GET/POST /api/gameRuns endpoints return 500 errors due to missing Supabase 'gameRuns' table. Error: 'Could not find the table public.gameRuns in the schema cache'. Validation for missing user_id works correctly (400 error). API accepts correct data format as specified in review request."
+
+  - task: "Session Schedules API Endpoints (NEW)"
+    implemented: true
+    working: false
+    file: "app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: false
+          agent: "testing"
+          comment: "GET/POST /api/sessionSchedules endpoints return 500 errors due to missing Supabase 'sessionSchedules' table. Error: 'Could not find the table public.sessionSchedules in the schema cache'. Validation for missing user_id works correctly (400 error). API accepts correct data format as specified in review request."
+
+  - task: "CORS Headers Implementation"
+    implemented: true
+    working: true
+    file: "app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "All required CORS headers are present: Access-Control-Allow-Origin, Access-Control-Allow-Methods, Access-Control-Allow-Headers"
+
+  - task: "Error Handling Implementation"
+    implemented: true
+    working: true
+    file: "app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "Error handling works correctly: 400 errors for missing user_id parameters, 404 errors for invalid endpoints. However, 500 errors are returned instead of graceful fallback when Supabase tables don't exist."
+
+  - task: "External URL Routing"
+    implemented: false
+    working: false
+    file: "kubernetes ingress configuration"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: false
+          agent: "testing"
+          comment: "External URL https://readfast-trainer.preview.emergentagent.com/api/* returns 502 errors. Local testing on localhost:3000 works correctly. This indicates an ingress routing issue in the Kubernetes configuration."
+
+frontend:
+  # No frontend testing performed as per instructions
+
+metadata:
+  created_by: "testing_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Sessions API Endpoints"
+    - "Settings API Endpoints"
+    - "Game Runs API Endpoints (NEW)"
+    - "Session Schedules API Endpoints (NEW)"
+    - "External URL Routing"
+  stuck_tasks:
+    - "External URL Routing"
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+    - agent: "testing"
+      message: "Completed comprehensive backend API testing. All endpoints are implemented correctly but fail due to missing Supabase database tables. The APIs are structurally sound with proper validation, CORS headers, and error handling. Main issue: Supabase tables (sessions, settings, gameRuns, sessionSchedules) don't exist in the database, causing 500 errors instead of graceful fallback. External routing via Kubernetes ingress is also failing with 502 errors. Local testing confirms all APIs work when database tables exist."
