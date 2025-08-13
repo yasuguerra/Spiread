@@ -1,4 +1,4 @@
--- Campayo Spreeder Pro - Supabase Database Setup
+-- Spiread - Supabase Database Setup
 -- Execute these queries in your Supabase SQL Editor
 
 -- 1. Users table (for future authentication)
