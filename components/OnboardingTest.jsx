@@ -15,6 +15,7 @@ import {
   BookOpen, 
   Target,
   Zap
+} from 'lucide-react'
 import { APP_NAME } from '@/lib/constants'
 
 export default function OnboardingTest({ onComplete }) {
