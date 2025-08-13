@@ -152,6 +152,9 @@ backend:
         - working: false
           agent: "testing"
           comment: "GET/POST /api/gameRuns endpoints return 500 errors due to missing Supabase 'gameRuns' table. Error: 'Could not find the table public.gameRuns in the schema cache'. Validation for missing user_id works correctly (400 error). API accepts correct data format as specified in review request."
+        - working: false
+          agent: "testing"
+          comment: "RE-TESTED: All new game types (shuttle, twin_words, par_impar, memory_digits) are correctly implemented and accept the exact data formats specified in review request. API structure is sound with proper validation, CORS headers, and error handling. Core issue remains: Supabase 'gameRuns' table doesn't exist, causing 500 errors for all database operations. Local testing confirms API implementation is correct."
 
   - task: "Session Schedules API Endpoints (NEW)"
     implemented: true
