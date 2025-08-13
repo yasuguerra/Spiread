@@ -81,10 +81,10 @@ export default function RSVPReader() {
     if (words.length === 0) return
     
     setSessionStartTime(Date.now())
-    setStartWpm(wmp)
+    setStartWpm(wpm)
     start()
     
-    const interval = Math.floor(60000 / (wmp * chunkSize))
+    const interval = Math.floor(60000 / (wpm * chunkSize))
     
     intervalRef.current = setInterval(() => {
       if (!advance()) {
