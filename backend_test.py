@@ -397,6 +397,7 @@ class BackendTester:
         self.test_health_endpoint()
         self.test_sessions_endpoints()
         self.test_settings_endpoints()
+        self.test_documents_endpoints()  # Add documents test
         self.test_game_runs_endpoints()  # NEW
         self.test_session_schedules_endpoints()  # NEW
         self.test_cors_headers()
