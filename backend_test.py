@@ -178,6 +178,54 @@ class BackendTester:
         else:
             self.log_result("POST Settings", False, f"Status code: {response.status_code}")
 
+    def test_documents_endpoints(self):
+        """Test GET and POST /api/documents"""
+        print("\n=== Testing Documents Endpoints ===")
+        
+        # Test GET documents
+        response = self.make_request('GET', 'documents', params={'user_id': TEST_USER_ID})
+        if response is None:
+            self.log_result("GET Documents", False, "Request failed")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                self.log_result("GET Documents", True, f"Retrieved {len(data)} documents")
+            except json.JSONDecodeError:
+                self.log_result("GET Documents", False, "Invalid JSON response")
+        else:
+            self.log_result("GET Documents", False, f"Status code: {response.status_code}, Response: {response.text[:200]}")
+            
+        # Test GET documents without user_id (should fail)
+        response = self.make_request('GET', 'documents')
+        if response and response.status_code == 400:
+            self.log_result("GET Documents (no user_id)", True, "Correctly rejected request without user_id")
+        else:
+            self.log_result("GET Documents (no user_id)", False, "Should have returned 400 error")
+            
+        # Test POST documents
+        document_data = {
+            "user_id": TEST_USER_ID,
+            "title": "Speed Reading Practice Text",
+            "content": "This is a comprehensive speed reading practice document designed to help users improve their reading velocity and comprehension. The text contains various sentence structures and vocabulary to challenge different reading skills.",
+            "document_type": "text",
+            "word_count": 35
+        }
+        
+        response = self.make_request('POST', 'documents', data=document_data)
+        if response is None:
+            self.log_result("POST Documents", False, "Request failed")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                if 'id' in data and 'user_id' in data and 'title' in data:
+                    self.log_result("POST Documents", True, f"Created document with ID: {data['id']}, Title: {data['title']}")
+                else:
+                    self.log_result("POST Documents", False, f"Missing required fields in response: {data}")
+            except json.JSONDecodeError:
+                self.log_result("POST Documents", False, "Invalid JSON response")
+        else:
+            self.log_result("POST Documents", False, f"Status code: {response.status_code}, Response: {response.text[:200]}")
+
     def test_game_runs_endpoints(self):
         """Test GET and POST /api/gameRuns (NEW ENDPOINTS)"""
         print("\n=== Testing Game Runs Endpoints (NEW) ===")
