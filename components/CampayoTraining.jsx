@@ -13,7 +13,8 @@ import {
   Target,
   Grid3x3,
   Clock,
-  Calendar
+  Calendar,
+  Play
 } from 'lucide-react'
 
 // Import game components
