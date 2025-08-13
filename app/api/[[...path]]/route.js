@@ -119,6 +119,60 @@ export async function GET(request, { params }) {
 
         return NextResponse.json(userSettings || {}, { headers: corsHeaders })
 
+      case 'gameRuns':
+        const gameUserId = request.nextUrl.searchParams.get('user_id')
+        
+        if (!gameUserId) {
+          return NextResponse.json(
+            { error: 'User ID required' },
+            { status: 400, headers: corsHeaders }
+          )
+        }
+
+        const { data: gameRuns, error: gameRunsError } = await supabase
+          .from('gameRuns')
+          .select('*')
+          .eq('userId', gameUserId)
+          .order('createdAt', { ascending: false })
+          .limit(50)
+
+        if (gameRunsError) {
+          console.error('Error fetching game runs:', gameRunsError)
+          return NextResponse.json(
+            { error: 'Failed to fetch game runs' },
+            { status: 500, headers: corsHeaders }
+          )
+        }
+
+        return NextResponse.json(gameRuns || [], { headers: corsHeaders })
+
+      case 'sessionSchedules':
+        const scheduleUserId = request.nextUrl.searchParams.get('user_id')
+        
+        if (!scheduleUserId) {
+          return NextResponse.json(
+            { error: 'User ID required' },
+            { status: 400, headers: corsHeaders }
+          )
+        }
+
+        const { data: schedules, error: schedulesError } = await supabase
+          .from('sessionSchedules')
+          .select('*')
+          .eq('userId', scheduleUserId)
+          .order('startedAt', { ascending: false })
+          .limit(20)
+
+        if (schedulesError) {
+          console.error('Error fetching session schedules:', schedulesError)
+          return NextResponse.json(
+            { error: 'Failed to fetch session schedules' },
+            { status: 500, headers: corsHeaders }
+          )
+        }
+
+        return NextResponse.json(schedules || [], { headers: corsHeaders })
+
       default:
         return NextResponse.json(
           { error: 'Endpoint not found' },
