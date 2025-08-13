@@ -305,7 +305,7 @@ export default function RSVPReader() {
             <Button
               size="sm"
               variant="outline"
-              onClick={() => setWmp(Math.max(50, wpm - 25))}
+              onClick={() => setWpm(Math.max(50, wpm - 25))}
             >
               <SkipBack className="w-4 h-4" />
             </Button>
