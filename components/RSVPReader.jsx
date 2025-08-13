@@ -425,7 +425,7 @@ export default function RSVPReader() {
               <div className="flex justify-between items-center">
                 <label className="text-sm font-medium">Velocidad (WPM)</label>
                 <span className="text-sm font-mono bg-muted px-2 py-1 rounded">
-                  {wmp}
+                  {wpm}
                 </span>
               </div>
               <Slider
