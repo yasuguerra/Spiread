@@ -224,7 +224,7 @@ export default function RSVPReader() {
             </CardTitle>
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="font-mono">
-                {wmp} WPM
+                {wpm} WPM
               </Badge>
               <Badge variant="secondary">
                 Chunk: {chunkSize}
