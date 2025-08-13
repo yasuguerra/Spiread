@@ -167,6 +167,9 @@ backend:
         - working: false
           agent: "testing"
           comment: "GET/POST /api/sessionSchedules endpoints return 500 errors due to missing Supabase 'sessionSchedules' table. Error: 'Could not find the table public.sessionSchedules in the schema cache'. Validation for missing user_id works correctly (400 error). API accepts correct data format as specified in review request."
+        - working: false
+          agent: "testing"
+          comment: "RE-TESTED: Session schedules API correctly implemented with proper block structure for all game types (par_impar, shuttle, twin_words, memory_digits) as specified in review request. Template and duration handling works correctly. Core issue remains: Supabase 'sessionSchedules' table doesn't exist, causing 500 errors for all database operations. API structure and validation are correct."
 
   - task: "CORS Headers Implementation"
     implemented: true
