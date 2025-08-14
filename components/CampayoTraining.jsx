@@ -237,6 +237,150 @@ export default function CampayoTraining() {
             <CardContent className="p-6">
               <div className="text-center space-y-4">
                 <Target className="w-12 h-12 mx-auto text-blue-600" />
+                <h3 className="text-lg font-semibold">Juegos de Entrenamiento Cerebral</h3>
+                <p className="text-muted-foreground max-w-2xl mx-auto">
+                  Nuevos juegos de entrenamiento cognitivo para mejorar memoria, atención y velocidad de procesamiento.
+                  Cada juego dura exactamente 60 segundos con dificultad adaptativa.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Phase 3 Games Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Running Words */}
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer" 
+                  onClick={() => setActiveGame('running_words')}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Timer className="w-5 h-5 text-orange-600" />
+                  Running Words
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Memoriza palabras en secuencia de 5 líneas y responde sobre la última palabra.
+                  </p>
+                  <div className="flex gap-2">
+                    <Badge variant="secondary">Memoria</Badge>
+                    <Badge variant="outline">Secuencial</Badge>
+                  </div>
+                  <div className="space-y-2 text-xs text-muted-foreground">
+                    <div>• 60 segundos de entrenamiento</div>
+                    <div>• 3-9 palabras por línea</div>
+                    <div>• Dificultad adaptativa</div>
+                    <div>• Métricas de precisión</div>
+                  </div>
+                  <Button className="w-full" size="sm">
+                    <Play className="w-3 h-3 mr-2" />
+                    Jugar
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Letters Grid */}
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer" 
+                  onClick={() => setActiveGame('letters_grid')}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Grid3x3 className="w-5 h-5 text-green-600" />
+                  Letters Grid
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Encuentra todas las letras objetivo en cuadrículas de letras aleatorias.
+                  </p>
+                  <div className="flex gap-2">
+                    <Badge variant="secondary">Atención</Badge>
+                    <Badge variant="outline">Visual</Badge>
+                  </div>
+                  <div className="space-y-2 text-xs text-muted-foreground">
+                    <div>• Grids 5×5 hasta 15×15</div>
+                    <div>• 1-3 letras objetivo</div>
+                    <div>• Letras confusables (nivel 10+)</div>
+                    <div>• Puntuación por aciertos</div>
+                  </div>
+                  <Button className="w-full" size="sm">
+                    <Play className="w-3 h-3 mr-2" />
+                    Jugar
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Word Search */}
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer" 
+                  onClick={() => setActiveGame('word_search')}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Eye className="w-5 h-5 text-blue-600" />
+                  Word Search
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Encuentra palabras ocultas en sopas de letras con tiempo límite.
+                  </p>
+                  <div className="flex gap-2">
+                    <Badge variant="secondary">Búsqueda</Badge>
+                    <Badge variant="outline">Palabras</Badge>
+                  </div>
+                  <div className="space-y-2 text-xs text-muted-foreground">
+                    <div>• Grids 8×8 hasta 14×14</div>
+                    <div>• 3-10 palabras por ronda</div>
+                    <div>• Diagonales y reverso (nivel 8+)</div>
+                    <div>• Rondas encadenadas</div>
+                  </div>
+                  <Button className="w-full" size="sm">
+                    <Play className="w-3 h-3 mr-2" />
+                    Jugar
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Anagrams */}
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer" 
+                  onClick={() => setActiveGame('anagrams')}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Brain className="w-5 h-5 text-purple-600" />
+                  Anagramas
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Descifra anagramas antes del tiempo límite por palabra.
+                  </p>
+                  <div className="flex gap-2">
+                    <Badge variant="secondary">Anagramas</Badge>
+                    <Badge variant="outline">Velocidad</Badge>
+                  </div>
+                  <div className="space-y-2 text-xs text-muted-foreground">
+                    <div>• Palabras de 4-8 letras</div>
+                    <div>• 10s-4s por anagrama</div>
+                    <div>• Letras señuelo (nivel 12+)</div>
+                    <div>• Sistema de rachas</div>
+                  </div>
+                  <Button className="w-full" size="sm">
+                    <Play className="w-3 h-3 mr-2" />
+                    Jugar
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="text-center space-y-4">
+                <Target className="w-12 h-12 mx-auto text-blue-600" />
                 <h3 className="text-lg font-semibold">Entrenamiento Libre</h3>
                 <p className="text-muted-foreground max-w-2xl mx-auto">
                   Los ejercicios individuales se adaptan automáticamente a tu nivel de rendimiento. 
