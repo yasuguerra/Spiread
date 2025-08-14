@@ -1,114 +1,85 @@
 <analysis>
-The AI engineer successfully built the Campayo Spreeder Pro application, subsequently rebranded to Spiread, from initial requirements through two major development sprints. The first sprint focused on the core RSVP reader and onboarding flow, including initial Supabase integration. The second, more extensive sprint, implemented a comprehensive game architecture, an adaptive difficulty engine, four new Campayo-style training games (Shuttle Table, Twin Words, Par/Impar, Memory Digits), and an advanced session scheduler. All related backend APIs for game runs and session schedules were developed and tested. The core work for the MVP as defined across these two sprints appears complete. The final step remaining for full functionality and persistence is the user's manual execution of provided SQL scripts in Supabase, after which the AI engineer is awaiting direction for the next development module.
+The previous AI engineer successfully brought the Spiread application from an initial MVP through several complex development sprints. The work started with core RSVP reader and onboarding, followed by a major sprint introducing a common game architecture, an adaptive difficulty engine, four Campayo-style training games (Shuttle Table, Twin Words, Par/Impar, Memory Digits), and a session scheduler with corresponding backend APIs. Subsequently, the engineer embarked on Sprint A implementing AI/LLM features (summarization, question generation with caching and quotas) and basic gamification (XP, level, streaks, achievements). A hotfix for  was also addressed. The current phase is a comprehensive MVP+ Closure Sprint, broken into five phases, aiming to refine existing features, add four new games, complete gamification, and integrate i18n/accessibility. The engineer successfully completed Phase 1 (Foundation & DB Alignment) and is currently in Phase 2 (AI Questions), having fixed a build error and continuing with UI component integration. Frequent linting issues were noted but typically bypassed.
 </analysis>
 
 <product_requirements>
-The user requested a speed reading web application, Campayo Spreeder Pro (later rebranded to Spiread), combining Ramón Campayo's techniques with an RSVP reader. The core goal is to multiply reading speed (WPM) and comprehension via gamified daily training and an intelligent RSVP reader. The initial MVP roadmap focused on Sprint 1: Core RSVP + On-Boarding, and Sprint 2: Campayo Module + Metrics.
-
-Key features include:
-- **On-Boarding & Initial Test**: Measure WPM and comprehension, save baseline.
-- **Speed Reader (RSVP)**: Fine control (WPM, chunk size), 4 modes, import TXT/PDF/EPUB, in-app dictionary, dark mode, cloud progress.
-- **Campayo Training**: Expand visual field (side-bars, curtain), reduce subvocalization (metronome), diagonal reading, Flash-Words, numerical visualization, 1-25 board, Skimming. Adaptive difficulty.
-- **Gamification & Metrics**: Levels, streaks, medals, ranking, WPM vs Comprehension dashboard.
-- **Library & Content**: Cloud library, browser extensions, video courses.
-- **Accessibility & UX**: Keyboard navigation, contrasts, dyslexia mode, responsive, PWA.
-- **Tech Stack**: Next.js 14, React 18, TypeScript, Tailwind CSS, shadcn-ui, Zustand. Supabase (PostgreSQL + Auth + Storage). Web Workers, Service Worker, Chart.js, i18n (es/en). Vercel deploy.
-- **Monetization**: Freemium (300 WPM limit), Pro plan (unlimited, analytics, export) via Stripe.
-- **AI/LLM**: Emergent LLM Key (default OpenAI), for on-demand summaries and comprehension questions with caching.
-- **Database Schema (Initial)**: , , , .
-- **Database Schema (Extended)**: , , , , , , , with RLS.
-- **Testing**: Vitest + Playwright, CI with GitHub Actions, seed data.
-
-The project has transitioned through Sprint 1 (Core RSVP + On-Boarding) and Sprint 2 (Rebranding, Common Game Architecture, Adaptive Difficulty, 4 new Campayo Games, Scheduler, API extension), with the core functional logic now implemented.
+The goal is Spiread, a speed reading web application combining Ramón Campayo's techniques with an RSVP reader, aiming to multiply reading speed and comprehension through gamified daily training. Key features include an onboarding WPM test, a customizable RSVP reader (WPM, chunk size, modes, import), Campayo training modules with adaptive difficulty, gamification (levels, streaks, medals, ranking, WPM dashboard), content library, accessibility, and a freemium model. The application leverages Next.js, React, TypeScript, Tailwind, Shadcn-ui, Zustand, and Supabase. Initial MVP completed core RSVP and Campayo modules. Recent requirements include AI/LLM integration (summaries, comprehension questions with cache/quotas via Emergent LLM Key), comprehensive gamification (XP/Level, Streaks, detailed Achievements), and additional advanced training games (Running Words, Letters Grid, Word Search, Anagrams) with precise 60-second timers and adaptive difficulty. Persistence uses , , and  for game resume.
 </product_requirements>
 
 <key_technical_concepts>
-- **Next.js 14, React 18, TypeScript, Tailwind CSS, shadcn-ui**: Frontend stack for building modern, responsive UIs.
-- **Zustand**: Lightweight state management for client-side application state.
-- **Supabase**: Backend-as-a-Service for PostgreSQL database, authentication, and storage.
-- **Web Workers**: Offloading heavy computations (like RSVP cadencing) from the main UI thread.
-- **Adaptive Difficulty (Staircase 3-down/1-up)**: A psychophysical method for dynamically adjusting game difficulty based on user performance.
-- **Emergent LLM Key**: Centralized API key for various LLMs (OpenAI, Anthropic, Google) via Emergent Integrations.
-- **Row Level Security (RLS)**: Supabase feature for database access control based on user identity.
+- **Next.js 14, React 18, TypeScript, Tailwind CSS, shadcn-ui**: Frontend development stack.
+- **Zustand**: Client-side state management.
+- **Supabase**: Backend-as-a-Service (PostgreSQL, Auth, RLS).
+- **Web Workers**: For RSVP cadencing and game timers.
+- **Adaptive Difficulty (Staircase 3-down/1-up)**: Dynamic game difficulty adjustment.
+- **Emergent LLM Key**: Centralized API key for various LLMs.
+- **DB Case Conversion**: Utilities (/) for API data consistency.
 </key_technical_concepts>
 
 <code_architecture>
-The application follows a standard Next.js architecture with clear separation between frontend components, backend API routes, and utility libraries.
 
 
+**Key Files and Changes (most recent and significant):**
 
-**Key Files and Changes:**
+*   : Updated to include  column (JSONB for per-game progress),  column for prompt versioning, and RLS policies for  table. Also added several new indices.
+    *   **Summary**: Defines and updates the Supabase schema for persistent data storage.
+    *   **Changes**: Added  column to ,  to , RLS for , and new indices.
+*   : New file created.
+    *   **Summary**: Contains  and  utility functions for deep conversion of object keys, ensuring consistency between frontend (camelCase) and Supabase (snake_case).
+    *   **Changes**: Implemented to support database naming conventions.
+*   , , : New API endpoints.
+    *   **Summary**: Handle saving and retrieving user progress, and provide an AI health check (server-only).
+    *   **Changes**: Created to manage  and  records, and LLM provider status.
+*   : This file is being enhanced.
+    *   **Summary**: Handles requests for generating comprehension questions using an LLM, integrating caching and quota management.
+    *   **Changes**: Currently being updated to support structured outputs, stricter schema validation, and persistence of quizzes as .
+*   , , : Existing game components.
+    *   **Summary**: Core Campayo training games.
+    *   **Changes**:  had multiple attempts at fixing a TypeError related to  (race condition/layout issues) by adding guards and revising layout calculations. All three were enhanced with new difficulty progressions, scoring, and 60-second timed blocks as part of the Sprint Juegos requirements.
+*   :
+    *   **Summary**: Displays user statistics and progress.
+    *   **Changes**: Modified to integrate gamification features (XP/Level, Streaks) and later updated to include new  components for historical game data.
+*   :
+    *   **Summary**: Provides a common wrapper and shared logic for all training games.
+    *   **Changes**: Integrated with the gamification system to update XP/Level, Streaks, and Achievements upon game completion. Also handles 60-second countdown using a Web Worker.
+*   : New file.
+    *   **Summary**: A reusable component for displaying historical game scores using Chart.js/Recharts.
+    *   **Changes**: Created to visualize user progress over time.
+*   : New file (or re-creation).
+    *   **Summary**: A UI panel within the RSVP Reader to interact with AI features (summarize, generate questions).
+    *   **Changes**: Created to integrate AI tools, showing usage counters and feedback.
+*   , : New files.
+    *   **Summary**: Provides utilities for LLM interaction, including document chunking, response parsing, and Supabase client integration for caching and quota checks.  initializes the OpenAI client.
+    *   **Changes**: Created to abstract AI logic.
+*   , , : New files.
+    *   **Summary**: Provide backend logic for XP/Level calculation, streak management, achievement unlocking, refined adaptive difficulty algorithms, and reading/writing game progress from/to .
+    *   **Changes**: Created to support the new, detailed gamification and game progression requirements.
 
--   : This file acts as the consolidated backend API handler.
-    -   **Summary**: Handles all backend API requests, including  for user settings, and  for  and . It integrates with Supabase to persist data.
-    -   **Changes**: Initially contained basic MongoDB logic, but was fully rewritten to integrate with Supabase. New  endpoints were added for  and  to store game results and session details, including complex JSONB . Includes robust validation, CORS headers, and error handling.
--   : The main entry point for the frontend application.
-    -   **Summary**: Orchestrates the display of different application modules (Onboarding, RSVP Reader, Campayo Training, Stats, Settings) based on application state. It manages the high-level routing and state display.
-    -   **Changes**: Significantly updated to integrate the , , and later  and individual game components. It now dynamically renders , , , ,  via  and . It also reflects the Spiread rebranding.
--   : Defines the root layout of the Next.js application.
-    -   **Summary**: Sets up the basic HTML structure, includes global CSS, and defines metadata for the application.
-    -   **Changes**: Updated to reflect the Spiread branding in metadata and potentially in the UI elements it contains, ensuring consistent naming throughout the application.
--   : Supabase client initialization.
-    -   **Summary**: Configures and exports the Supabase client, making it available for database interactions throughout the application.
-    -   **Changes**: Created from scratch to initialize the Supabase client using environment variables for the project URL and API key.
--   : Zustand store.
-    -   **Summary**: Manages global frontend state, such as user settings, WPM target, and game progress.
-    -   **Changes**: Created to handle application-wide state, crucial for managing the flow between different modules and persisting user preferences.
--   : SQL script for Supabase schema.
-    -   **Summary**: Contains the SQL commands to create all necessary tables (, , , , , , , ) and their respective Row Level Security (RLS) policies and indexes in Supabase.
-    -   **Changes**: Continuously updated and expanded to include tables for game metrics (), session scheduling (), and word datasets (), along with detailed RLS policies to ensure user data isolation.
--   : TypeScript types and utility functions.
-    -   **Summary**: Defines common TypeScript interfaces and types used across the application, especially for game metrics, API contracts, and adaptive difficulty logic. Also contains scoring functions and text processing utilities.
-    -   **Changes**: Created to centralize type definitions and utility functions, improving code consistency and maintainability, particularly for the new game modules and adaptive difficulty.
--   : Web Worker for RSVP.
-    -   **Summary**: Handles the precise timing and chunking of words for the RSVP reader to ensure smooth and accurate cadencing without blocking the main UI thread.
-    -   **Changes**: Created as a dedicated Web Worker to offload the performance-critical timing logic of the RSVP reader, receiving instructions (play, pause, seek, set WPM/chunk) and sending back  events.
--   : Adaptive difficulty logic.
-    -   **Summary**: Implements the 3-down/1-up staircase algorithm to dynamically adjust game difficulty levels based on user performance.
-    -   **Changes**: Created to encapsulate the core logic for the adaptive difficulty system, enabling games to adjust parameters (e.g., grid size, exposure time) automatically.
--   : Common game wrapper.
-    -   **Summary**: Provides a standardized wrapper component for all training games, managing common states (idle, playing, paused, summary), input handling (keyboard shortcuts), and integrating with the adaptive difficulty system.
-    -   **Changes**: Created to provide a consistent framework for all new Campayo games, reducing boilerplate and ensuring common behaviors like auto-pause on tab focus loss and handling  events.
--    (and its contents): New game components.
-    -   **Summary**: Contains the individual React components for the new training games:  (Schulte grid game),  (identifying word differences),  (Go/No-Go number task), and  (recalling numbers).
-    -   **Changes**: These files were created to implement the specific UI and game logic for each Campayo exercise, designed to be integrated within the .
--   : Session scheduler component.
-    -   **Summary**: Manages sequenced training sessions based on predefined templates (e.g., 15min, 30min, 60min), transitioning between different games and collecting overall session metrics.
-    -   **Changes**: Created to implement the multi-game session scheduler, ensuring seamless transitions and consolidation of  into .
-
-The codebase is structured to be modular, leveraging Next.js server components where possible and  for interactive UI elements.
 </code_architecture>
 
 <pending_tasks>
-- **Manual Supabase Table Creation**: The SQL script () needs to be manually executed by the user in the Supabase SQL Editor for the application's persistence to be fully active.
-- **Emergent LLM Integration**: Implement automatic summaries and comprehension questions for texts using the Emergent LLM Key, with caching and budget toggles.
-- **Gamification Enhancements**: Implement full achievement, streak, and XP systems.
-- **Advanced Campayo Training**: Develop more advanced exercises for visual field, subvocalization, etc. beyond the core games.
-- **Stripe Integration**: Implement free/pro plans with limits and Stripe for subscriptions.
-- **PWA Implementation**: Enable the application to be installable as a Progressive Web App.
-- **Browser Extensions**: Develop Save to Spiread extensions for Chrome/Firefox.
+- **Phase 2 (AI Questions)**: Complete the UI integration for the  including any missing Shadcn components.
+- **Phase 3 (New Games)**: Implement Running Words, Letters Grid, Word Search, and Anagrams games.
+- **Phase 4 (Complete Gamification)**: Fully integrate and test XP/Level, Streaks, and comprehensive Achievements across all games, including UI updates.
+- **Phase 5 (Session Runner & i18n/a11y)**: Implement detailed session templates for , and integrate i18n (es/en) and accessibility features.
+- **Testing**: Complete all specified unit and E2E tests for AI, games, gamification, and sessions.
 </pending_tasks>
 
 <current_work>
-The AI engineer has just completed a major refactoring and feature implementation sprint. The application, initially Campayo Spreeder Pro, has been fully rebranded to **Spiread**, with all UI and metadata updated.
-
-The primary focus of this completed sprint was to establish a robust **common architecture for training games** using a  component, which handles shared states (idle, playing, paused, summary), keyboard shortcuts (Space, ←/→, Esc), and auto-pauses when the browser tab loses focus for more than 2 seconds. This  integrates with a new **adaptive difficulty engine** based on a scientifically validated 3-down/1-up staircase algorithm, which automatically adjusts game parameters (e.g., grid size, exposure time, inter-stimulus interval) to maintain user engagement and optimal challenge.
-
-Four new **Campayo-style training games** have been implemented:
-1.  **Shuttle Table (Schulte)**: Continuous mode with adaptive grid sizes (3x3 to 7x7), supporting both grid and dispersed layouts, points, and streak multipliers.
-2.  **Twin Words (Grid by Screen)**: Displays multiple pairs of words per screen, where the user identifies micro-differences (e.g., accents, subtle transpositions). Features an adaptive timer and rich dataset of confusables.
-3.  **Par/Impar (Go/No-Go)**: A speed-based binary decision game where users identify numbers as even or odd. It features an adaptively decreasing inter-stimulus interval (ISI).
-4.  **Recuerda el Número (Memory Digits)**: A memory game where users recall adaptively increasing lengths of digit sequences after a brief exposure.
-
-A **Session Scheduler** ( component) has been implemented to orchestrate predefined training sessions (15min, 30min, 60min templates) that sequence these new games automatically. Each completed game block and full session is designed for persistence.
-
-The **backend APIs** ( and ) have been extended to support the storage of individual game results and complete session histories, including detailed JSONB metrics for each game type and adaptive difficulty levels. All changes include robust validation, CORS headers, and error handling.
-
-The Supabase schema () has been updated with the new tables (, , ) and RLS policies. The application frontend is fully functional with these new modules.
-
-The immediate remaining action is for the user to manually execute the  script in their Supabase SQL Editor to enable full data persistence, as the AI engineer cannot directly execute SQL on the user's Supabase instance.
+The AI engineer is currently in **Phase 2 of the MVP+ Closure Sprint**. Prior to this, a significant amount of work was completed including:
+1.  **Phase 1 (Foundation & DB Alignment) is complete at the backend level.** This involved:
+    *   Updating  to add  (JSONB) and  columns, implement Row Level Security (RLS) for the  table, and create relevant database indices.
+    *   Creating  for consistent  to  conversion for database interactions.
+    *   Implementing new backend API endpoints: ,  for managing user progress, and  for checking AI service status.
+    *   Attempting to integrate  into the main  handler (encountered lint errors but proceeded).
+    *   Backend testing for Phase 1 endpoints was confirmed successful.
+2.  **Transition to Phase 2 (AI Questions System) has begun.** This includes:
+    *   Starting the implementation of the enhanced  endpoint to provide structured outputs (e.g., MCQ questions with specific schema, correct answers, explanations, and evidence quotes) while leveraging caching and respecting user quotas.
+    *   Starting the development/update of the  component, intended to provide the UI for AI features within the RSVP Reader.
+    *   A build error () was encountered and subsequently resolved by installing the missing  dependency.
+The current immediate state is that the engineer has attempted to create/update  but encountered lint errors, and the next planned action is to install a missing select component which suggests further UI dependencies are needed for the AI tools panel.
 </current_work>
 
 <optional_next_step>
-Reiterate the options presented for the next development module, pending user confirmation and the manual execution of the Supabase SQL script for data persistence.
+Install the missing  component to continue with the implementation of the  and then test the Phase 2 backend.
 </optional_next_step>

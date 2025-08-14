@@ -11,7 +11,7 @@ import time
 from typing import Dict, Any
 
 # Get base URL from environment
-BASE_URL = "https://9e4ce5d7-7807-40c0-a91d-572ca135d2c7.preview.emergentagent.com"
+BASE_URL = "https://speedread-app.preview.emergentagent.com"
 
 class BackendTester:
     def __init__(self):
