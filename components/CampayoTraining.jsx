@@ -94,9 +94,24 @@ export default function CampayoTraining() {
     const gameComponents = {
       accelerator: AcceleratorReader,
       schulte: SchulteTable,
-      twin_words: TwinWords
+      twin_words: TwinWords,
+      par_impar: ParImpar,
+      memory_digits: MemoryDigits
     }
     
+    // Check if it's a Phase 3 game (uses GameWrapper)
+    const gameConfig = gameConfigs[activeGame]
+    if (gameConfig) {
+      return (
+        <GameWrapper
+          gameComponent={gameConfig.component}
+          gameConfig={gameConfig}
+          onExit={handleGameExit}
+        />
+      )
+    }
+    
+    // Legacy games (existing implementation)
     const GameComponent = gameComponents[activeGame]
     if (GameComponent) {
       return <GameComponent onGameFinish={handleGameFinish} />
