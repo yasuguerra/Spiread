@@ -1,0 +1,67 @@
+{
+  "version": 2,
+  "name": "spiread",
+  "alias": ["app.spiread.com"],
+  "regions": ["iad1"],
+  "framework": "nextjs",
+  "buildCommand": "yarn build",
+  "devCommand": "yarn dev",
+  "installCommand": "yarn install",
+  "outputDirectory": ".next",
+  "public": false,
+  "functions": {
+    "app/api/**/*.js": {
+      "maxDuration": 60
+    },
+    "app/api/ai/**/*.js": {
+      "maxDuration": 300
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "https://app.spiread.com"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    }
+  ],
+  "env": {
+    "NEXT_PUBLIC_APP_NAME": "Spiread",
+    "NEXT_PUBLIC_BASE_URL": "https://app.spiread.com",
+    "AI_ENABLED": "true",
+    "PWA_ENABLED": "true",
+    "STRIPE_ENABLED": "false",
+    "NODE_ENV": "production"
+  },
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_APP_NAME": "Spiread",
+      "NEXT_PUBLIC_BASE_URL": "https://app.spiread.com",
+      "AI_ENABLED": "true",
+      "PWA_ENABLED": "true",
+      "STRIPE_ENABLED": "false"
+    }
+  },
+  "github": {
+    "enabled": true,
+    "autoAlias": true,
+    "autoJobCancelation": true
+  }
+}
