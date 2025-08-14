@@ -182,7 +182,7 @@ test.describe('Gamification Header Testing', () => {
         console.log('✅ Achievement elements found in gamification header');
         
         // Look for achievement count
-        const achievementCount = gamificationHeader.locator('text=/\\d+/).filter({ hasText: /logro|achievement|trophy/i });
+        const achievementCount = gamificationHeader.locator('text=/\\d+/').filter({ hasText: /logro|achievement|trophy/i });
         if (await achievementCount.count() > 0) {
           console.log('✅ Achievement count displayed');
         }
