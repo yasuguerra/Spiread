@@ -442,7 +442,67 @@ test_plan:
           agent: "main"
           comment: "PHASE 3 COMPLETE: All 4 new games integrated into CampayoTraining UI with proper GameWrapper integration. Features: Game cards with descriptions, 60-second timer, adaptive difficulty, progress tracking, GameShell integration, proper navigation. All games accessible and functional."
 
-  - task: "Phase 3 - GameWrapper Component (NEW)"
+  - task: "Phase 4 - XP & Level System (NEW)"
+    implemented: true
+    working: true
+    file: "lib/gamification.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "PHASE 4 COMPLETE: XP & Level system implemented with clamp(score, 0, 300) XP gain and floor(xp/1000) + 1 level calculation. Profile updates on game completion, toast notifications for level up, XP progress tracking with next level requirements. All calculations validated and working correctly."
+
+  - task: "Phase 4 - Streaks System (NEW)"
+    implemented: true
+    working: true
+    file: "lib/gamification.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "PHASE 4 COMPLETE: Daily streak system implemented with ≥1 run per calendar day (UTC). Tracks currentStreak and longestStreak, resets if day missed. Integration with valid game run detection for all game types including 60s Phase 3 games. Streak display in header and tooltips."
+
+  - task: "Phase 4 - Achievements System (NEW)"  
+    implemented: true
+    working: true
+    file: "lib/gamification.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "PHASE 4 COMPLETE: Complete achievement system with 11 achievements implemented. Existing: first_run, week_streak_7, speed_600_wpm, schulte_7x7, digits_7, twinwords_90acc. New Phase 3: runningwords_lvl10, letters_grid_15, wordsearch_10_words, anagram_7len. New AI: reading_quiz_5of5. Immediate unlock with toast notifications, no duplicates, proper persistence."
+
+  - task: "Phase 4 - GamificationHeader Component (NEW)"
+    implemented: true
+    working: true
+    file: "components/GamificationHeader.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "PHASE 4 COMPLETE: Gamification header showing Level/XP/Streak integrated into main layout. Features: Current level display, XP progress bar (current/next), daily streak counter with flame icon, achievements count, recent progress indicator. Responsive design with tooltips, updates in real-time, mobile-friendly."
+
+  - task: "Phase 4 - Enhanced StatsPanel (NEW)"
+    implemented: true
+    working: true
+    file: "components/StatsPanel.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "PHASE 4 COMPLETE: StatsPanel updated with Recharts integration for all games including Phase 3 and reading_quiz. Features: Individual game tabs (12 games total), historical score charts with 7/30/90 day filters, game progress overview, achievement gallery, level tracking per game. Real data integration with settings.progress and game_runs."
+
+  - task: "Phase 4 - GameWrapper Gamification Integration (NEW)"
     implemented: true
     working: true
     file: "components/games/GameWrapper.jsx"
@@ -452,7 +512,19 @@ test_plan:
     status_history:
         - working: true
           agent: "main"
-          comment: "PHASE 3 COMPLETE: GameWrapper implemented to standardize 60-second game sessions. Features: Web Worker timer, pause/resume functionality, score tracking, progress persistence, XP/streak integration, game_runs persistence, settings.progress updates. Wrapper working correctly for all Phase 3 games."
+          comment: "PHASE 4 COMPLETE: GameWrapper integrated with complete gamification system. Features: XP calculation and profile updates on game completion, level up detection with toast notifications, streak tracking for valid runs, achievement checking and unlocking, progress persistence, real-time UI updates. All Phase 3 games properly integrated with 60s validation."
+
+  - task: "Phase 4 - Gamification Toast System (NEW)"
+    implemented: true
+    working: true
+    file: "components/GamificationToasts.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "PHASE 4 COMPLETE: Toast notification system for gamification events. Features: Level up notifications, achievement unlock toasts, XP gain indicators, animated slide-in effects, auto-dismiss after 5s, multiple notification handling, proper styling with icons and badges."
 
   - task: "Phase 3 - Word Bank Generation (NEW)"
     implemented: true
