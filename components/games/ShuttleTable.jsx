@@ -44,6 +44,14 @@ function ShuttleGame({ gameContext }) {
   const lastClickRef = useRef(null)
   const containerRef = useRef(null)
 
+  // Measure container size
+  useLayoutEffect(() => {
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect()
+      setContainerRect({ width: rect.width, height: rect.height })
+    }
+  }, [])
+
   // Generate new table when game starts or table completes
   useEffect(() => {
     if (gameState === 'playing' && currentTable.length === 0) {
@@ -51,10 +59,7 @@ function ShuttleGame({ gameContext }) {
     }
   }, [gameState])
 
-  const generateNewTable = () => {
-    const params = getGameParameters()
-    const { numbersCount, layout, hasColorDistractors, isDescending } = params
-    
+  const generateCells = (numbersCount, layout) => {
     // Generate numbers
     const numbers = Array.from({ length: numbersCount }, (_, i) => i + 1)
     
@@ -64,46 +69,89 @@ function ShuttleGame({ gameContext }) {
       ;[numbers[i], numbers[j]] = [numbers[j], numbers[i]]
     }
 
-    // Create table structure based on layout
-    let tableData
-    if (layout === 'grid') {
-      const gridSize = Math.ceil(Math.sqrt(numbersCount))
-      tableData = []
-      for (let i = 0; i < gridSize; i++) {
-        const row = []
-        for (let j = 0; j < gridSize; j++) {
-          const index = i * gridSize + j
-          if (index < numbersCount) {
-            row.push({
-              number: numbers[index],
-              color: hasColorDistractors ? getRandomColor() : 'text-gray-800',
-              position: { row: i, col: j }
-            })
-          } else {
-            row.push(null)
-          }
-        }
-        tableData.push(row)
-      }
-    } else {
-      // Dispersed layout
-      tableData = numbers.map((number, index) => ({
-        number,
-        color: hasColorDistractors ? getRandomColor() : 'text-gray-800',
-        position: {
-          x: Math.random() * 80 + 10, // 10-90% of container width
-          y: Math.random() * 80 + 10  // 10-90% of container height
-        }
-      }))
+    // Create cells with stable IDs but no positions yet
+    return numbers.map((number, index) => ({
+      id: `cell-${number}-${Date.now()}-${index}`,
+      value: number,
+      color: getRandomColor(),
+      position: null // Will be calculated later
+    }))
+  }
+
+  const computePositions = (cells, layout, params) => {
+    if (!containerRect.width || !containerRect.height) {
+      return cells // Return cells without positions if container not ready
     }
 
-    setCurrentTable(tableData)
+    if (layout === 'grid') {
+      const gridSize = Math.ceil(Math.sqrt(params.numbersCount))
+      const cellSize = Math.min(containerRect.width, containerRect.height) / (gridSize + 1)
+      
+      return cells.map((cell, index) => {
+        const row = Math.floor(index / gridSize)
+        const col = index % gridSize
+        
+        return {
+          ...cell,
+          position: {
+            x: (col + 1) * (containerRect.width / (gridSize + 1)),
+            y: (row + 1) * (containerRect.height / (gridSize + 1))
+          },
+          size: cellSize * 0.8
+        }
+      })
+    } else {
+      // Dispersed layout with collision avoidance
+      const minDistance = 60
+      const positions = []
+      
+      return cells.map((cell, index) => {
+        let attempts = 0
+        let position
+        
+        do {
+          position = {
+            x: Math.random() * (containerRect.width - 100) + 50,
+            y: Math.random() * (containerRect.height - 100) + 50
+          }
+          attempts++
+        } while (attempts < 50 && positions.some(pos => 
+          Math.sqrt(Math.pow(pos.x - position.x, 2) + Math.pow(pos.y - position.y, 2)) < minDistance
+        ))
+        
+        positions.push(position)
+        
+        return {
+          ...cell,
+          position,
+          size: 48
+        }
+      })
+    }
+  }
+
+  const generateNewTable = () => {
+    const params = getGameParameters()
+    const { numbersCount, layout, hasColorDistractors, isDescending } = params
+    
+    setLayoutReady(false)
+    
+    // Generate cells without positions first
+    const cells = generateCells(numbersCount, layout)
+    
+    // Compute positions
+    const cellsWithPositions = computePositions(cells, layout, params)
+    
+    setCurrentTable(cellsWithPositions)
     setCurrentNumber(isDescending ? numbersCount : 1)
     setTableStartTime(Date.now())
     setCurrentPoints(0)
     setMistakes(0)
     setClickTimes([])
     lastClickRef.current = Date.now()
+    
+    // Mark layout as ready after positions are computed
+    setTimeout(() => setLayoutReady(true), 100)
   }
 
   const getRandomColor = () => {
