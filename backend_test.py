@@ -1,7 +1,20 @@
 #!/usr/bin/env python3
 """
-Phase 4 MVP+ Gamification Backend Testing
-Tests comprehensive gamification system including XP, levels, streaks, and achievements
+Comprehensive Backend Testing for Spiread Application - Phase 1 Hotfix
+Testing all backend functionality after implementing Phase 1 hotfix.
+
+Focus Areas:
+1. Game Launches & Integration - Test all 9 games can be launched and game runs saved
+2. API Endpoints Health Check - Verify all critical API endpoints
+3. Database Schema & Operations - Verify tables exist and operations work
+4. Session Runner 2.0 - Test enhanced session runner functionality  
+5. AI/LLM Integration - Verify AI endpoints work with Emergent LLM Key
+
+Known Issues to Verify:
+- External URL routing (502 errors)
+- Database table naming inconsistencies
+- Missing gamification database tables
+- Session schedules table naming mismatch
 """
 
 import requests
@@ -13,10 +26,12 @@ import sys
 
 # Configuration
 BASE_URL = "https://brain-trainer-5.preview.emergentagent.com"
+LOCAL_URL = "http://localhost:3000"
 API_BASE = f"{BASE_URL}/api"
 
 # Test user data
-TEST_USER_ID = "test_user_gamification_2025"
+TEST_USER_ID = "test_user_spiread_2025"
+TEST_DOC_ID = "test_doc_001"
 
 class GamificationTester:
     def __init__(self):
