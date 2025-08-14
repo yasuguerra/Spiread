@@ -51,9 +51,9 @@ class AITester:
         
         try:
             if method.upper() == 'GET':
-                response = requests.get(url, params=params, headers=headers, timeout=30)
+                response = requests.get(url, params=params, headers=headers, timeout=10)
             elif method.upper() == 'POST':
-                response = requests.post(url, json=data, headers=headers, timeout=30)
+                response = requests.post(url, json=data, headers=headers, timeout=10)
             else:
                 raise ValueError(f"Unsupported method: {method}")
                 
