@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 import sys
 
 # Configuration
-BASE_URL = "https://2d2433a2-692f-4f14-96a4-e9592efba8cd.preview.emergentagent.com"
+BASE_URL = "https://brain-trainer-5.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test user data
