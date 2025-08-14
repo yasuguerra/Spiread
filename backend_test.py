@@ -530,7 +530,7 @@ class BackendTester:
             "docId": "test-doc-1",
             "locale": "es",
             "n": 3,
-            "userId": "test-user"
+            "userId": TEST_USER_ID
         }
         
         response = self.make_request('POST', 'ai/questions', data=valid_payload)
