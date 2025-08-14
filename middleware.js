@@ -70,7 +70,8 @@ export function middleware(request) {
     "media-src 'self' blob:", // Audio/video if needed
     "frame-ancestors 'none'", // Prevent embedding
     "form-action 'self'", // Only allow forms to same origin
-    "upgrade-insecure-requests", // Force HTTPS
+    // Only add upgrade-insecure-requests in production
+    ...(process.env.NODE_ENV === 'production' ? ["upgrade-insecure-requests"] : []),
     "report-uri /api/csp-report"
   ].join('; ')
 
