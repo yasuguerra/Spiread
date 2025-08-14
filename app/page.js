@@ -43,6 +43,13 @@ import ParImpar from '@/components/games/ParImpar'
 import MemoryDigits from '@/components/games/MemoryDigits'
 import SessionRunner from '@/components/SessionRunner'
 
+// Import Phase 3 games
+import RunningWords from '@/components/games/RunningWords'
+import LettersGrid from '@/components/games/LettersGrid'
+import WordSearch from '@/components/games/WordSearch'
+import Anagrams from '@/components/games/Anagrams'
+import GameWrapper from '@/components/games/GameWrapper'
+
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState('onboarding')
   const [isLoading, setIsLoading] = useState(true)
