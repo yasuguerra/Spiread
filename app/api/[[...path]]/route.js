@@ -269,7 +269,7 @@ export async function POST(request, { params }) {
             font_size: body.font_size,
             sound_enabled: body.sound_enabled,
             show_instructions: body.show_instructions,
-            updated_at: new Date().toISOString()
+            progress: body.progress
           })
           .select()
           .single()
