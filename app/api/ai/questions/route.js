@@ -488,13 +488,36 @@ Visual attention exercises like Schulte tables help expand peripheral visual fie
   return texts[locale] || texts.es;
 }
 
-function validateAndFixQuestions(questionsData, n, docId, locale, chunkIds) {
+function validateAndFixQuestions(questionsData, n, docId, locale, chunkIds, normalizedText = '') {
   try {
     const items = questionsData.items || questionsData.questions || [];
     const validatedItems = [];
     
     for (let i = 0; i < Math.min(n, items.length); i++) {
       const item = items[i];
+      
+      // Validate evidence indexes against normalized text
+      let evidenceQuote = item.evidence?.quote || item.quote || 'Cita del texto';
+      let charStart = item.evidence?.charStart || item.charStart || 0;
+      let charEnd = item.evidence?.charEnd || item.charEnd || 50;
+      
+      // If normalized text is available, validate and adjust evidence indexes
+      if (normalizedText && evidenceQuote) {
+        const quoteInText = normalizedText.indexOf(evidenceQuote);
+        if (quoteInText !== -1) {
+          charStart = quoteInText;
+          charEnd = quoteInText + evidenceQuote.length;
+        } else {
+          // If exact quote not found, try to find a similar portion
+          const words = evidenceQuote.split(' ').slice(0, 5).join(' ');
+          const partialMatch = normalizedText.indexOf(words);
+          if (partialMatch !== -1) {
+            charStart = partialMatch;
+            charEnd = Math.min(partialMatch + evidenceQuote.length, normalizedText.length);
+            evidenceQuote = normalizedText.substring(charStart, charEnd);
+          }
+        }
+      }
       
       const validatedItem = {
         qid: item.qid || `q_${i + 1}`,
@@ -508,9 +531,9 @@ function validateAndFixQuestions(questionsData, n, docId, locale, chunkIds) {
           : 0,
         explain: item.explain || item.explanation || 'Explicación basada en el texto',
         evidence: {
-          quote: item.evidence?.quote || item.quote || 'Cita del texto',
-          charStart: item.evidence?.charStart || item.charStart || 0,
-          charEnd: item.evidence?.charEnd || item.charEnd || 50
+          quote: evidenceQuote,
+          charStart: Math.max(0, charStart),
+          charEnd: Math.min(charEnd, normalizedText.length || charEnd + 100)
         }
       };
       
