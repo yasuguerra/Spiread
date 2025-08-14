@@ -34,8 +34,8 @@ export async function GET() {
         maxTokensPerMonth: parseInt(process.env.AI_MAX_TOKENS_PER_MONTH || '100000')
       },
       features: {
-        summarization: aiEnabled && (openAiKey || emergentKey),
-        questionGeneration: aiEnabled && (openAiKey || emergentKey),
+        summarization: aiEnabled && !!(openAiKey || emergentKey),
+        questionGeneration: aiEnabled && !!(openAiKey || emergentKey),
         caching: true,
         fallbackMode: true
       }
