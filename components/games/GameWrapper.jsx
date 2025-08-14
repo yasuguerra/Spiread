@@ -433,7 +433,7 @@ export default function GameWrapper({
   }
 
   return (
-    <Card className="w-full max-w-6xl mx-auto">
+    <Card className="w-full max-w-6xl mx-auto" data-testid="session-runner">
       <CardContent className="p-8">
         {renderGameUI()}
       </CardContent>
