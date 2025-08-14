@@ -36,6 +36,14 @@ export async function GET(request) {
         supabase: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
         sentry: !!process.env.SENTRY_DSN,
         analytics: !!(process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN || process.env.NEXT_PUBLIC_POSTHOG_HOST)
+      },
+      rateLimiting: {
+        enabled: true,
+        storage: process.env.UPSTASH_REDIS_REST_URL ? 'redis' : 'memory',
+        limits: {
+          ai: '30 requests/minute',
+          progress: '120 requests/minute'
+        }
       }
     }
 
