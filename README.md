@@ -140,6 +140,33 @@ All games use consistent naming:
 4. Run tests: `yarn test:all`
 5. Submit a pull request
 
+## Security
+
+### Content Security Policy (CSP)
+The application implements strict CSP with environment-aware configuration:
+- **Development**: Report-Only mode for testing
+- **Production**: Enforce mode with strict policies
+- **Dynamic Origins**: Automatically includes Supabase, Sentry, Analytics domains
+
+```bash
+# Test security headers
+node scripts/test-security.js
+
+# Check CSP violations
+curl -X POST http://localhost:3000/api/csp-report \
+  -H "Content-Type: application/csp-report" \
+  -d '{"csp-report": {...}}'
+```
+
+### Security Headers
+- **HSTS**: 1-year max-age with preload
+- **CSP**: Strict policy with nonce support  
+- **X-Frame-Options**: DENY (prevent clickjacking)
+- **X-Content-Type-Options**: nosniff
+- **Permissions-Policy**: Minimal feature access
+
+See [Security Documentation](docs/security.md) for complete details.
+
 ## Database
 
 ### Schema Management
