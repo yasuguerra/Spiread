@@ -405,8 +405,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Phase 4 - Backend API Integration (NEW)"
-    - "Phase 4 - Database Schema (NEW)"
+    - "Phase 6 - Data-TestID Attributes (NEW)"
+    - "Phase 6 - Playwright Test Suite (NEW)"
+    - "Phase 6 - Lighthouse CI Setup (NEW)"
+    - "Phase 6 - GitHub Actions Workflow (NEW)"
   stuck_tasks:
     - "External URL Routing"
     - "Sessions API Endpoints"
