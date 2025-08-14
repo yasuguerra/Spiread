@@ -118,11 +118,81 @@ export default function GameWrapper({
     setGameState('complete')
     workerRef.current?.postMessage({ type: 'stop' })
 
-    // Save game run
-    await saveGameRun(finalScore, metrics)
-    
-    // Update progress
-    await updateGameProgress(finalScore, metrics)
+    if (!userProfile?.id) return
+
+    // Calculate XP gain
+    const xpGain = calculateXpGain(finalScore)
+    const previousLevel = calculateLevel(userProfile.xp || 0)
+
+    try {
+      // Save game run to database
+      await saveGameRun(finalScore, metrics)
+      
+      // Update XP and check for level up
+      const profileUpdate = await updateUserProfile(userProfile.id, { xp: xpGain })
+      const leveledUp = profileUpdate && profileUpdate.levelUp
+      
+      // Update streak
+      const gameRunData = {
+        game: gameConfig.name,
+        score: finalScore,
+        duration_ms: DURATION_MS - timeRemaining,
+        difficulty_level: level,
+        metrics
+      }
+      
+      const isValid = isValidGameRun(gameRunData)
+      await updateStreak(userProfile.id, isValid)
+      
+      // Check achievements
+      const newAchievements = await checkAchievements(userProfile.id, gameRunData)
+      
+      // Update progress
+      await updateGameProgress(finalScore, metrics)
+      
+      // Show notifications for level up and achievements
+      const notifications = []
+      
+      if (leveledUp) {
+        notifications.push({
+          id: `levelup_${Date.now()}`,
+          type: 'levelup',
+          title: '¡Nivel Subido!',
+          description: `Alcanzaste el nivel ${profileUpdate.level}`,
+          newLevel: profileUpdate.level
+        })
+      }
+      
+      newAchievements.forEach(achievement => {
+        notifications.push({
+          id: `achievement_${achievement.achievement_type}_${Date.now()}`,
+          type: 'achievement',
+          title: achievement.title,
+          description: achievement.description,
+          icon: achievement.icon,
+          achievement_type: achievement.achievement_type
+        })
+      })
+      
+      // Update global state
+      if (profileUpdate) {
+        updateProfile({ 
+          ...userProfile, 
+          xp: profileUpdate.xp,
+          level: profileUpdate.level,
+          lastScore: finalScore
+        })
+      }
+      
+      // Show notifications (this would be handled by a global notification system)
+      if (notifications.length > 0) {
+        console.log('Gamification notifications:', notifications)
+        // In a real app, you'd dispatch these to a global notification state
+      }
+      
+    } catch (error) {
+      console.error('Error in game completion gamification:', error)
+    }
   }
 
   // Save game run to database
