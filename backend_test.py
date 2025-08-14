@@ -14,8 +14,8 @@ from datetime import datetime, timedelta
 BASE_URL = "http://localhost:3000"
 API_BASE = f"{BASE_URL}/api"
 
-# Test user ID
-TEST_USER_ID = f"test_user_{uuid.uuid4().hex[:8]}"
+# Test user ID - using proper UUID format for Supabase
+TEST_USER_ID = "550e8400-e29b-41d4-a716-446655440000"
 
 def log_test(test_name, status, details=""):
     """Log test results"""
