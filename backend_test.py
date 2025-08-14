@@ -594,7 +594,7 @@ class BackendTester:
             "docId": "test-doc-3",
             "locale": "es",
             "n": 5,
-            "userId": "test-user"
+            "userId": TEST_USER_ID
         }
         
         response = self.make_request('POST', 'ai/questions', data=count_payload)
