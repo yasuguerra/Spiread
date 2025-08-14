@@ -291,7 +291,6 @@ export async function POST(request, { params }) {
         const { data: gameRunData, error: gameRunError } = await supabase
           .from('game_runs')
           .insert([{
-            id: body.id || `gr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
             user_id: body.userId || body.user_id,
             game: body.game,
             difficulty_level: body.difficultyLevel || body.difficulty_level || 1,
