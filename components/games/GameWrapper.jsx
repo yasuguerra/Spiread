@@ -12,7 +12,8 @@ import {
   updateStreak, 
   checkAchievements, 
   isValidGameRun,
-  calculateXpGain 
+  calculateXpGain,
+  calculateLevel 
 } from '@/lib/gamification'
 
 const DURATION_MS = 60000 // 60 seconds
