@@ -132,8 +132,8 @@ export async function GET(request, { params }) {
         const { data: gameRuns, error: gameRunsError } = await supabase
           .from('game_runs')
           .select('*')
-          .eq('userId', gameUserId)
-          .order('createdAt', { ascending: false })
+          .eq('user_id', gameUserId)
+          .order('created_at', { ascending: false })
           .limit(50)
 
         if (gameRunsError) {
