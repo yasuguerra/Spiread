@@ -312,7 +312,7 @@ export async function POST(request, { params }) {
 
         return NextResponse.json(gameRunData, { headers: corsHeaders })
 
-      case 'sessionSchedules':
+      case 'session_schedules':
         const { data: scheduleData, error: scheduleError } = await supabase
           .from('sessionSchedules')
           .insert([{
