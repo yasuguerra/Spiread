@@ -142,6 +142,34 @@ All games use consistent naming:
 
 ## Security
 
+### Rate Limiting
+API endpoints are protected with intelligent rate limiting:
+
+**Limits:**
+- `/api/ai/*`: 30 requests/minute
+- `/api/progress/*`: 120 requests/minute
+
+**Storage:** Upstash Redis (production) or in-memory fallback  
+**Key Strategy:** IP + userId for authenticated users, IP only for anonymous
+
+```bash
+# Test rate limits
+node scripts/test-rate-limits.js
+
+# Check metrics
+curl http://localhost:3000/api/rate-limit/metrics
+
+# Environment configuration
+UPSTASH_REDIS_REST_URL=https://your-redis.upstash.io
+UPSTASH_REDIS_REST_TOKEN=your-redis-token
+```
+
+**Rate Limit Headers:**
+- `X-RateLimit-Limit`: Request limit per window
+- `X-RateLimit-Remaining`: Requests remaining
+- `X-RateLimit-Reset`: Timestamp when limit resets
+- `Retry-After`: Seconds to wait when rate limited (429)
+
 ### Content Security Policy (CSP)
 The application implements strict CSP with environment-aware configuration:
 - **Development**: Report-Only mode for testing
