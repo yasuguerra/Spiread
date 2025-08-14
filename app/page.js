@@ -322,6 +322,62 @@ export default function HomePage() {
                     ]}
                     onClick={() => setActiveGame('memory_digits')}
                   />
+
+                  {/* Running Words */}
+                  <GameCard
+                    title="Running Words"
+                    description="Memoriza palabras en secuencia de 5 líneas"
+                    icon={<Timer className="w-6 h-6 text-orange-600" />}
+                    badges={["Memoria", "Secuencial"]}
+                    features={[
+                      "60 segundos de entrenamiento",
+                      "3-9 palabras por línea",
+                      "Dificultad adaptativa"
+                    ]}
+                    onClick={() => setActiveGame('running_words')}
+                  />
+
+                  {/* Letters Grid */}
+                  <GameCard
+                    title="Letters Grid"
+                    description="Encuentra letras objetivo en cuadrículas aleatorias"
+                    icon={<Grid3x3 className="w-6 h-6 text-teal-600" />}
+                    badges={["Atención", "Visual"]}
+                    features={[
+                      "Grids 5×5 hasta 15×15",
+                      "1-3 letras objetivo",
+                      "Letras confusables (nivel 10+)"
+                    ]}
+                    onClick={() => setActiveGame('letters_grid')}
+                  />
+
+                  {/* Word Search */}
+                  <GameCard
+                    title="Word Search"
+                    description="Encuentra palabras ocultas en sopas de letras"
+                    icon={<Eye className="w-6 h-6 text-cyan-600" />}
+                    badges={["Búsqueda", "Palabras"]}
+                    features={[
+                      "Grids 8×8 hasta 14×14",
+                      "3-10 palabras por ronda",
+                      "Diagonales y reverso (nivel 8+)"
+                    ]}
+                    onClick={() => setActiveGame('word_search')}
+                  />
+
+                  {/* Anagrams */}
+                  <GameCard
+                    title="Anagramas"
+                    description="Descifra anagramas antes del tiempo límite"
+                    icon={<Brain className="w-6 h-6 text-pink-600" />}
+                    badges={["Anagramas", "Velocidad"]}
+                    features={[
+                      "Palabras de 4-8 letras",
+                      "10s-4s por anagrama",
+                      "Letras señuelo (nivel 12+)"
+                    ]}
+                    onClick={() => setActiveGame('anagrams')}
+                  />
                 </div>
 
                 <AdaptiveSystemCard />
