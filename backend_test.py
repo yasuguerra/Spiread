@@ -640,15 +640,18 @@ class BackendTester:
 
     def run_all_tests(self):
         """Run all backend tests"""
-        print("🚀 Starting Campayo Spreeder Pro Backend API Tests")
+        print("🚀 Starting Spiread Backend API Tests (Focus: AI Endpoints)")
         print(f"📍 Testing against: {API_BASE}")
         print(f"👤 Test User ID: {TEST_USER_ID}")
         print("=" * 60)
         
         start_time = time.time()
         
-        # Run all test suites
+        # Run all test suites - prioritizing AI endpoints as per review request
         self.test_health_endpoint()
+        self.test_ai_summarize_endpoint()  # NEW AI ENDPOINT - HIGH PRIORITY
+        self.test_ai_questions_endpoint()  # NEW AI ENDPOINT - HIGH PRIORITY
+        self.test_ai_environment_config()  # NEW AI CONFIG TEST
         self.test_sessions_endpoints()
         self.test_settings_endpoints()
         self.test_documents_endpoints()  # Add documents test
