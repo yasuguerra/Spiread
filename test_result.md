@@ -342,20 +342,16 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Phase 3 - Word Bank Generation (NEW)"
-    - "Phase 3 - Game Runs API Integration (NEW)"
-    - "Phase 3 - Settings Progress API Integration (NEW)"
-    - "Phase 3 - Running Words Game Component (NEW)"
-    - "Phase 3 - Letters Grid Game Component (NEW)"
-    - "Phase 3 - Word Search Game Component (NEW)"
-    - "Phase 3 - Anagrams Game Component (NEW)"
-    - "Phase 3 - Game Configuration Validation (NEW)"
+    - "Phase 4 - Backend API Integration (NEW)"
+    - "Phase 4 - Database Schema (NEW)"
   stuck_tasks:
     - "External URL Routing"
     - "Sessions API Endpoints"
     - "Settings API Endpoints"
     - "Game Runs API Endpoints (NEW)"
     - "Session Schedules API Endpoints (NEW)"
+    - "Phase 4 - Backend API Integration (NEW)"
+    - "Phase 4 - Database Schema (NEW)"
   test_all: false
   test_priority: "high_first"
 
