@@ -10,12 +10,13 @@ import { v4 as uuidv4 } from 'uuid'
 export function middleware(request) {
   const response = NextResponse.next()
   
-  // Skip middleware for static assets and API routes that don't need CSP
+  // Skip middleware for static assets and specific API routes
   const { pathname } = request.nextUrl
   if (
     pathname.startsWith('/_next/static/') ||
     pathname.startsWith('/_next/image/') ||
-    pathname.includes('.') && !pathname.includes('/api/')
+    pathname.startsWith('/favicon.ico') ||
+    (pathname.includes('.') && !pathname.includes('/api/'))
   ) {
     return response
   }
@@ -29,7 +30,6 @@ export function middleware(request) {
     new URL(process.env.SENTRY_DSN).hostname : ''
   const analyticsDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN || 
     process.env.NEXT_PUBLIC_POSTHOG_HOST || ''
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://app.spiread.com'
   
   // Build dynamic CSP origins
   const connectSrcOrigins = [
@@ -55,7 +55,7 @@ export function middleware(request) {
   // CSP Policy (comprehensive for Spiread)
   const cspDirectives = [
     "default-src 'self'",
-    "base-uri 'self'",
+    "base-uri 'self'", 
     "object-src 'none'",
     `script-src ${scriptSrcOrigins} 'nonce-${nonce}'`,
     "style-src 'self' 'unsafe-inline'", // Tailwind requires unsafe-inline
@@ -74,10 +74,14 @@ export function middleware(request) {
 
   // Determine CSP mode based on environment
   const isDevelopment = process.env.NODE_ENV === 'development'
-  const cspMode = isDevelopment ? 'Content-Security-Policy-Report-Only' : 'Content-Security-Policy'
+  const cspHeaderName = isDevelopment ? 'Content-Security-Policy-Report-Only' : 'Content-Security-Policy'
   
-  // Set CSP header
-  response.headers.set(cspMode, cspDirectives)
+  // Remove any existing CSP headers to prevent conflicts
+  response.headers.delete('Content-Security-Policy')
+  response.headers.delete('Content-Security-Policy-Report-Only')
+  
+  // Set our CSP header
+  response.headers.set(cspHeaderName, cspDirectives)
 
   // Security Headers
   const securityHeaders = {
