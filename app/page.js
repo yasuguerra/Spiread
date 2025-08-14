@@ -151,6 +151,47 @@ export default function HomePage() {
 
   // If playing individual game
   if (activeGame) {
+    // Phase 3 games use GameWrapper
+    const phase3Games = {
+      running_words: {
+        name: 'running_words',
+        displayName: 'Running Words',
+        description: 'Memoriza palabras en secuencia de 5 líneas',
+        component: RunningWords
+      },
+      letters_grid: {
+        name: 'letters_grid',
+        displayName: 'Letters Grid',
+        description: 'Encuentra las letras objetivo en la cuadrícula',
+        component: LettersGrid
+      },
+      word_search: {
+        name: 'word_search',
+        displayName: 'Word Search',
+        description: 'Encuentra las palabras ocultas en la sopa de letras',
+        component: WordSearch
+      },
+      anagrams: {
+        name: 'anagrams',
+        displayName: 'Anagramas',
+        description: 'Descifra los anagramas antes del tiempo límite',
+        component: Anagrams
+      }
+    }
+
+    // Check if it's a Phase 3 game (uses GameWrapper)
+    const gameConfig = phase3Games[activeGame]
+    if (gameConfig) {
+      return (
+        <GameWrapper
+          gameComponent={gameConfig.component}
+          gameConfig={gameConfig}
+          onExit={() => setActiveGame(null)}
+        />
+      )
+    }
+
+    // Original games
     const gameComponents = {
       shuttle: ShuttleTable,
       twin_words: TwinWordsGrid,
