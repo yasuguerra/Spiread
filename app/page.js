@@ -312,6 +312,7 @@ export default function HomePage() {
                       "Chunks adaptativos",
                       "Quiz de comprensión"
                     ]}
+                    gameKey="rsvp"
                     onClick={() => setActiveGame('rsvp')}
                   />
 
@@ -326,6 +327,7 @@ export default function HomePage() {
                       "Modo continuo con puntos",
                       "Fijación central"
                     ]}
+                    gameKey="schulte"
                     onClick={() => setActiveGame('shuttle')}
                   />
 
@@ -340,6 +342,7 @@ export default function HomePage() {
                       "Diferencias micro (m/n, acentos)",
                       "Selección múltiple"
                     ]}
+                    gameKey="twinwords"
                     onClick={() => setActiveGame('twin_words')}
                   />
 
@@ -354,6 +357,7 @@ export default function HomePage() {
                       "Números 1-9999",
                       "Distractores de color"
                     ]}
+                    gameKey="parimpar"
                     onClick={() => setActiveGame('par_impar')}
                   />
 
@@ -368,6 +372,7 @@ export default function HomePage() {
                       "Exposición variable",
                       "Staircase 3-down/1-up"
                     ]}
+                    gameKey="memorydigits"
                     onClick={() => setActiveGame('memory_digits')}
                   />
 
@@ -382,6 +387,7 @@ export default function HomePage() {
                       "3-9 palabras por línea",
                       "Dificultad adaptativa"
                     ]}
+                    gameKey="runningwords"
                     onClick={() => setActiveGame('running_words')}
                   />
 
@@ -396,6 +402,7 @@ export default function HomePage() {
                       "1-3 letras objetivo",
                       "Letras confusables (nivel 10+)"
                     ]}
+                    gameKey="lettersgrid"
                     onClick={() => setActiveGame('letters_grid')}
                   />
 
@@ -410,6 +417,7 @@ export default function HomePage() {
                       "3-10 palabras por ronda",
                       "Diagonales y reverso (nivel 8+)"
                     ]}
+                    gameKey="wordsearch"
                     onClick={() => setActiveGame('word_search')}
                   />
 
@@ -424,6 +432,7 @@ export default function HomePage() {
                       "10s-4s por anagrama",
                       "Letras señuelo (nivel 12+)"
                     ]}
+                    gameKey="anagrams"
                     onClick={() => setActiveGame('anagrams')}
                   />
                 </div>
