@@ -138,17 +138,18 @@ export function middleware(request) {
   return response
 }
 
-// Configure middleware to run on specific paths
+// Configure middleware to run on all routes except static assets
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes that don't need full CSP)
+     * Match all request paths except for:
+     * - api routes (they get minimal headers)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - public assets (images, etc)
+     * - Files with extensions (images, css, js, etc)
      */
-    '/((?!api/csp-report|_next/static|_next/image|favicon.ico|.*\\.[^/]*$).*)',
+    '/',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.[^/]*$).*)',
   ],
 }
