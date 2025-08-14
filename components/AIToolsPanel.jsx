@@ -230,9 +230,8 @@ export default function AIToolsPanel({ document, userId = 'anonymous', locale = 
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="3">3</SelectItem>
+                <SelectItem value="4">4</SelectItem>
                 <SelectItem value="5">5</SelectItem>
-                <SelectItem value="7">7</SelectItem>
-                <SelectItem value="10">10</SelectItem>
               </SelectContent>
             </Select>
             
