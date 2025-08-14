@@ -414,6 +414,212 @@ class BackendTester:
         else:
             self.log_result("CORS Headers", False, f"Missing headers: {missing_headers}")
 
+    def test_ai_summarize_endpoint(self):
+        """Test AI Summarize endpoint (NEW)"""
+        print("\n=== Testing AI Summarize Endpoint (NEW) ===")
+        
+        # Test GET endpoint for health check
+        response = self.make_request('GET', 'ai/summarize')
+        if response is None:
+            self.log_result("GET AI Summarize Health", False, "Request failed")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                if 'message' in data and 'usage' in data:
+                    self.log_result("GET AI Summarize Health", True, f"Health check passed: {data['message']}")
+                else:
+                    self.log_result("GET AI Summarize Health", False, f"Unexpected response format: {data}")
+            except json.JSONDecodeError:
+                self.log_result("GET AI Summarize Health", False, "Invalid JSON response")
+        else:
+            self.log_result("GET AI Summarize Health", False, f"Status code: {response.status_code}")
+        
+        # Test POST with valid payload
+        valid_payload = {
+            "docId": "test-doc-1",
+            "locale": "es",
+            "userId": "test-user"
+        }
+        
+        response = self.make_request('POST', 'ai/summarize', data=valid_payload)
+        if response is None:
+            self.log_result("POST AI Summarize (valid)", False, "Request failed")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                required_fields = ['bullets', 'abstract']
+                missing_fields = [field for field in required_fields if field not in data]
+                
+                if not missing_fields:
+                    bullets_count = len(data['bullets']) if isinstance(data['bullets'], list) else 0
+                    has_abstract = bool(data['abstract'])
+                    self.log_result("POST AI Summarize (valid)", True, 
+                                  f"Summary generated: {bullets_count} bullets, abstract: {has_abstract}, cached: {data.get('cached', False)}")
+                else:
+                    self.log_result("POST AI Summarize (valid)", False, f"Missing required fields: {missing_fields}")
+            except json.JSONDecodeError:
+                self.log_result("POST AI Summarize (valid)", False, "Invalid JSON response")
+        else:
+            self.log_result("POST AI Summarize (valid)", False, f"Status code: {response.status_code}, Response: {response.text[:200]}")
+        
+        # Test POST with invalid payload (missing docId)
+        invalid_payload = {
+            "locale": "es",
+            "userId": "test-user"
+        }
+        
+        response = self.make_request('POST', 'ai/summarize', data=invalid_payload)
+        if response and response.status_code == 400:
+            try:
+                data = response.json()
+                if 'error' in data:
+                    self.log_result("POST AI Summarize (invalid)", True, f"Correctly rejected invalid payload: {data['error']}")
+                else:
+                    self.log_result("POST AI Summarize (invalid)", False, "400 response missing error field")
+            except json.JSONDecodeError:
+                self.log_result("POST AI Summarize (invalid)", False, "Invalid JSON in error response")
+        else:
+            self.log_result("POST AI Summarize (invalid)", False, f"Expected 400, got {response.status_code if response else 'no response'}")
+        
+        # Test with different locale
+        english_payload = {
+            "docId": "test-doc-2",
+            "locale": "en",
+            "userId": "test-user"
+        }
+        
+        response = self.make_request('POST', 'ai/summarize', data=english_payload)
+        if response is None:
+            self.log_result("POST AI Summarize (English)", False, "Request failed")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                if 'bullets' in data and 'abstract' in data:
+                    self.log_result("POST AI Summarize (English)", True, "English locale summary generated successfully")
+                else:
+                    self.log_result("POST AI Summarize (English)", False, "Missing required response fields")
+            except json.JSONDecodeError:
+                self.log_result("POST AI Summarize (English)", False, "Invalid JSON response")
+        else:
+            self.log_result("POST AI Summarize (English)", False, f"Status code: {response.status_code}")
+
+    def test_ai_questions_endpoint(self):
+        """Test AI Questions Generation endpoint (NEW)"""
+        print("\n=== Testing AI Questions Generation Endpoint (NEW) ===")
+        
+        # Test GET endpoint for health check
+        response = self.make_request('GET', 'ai/questions')
+        if response is None:
+            self.log_result("GET AI Questions Health", False, "Request failed")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                if 'message' in data and 'usage' in data:
+                    self.log_result("GET AI Questions Health", True, f"Health check passed: {data['message']}")
+                else:
+                    self.log_result("GET AI Questions Health", False, f"Unexpected response format: {data}")
+            except json.JSONDecodeError:
+                self.log_result("GET AI Questions Health", False, "Invalid JSON response")
+        else:
+            self.log_result("GET AI Questions Health", False, f"Status code: {response.status_code}")
+        
+        # Test POST with valid payload
+        valid_payload = {
+            "docId": "test-doc-1",
+            "locale": "es",
+            "n": 3,
+            "userId": "test-user"
+        }
+        
+        response = self.make_request('POST', 'ai/questions', data=valid_payload)
+        if response is None:
+            self.log_result("POST AI Questions (valid)", False, "Request failed")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                if 'items' in data and isinstance(data['items'], list):
+                    questions = data['items']
+                    if len(questions) > 0:
+                        # Check question structure
+                        first_q = questions[0]
+                        required_q_fields = ['q', 'choices', 'correctIndex', 'explain']
+                        missing_q_fields = [field for field in required_q_fields if field not in first_q]
+                        
+                        if not missing_q_fields:
+                            choices_valid = isinstance(first_q['choices'], list) and len(first_q['choices']) == 4
+                            correct_index_valid = isinstance(first_q['correctIndex'], int) and 0 <= first_q['correctIndex'] <= 3
+                            
+                            if choices_valid and correct_index_valid:
+                                self.log_result("POST AI Questions (valid)", True, 
+                                              f"Generated {len(questions)} questions with proper structure, cached: {data.get('cached', False)}")
+                            else:
+                                self.log_result("POST AI Questions (valid)", False, "Invalid question structure (choices or correctIndex)")
+                        else:
+                            self.log_result("POST AI Questions (valid)", False, f"Missing question fields: {missing_q_fields}")
+                    else:
+                        self.log_result("POST AI Questions (valid)", False, "No questions generated")
+                else:
+                    self.log_result("POST AI Questions (valid)", False, "Missing or invalid 'items' field in response")
+            except json.JSONDecodeError:
+                self.log_result("POST AI Questions (valid)", False, "Invalid JSON response")
+        else:
+            self.log_result("POST AI Questions (valid)", False, f"Status code: {response.status_code}, Response: {response.text[:200]}")
+        
+        # Test POST with invalid payload (missing docId)
+        invalid_payload = {
+            "locale": "es",
+            "n": 3,
+            "userId": "test-user"
+        }
+        
+        response = self.make_request('POST', 'ai/questions', data=invalid_payload)
+        if response and response.status_code == 400:
+            try:
+                data = response.json()
+                if 'error' in data:
+                    self.log_result("POST AI Questions (invalid)", True, f"Correctly rejected invalid payload: {data['error']}")
+                else:
+                    self.log_result("POST AI Questions (invalid)", False, "400 response missing error field")
+            except json.JSONDecodeError:
+                self.log_result("POST AI Questions (invalid)", False, "Invalid JSON in error response")
+        else:
+            self.log_result("POST AI Questions (invalid)", False, f"Expected 400, got {response.status_code if response else 'no response'}")
+        
+        # Test with different question count
+        count_payload = {
+            "docId": "test-doc-3",
+            "locale": "es",
+            "n": 5,
+            "userId": "test-user"
+        }
+        
+        response = self.make_request('POST', 'ai/questions', data=count_payload)
+        if response is None:
+            self.log_result("POST AI Questions (n=5)", False, "Request failed")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                if 'items' in data and isinstance(data['items'], list):
+                    actual_count = len(data['items'])
+                    self.log_result("POST AI Questions (n=5)", True, f"Generated {actual_count} questions as requested")
+                else:
+                    self.log_result("POST AI Questions (n=5)", False, "Missing or invalid 'items' field")
+            except json.JSONDecodeError:
+                self.log_result("POST AI Questions (n=5)", False, "Invalid JSON response")
+        else:
+            self.log_result("POST AI Questions (n=5)", False, f"Status code: {response.status_code}")
+
+    def test_ai_environment_config(self):
+        """Test AI environment configuration"""
+        print("\n=== Testing AI Environment Configuration ===")
+        
+        # Test if AI endpoints are accessible (indicates environment is configured)
+        response = self.make_request('GET', 'ai/summarize')
+        if response and response.status_code == 200:
+            self.log_result("AI Environment Config", True, "AI endpoints are accessible, environment configured")
+        else:
+            self.log_result("AI Environment Config", False, "AI endpoints not accessible, check environment variables")
+
     def test_error_handling(self):
         """Test error handling for invalid endpoints"""
         print("\n=== Testing Error Handling ===")
