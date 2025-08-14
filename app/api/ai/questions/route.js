@@ -586,6 +586,48 @@ function generateLocalQuestions(docId, locale, n) {
         correctIndex: 0,
         explain: 'El texto especifica que la velocidad promedio es 200-250 WPM',
         evidence: { quote: 'velocidad promedio de 200-250 palabras por minuto', charStart: 150, charEnd: 200 }
+      },
+      {
+        qid: 'local_3',
+        type: 'inference',
+        q: '¿Qué se puede inferir sobre el método RSVP?',
+        choices: [
+          'Elimina movimientos oculares innecesarios',
+          'Es más lento que la lectura tradicional',
+          'Solo funciona en español',
+          'Requiere equipos especiales'
+        ],
+        correctIndex: 0,
+        explain: 'El texto indica que RSVP elimina movimientos oculares que ralentizan la lectura',
+        evidence: { quote: 'eliminando los movimientos oculares innecesarios', charStart: 300, charEnd: 350 }
+      },
+      {
+        qid: 'local_4',
+        type: 'vocab',
+        q: '¿Qué significan las siglas RSVP?',
+        choices: [
+          'Rapid Serial Visual Presentation',
+          'Reading Speed Verification Program',
+          'Retinal Scanning Visual Process',
+          'Real-time Speed Vision Protocol'
+        ],
+        correctIndex: 0,
+        explain: 'RSVP significa Rapid Serial Visual Presentation según el texto',
+        evidence: { quote: 'RSVP (Rapid Serial Visual Presentation)', charStart: 400, charEnd: 440 }
+      },
+      {
+        qid: 'local_5',
+        type: 'detail',
+        q: '¿Qué ejercicios ayudan a expandir el campo visual?',
+        choices: [
+          'Las tablas de Schulte',
+          'Los ejercicios de memoria',
+          'La lectura en voz alta',
+          'Los crucigramas'
+        ],
+        correctIndex: 0,
+        explain: 'El texto menciona específicamente las tablas de Schulte',
+        evidence: { quote: 'ejercicios de atención visual como las tablas de Schulte', charStart: 500, charEnd: 550 }
       }
     ],
     en: [
@@ -616,10 +658,64 @@ function generateLocalQuestions(docId, locale, n) {
         correctIndex: 0,
         explain: 'The text specifies that average speed is 200-250 WPM',
         evidence: { quote: 'average speed of 200-250 words per minute', charStart: 100, charEnd: 150 }
+      },
+      {
+        qid: 'local_3',
+        type: 'inference',
+        q: 'What can be inferred about the RSVP method?',
+        choices: [
+          'It eliminates unnecessary eye movements',
+          'It is slower than traditional reading',
+          'It only works in English',
+          'It requires special equipment'
+        ],
+        correctIndex: 0,
+        explain: 'The text indicates RSVP eliminates eye movements that slow down reading',
+        evidence: { quote: 'eliminating unnecessary eye movements', charStart: 300, charEnd: 340 }
+      },
+      {
+        qid: 'local_4',
+        type: 'vocab',
+        q: 'What does RSVP stand for?',
+        choices: [
+          'Rapid Serial Visual Presentation',
+          'Reading Speed Verification Program',
+          'Retinal Scanning Visual Process',
+          'Real-time Speed Vision Protocol'
+        ],
+        correctIndex: 0,
+        explain: 'RSVP stands for Rapid Serial Visual Presentation according to the text',
+        evidence: { quote: 'RSVP (Rapid Serial Visual Presentation)', charStart: 400, charEnd: 440 }
+      },
+      {
+        qid: 'local_5',
+        type: 'detail',
+        q: 'What exercises help expand peripheral visual field?',
+        choices: [
+          'Schulte tables',
+          'Memory exercises',
+          'Reading aloud',
+          'Crossword puzzles'
+        ],
+        correctIndex: 0,
+        explain: 'The text specifically mentions Schulte tables',
+        evidence: { quote: 'Visual attention exercises like Schulte tables', charStart: 500, charEnd: 545 }
       }
     ]
   };
   
   const localeTemplates = templates[locale] || templates.es;
-  return localeTemplates.slice(0, n);
+  
+  // Generate enough questions to meet the requested count
+  const questions = [];
+  for (let i = 0; i < n; i++) {
+    const templateIndex = i % localeTemplates.length;
+    const template = localeTemplates[templateIndex];
+    questions.push({
+      ...template,
+      qid: `local_${i + 1}`
+    });
+  }
+  
+  return questions;
 }
