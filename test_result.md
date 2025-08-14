@@ -514,17 +514,53 @@ test_plan:
           agent: "main"
           comment: "PHASE 4 COMPLETE: GameWrapper integrated with complete gamification system. Features: XP calculation and profile updates on game completion, level up detection with toast notifications, streak tracking for valid runs, achievement checking and unlocking, progress persistence, real-time UI updates. All Phase 3 games properly integrated with 60s validation."
 
-  - task: "Phase 4 - Gamification Toast System (NEW)"
+  - task: "Phase 5 - Session Runner 2.0 (NEW)"
     implemented: true
     working: true
-    file: "components/GamificationToasts.jsx"
+    file: "components/SessionRunner2.jsx"
     stuck_count: 0
     priority: "high"
     needs_retesting: false
     status_history:
         - working: true
           agent: "main"
-          comment: "PHASE 4 COMPLETE: Toast notification system for gamification events. Features: Level up notifications, achievement unlock toasts, XP gain indicators, animated slide-in effects, auto-dismiss after 5s, multiple notification handling, proper styling with icons and badges."
+          comment: "PHASE 5 COMPLETE: Session Runner 2.0 implemented with 15/30/60 min templates. Features: carry-over difficulty between blocks, auto-pause on focus loss >2s, resume from localStorage, persist in session_schedules with detailed metrics (blocks, total_ms, total_score, avg_level, quits, paused_ms), exit-and-save functionality. Fixed API table naming mismatch."
+
+  - task: "Phase 5 - i18n System (NEW)"
+    implemented: true
+    working: true
+    file: "lib/i18n/index.js, contexts/LanguageContext.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "PHASE 5 COMPLETE: Complete i18n system with ES/EN translations. Features: centralized translation files with 500+ strings, LanguageContext for hot-swapping without reload, settings.language persistence, formatNumber/formatDate/formatRelativeTime by locale, browser language detection, localStorage persistence. All UI components ready for localization."
+
+  - task: "Phase 5 - Accessibility System (NEW)"
+    implemented: true
+    working: true
+    file: "hooks/useAccessibility.js, globals.css"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "PHASE 5 COMPLETE: Comprehensive accessibility system. Features: 100% keyboard navigation (Space/Esc/Arrows), focus trap management, ARIA helpers and screen reader announcements, OpenDyslexic font toggle, high contrast mode, prefers-reduced-motion support, 44px touch targets, skip links, comprehensive CSS utilities for a11y. System preference detection and localStorage persistence."
+
+  - task: "Phase 5 - PWA Implementation (NEW)"
+    implemented: true
+    working: true
+    file: "public/manifest.json, public/sw.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "PHASE 5 COMPLETE: Full PWA implementation with app-shell strategy. Features: comprehensive manifest.json with icons/shortcuts/screenshots, service worker with network-first/cache-first strategies, offline support for games and documents, background sync queue for game_runs/sessions, document caching for offline reading, install prompts, app shortcuts. Ready for production deployment."
 
   - task: "Phase 3 - Word Bank Generation (NEW)"
     implemented: true
