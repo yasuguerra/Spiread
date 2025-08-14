@@ -503,13 +503,13 @@ export default function HomePage() {
 }
 
 // Game Card Component
-function GameCard({ title, description, icon, badges, features, onClick }) {
+function GameCard({ title, description, icon, badges, features, onClick, gameKey }) {
   return (
     <motion.div
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
     >
-      <Card className="cursor-pointer hover:shadow-lg transition-shadow h-full" onClick={onClick}>
+      <Card className="cursor-pointer hover:shadow-lg transition-shadow h-full" onClick={onClick} data-testid={`game-card-${gameKey}`}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             {icon}
@@ -533,7 +533,7 @@ function GameCard({ title, description, icon, badges, features, onClick }) {
                 </div>
               ))}
             </div>
-            <Button className="w-full">
+            <Button className="w-full" data-testid={`start-btn-${gameKey}`}>
               <Play className="w-4 h-4 mr-2" />
               Comenzar
             </Button>
