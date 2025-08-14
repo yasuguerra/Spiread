@@ -1,0 +1,132 @@
+{
+  "name": "Spiread - Acelera tu lectura, mejora tu comprensión",
+  "short_name": "Spiread",
+  "description": "Aplicación de entrenamiento de lectura rápida con técnicas Campayo y gamificación",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1f2937",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "es",
+  "categories": ["education", "productivity", "lifestyle"],
+  "icons": [
+    {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/mobile-home.png",
+      "sizes": "375x812",
+      "type": "image/png",
+      "platform": "mobile",
+      "label": "Pantalla principal de Spiread"
+    },
+    {
+      "src": "/screenshots/desktop-training.png", 
+      "sizes": "1280x720",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "Entrenamiento de juegos cognitivos"
+    }
+  ],
+  "features": [
+    "Speed reading training",
+    "Cognitive games",
+    "Progress tracking",
+    "Offline support",
+    "Gamification"
+  ],
+  "shortcuts": [
+    {
+      "name": "Lector RSVP",
+      "short_name": "RSVP",
+      "description": "Abrir el lector de velocidad",
+      "url": "/?tab=reader",
+      "icons": [
+        {
+          "src": "/icons/shortcut-reader.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Entrenamiento",
+      "short_name": "Juegos",
+      "description": "Empezar entrenamiento cognitivo",
+      "url": "/?tab=training",
+      "icons": [
+        {
+          "src": "/icons/shortcut-training.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Estadísticas",
+      "short_name": "Stats",
+      "description": "Ver progreso y estadísticas",
+      "url": "/?tab=stats",
+      "icons": [
+        {
+          "src": "/icons/shortcut-stats.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "protocol_handlers": [
+    {
+      "protocol": "web+spiread",
+      "url": "/import?text=%s"
+    }
+  ]
+}
