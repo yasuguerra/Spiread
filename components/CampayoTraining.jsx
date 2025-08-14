@@ -19,9 +19,18 @@ import {
 
 // Import game components
 import AcceleratorReader from './AcceleratorReader'
-import SchulteTable from './SchulteTable'
-import TwinWords from './TwinWords'
+import SchulteTable from './games/SchulteTable'
+import TwinWords from './games/TwinWordsGrid'
+import ParImpar from './games/ParImpar'
+import MemoryDigits from './games/MemoryDigits'
 import SessionRunner from './SessionRunner'
+
+// Import Phase 3 games
+import RunningWords from './games/RunningWords'
+import LettersGrid from './games/LettersGrid'
+import WordSearch from './games/WordSearch'
+import Anagrams from './games/Anagrams'
+import GameWrapper from './games/GameWrapper'
 
 export default function CampayoTraining() {
   const [activeGame, setActiveGame] = useState(null)
