@@ -73,7 +73,7 @@ export default function GamificationHeader() {
 
   return (
     <TooltipProvider delayDuration={300}>
-      <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-blue-50 to-purple-50 border-b">
+      <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-blue-50 to-purple-50 border-b" data-testid="header-gamification">
         <div className="flex items-center gap-6">
           {/* Level & XP */}
           <div className="flex items-center gap-3">
@@ -99,6 +99,7 @@ export default function GamificationHeader() {
                 <Progress 
                   value={xpProgressPercent} 
                   className="w-24 h-2"
+                  data-testid="xp-bar"
                 />
                 <span className="text-xs text-muted-foreground min-w-0">
                   {xpToNext} XP
@@ -120,6 +121,7 @@ export default function GamificationHeader() {
                     ? "bg-orange-500 hover:bg-orange-600" 
                     : "bg-gray-200 text-gray-600"
                 }`}
+                data-testid="streak-badge"
               >
                 <Flame className="w-3 h-3" />
                 <span className="font-medium">{stats.streak.current}</span>
