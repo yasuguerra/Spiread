@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { toDbFormat, fromDbFormat } from '@/lib/dbCase'
+
+export const runtime = 'nodejs'
 
 // Helper function to handle CORS
 function handleCors() {
