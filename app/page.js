@@ -34,6 +34,7 @@ import RSVPReader from '@/components/RSVPReader'
 import OnboardingTest from '@/components/OnboardingTest'
 import StatsPanel from '@/components/StatsPanel'
 import SettingsPanel from '@/components/SettingsPanel'
+import GamificationHeader from '@/components/GamificationHeader'
 
 // Import new games
 import ShuttleTable from '@/components/games/ShuttleTable'
