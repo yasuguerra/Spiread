@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-export async function GET() {
+export async function GET(request) {
   try {
     // Get build and deployment info
     const buildInfo = {
@@ -18,7 +18,25 @@ export async function GET() {
       pwaEnabled: process.env.PWA_ENABLED === 'true',
       stripeEnabled: process.env.STRIPE_ENABLED === 'true',
       analyticsEnabled: process.env.ANALYTICS_ENABLED === 'true',
-      sentryEnabled: process.env.SENTRY_ENABLED === 'true'
+      sentryEnabled: process.env.SENTRY_ENABLED === 'true',
+      cspEnabled: true // CSP is always enabled via middleware
+    }
+
+    // Security configuration
+    const security = {
+      cspMode: process.env.NODE_ENV === 'development' ? 'Report-Only' : 'Enforce',
+      httpsOnly: process.env.NODE_ENV === 'production',
+      securityHeaders: {
+        hsts: 'max-age=31536000; includeSubDomains; preload',
+        frameOptions: 'DENY',
+        contentTypeOptions: 'nosniff',
+        referrerPolicy: 'strict-origin-when-cross-origin'
+      },
+      allowedOrigins: {
+        supabase: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+        sentry: !!process.env.SENTRY_DSN,
+        analytics: !!(process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN || process.env.NEXT_PUBLIC_POSTHOG_HOST)
+      }
     }
 
     // AI Configuration (without sensitive keys)
@@ -59,17 +77,27 @@ export async function GET() {
       }
     }
 
-    return NextResponse.json({
+    // Check request headers for security verification
+    const requestHeaders = {
+      userAgent: request.headers.get('user-agent')?.substring(0, 100),
+      acceptLanguage: request.headers.get('accept-language'),
+      origin: request.headers.get('origin'),
+      referer: request.headers.get('referer')
+    }
+
+    const response = NextResponse.json({
       status: 'ok',
       timestamp: new Date().toISOString(),
       build: buildInfo,
       features,
+      security,
       ai: {
         ...aiConfig,
         healthStatus: aiHealthStatus
       },
       database: databaseConfig,
-      system: systemInfo
+      system: systemInfo,
+      request: requestHeaders
     }, {
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -77,6 +105,8 @@ export async function GET() {
         'Expires': '0'
       }
     })
+
+    return response
   } catch (error) {
     return NextResponse.json({
       status: 'error',
