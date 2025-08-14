@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test the new Campayo Spreeder Pro backend APIs including gameRuns and sessionSchedules endpoints, plus existing health, sessions, and settings APIs"
+user_problem_statement: "Spiread — Hotfix + Sprint A (AI + Gamificación): Fix ShuttleTable.jsx TypeError and implement AI/LLM integration with Emergent LLM Key for text summarization and comprehension questions generation, plus basic gamification system"
 
 backend:
   - task: "Health Endpoint API"
@@ -171,6 +171,54 @@ backend:
           agent: "testing"
           comment: "RE-TESTED: Session schedules API correctly implemented with proper block structure for all game types (par_impar, shuttle, twin_words, memory_digits) as specified in review request. Template and duration handling works correctly. Core issue remains: Supabase 'sessionSchedules' table doesn't exist, causing 500 errors for all database operations. API structure and validation are correct."
 
+  - task: "AI Summarize API Endpoint (NEW)"
+    implemented: true
+    working: true
+    file: "app/api/ai/summarize/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Implemented AI text summarization endpoint using Emergent LLM Key. Features: input validation with Zod, user quota checking, cache system, OpenAI GPT-4o-mini integration, local fallback when quota exceeded or errors occur. Includes proper error handling and CORS headers."
+
+  - task: "AI Questions Generation API Endpoint (NEW)"
+    implemented: true
+    working: true
+    file: "app/api/ai/questions/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Implemented AI comprehension questions generation endpoint using Emergent LLM Key. Features: generates multiple choice questions with 4 options, input validation, quota management, cache system, local fallback, supports Spanish and English locales."
+
+  - task: "AI Utilities Library"
+    implemented: true
+    working: true
+    file: "lib/ai-utils.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Implemented comprehensive AI utilities: quota management, cache functions, text chunking, hash generation, local fallback functions for summaries and questions. Integrates with Supabase ai_cache and ai_usage tables."
+
+  - task: "OpenAI Client Configuration"
+    implemented: true
+    working: true
+    file: "lib/openai.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Configured OpenAI client with Emergent LLM Key (sk-emergent-8E104C9Ba264fC0A6C). Environment variables set: AI_ENABLED=true, AI_MAX_CALLS_PER_DAY=10, AI_MAX_TOKENS_PER_MONTH=100000."
+
   - task: "CORS Headers Implementation"
     implemented: true
     working: true
@@ -211,17 +259,30 @@ backend:
           comment: "RE-TESTED: External URL routing still fails with 502 errors for all endpoints including /api/health. Local testing confirms all APIs work correctly on localhost:3000. This is a persistent Kubernetes ingress routing issue that prevents external access to the backend APIs. Stuck count incremented as this issue persists across multiple testing sessions."
 
 frontend:
-  # No frontend testing performed as per instructions
+  - task: "ShuttleTable TypeError Fix (HOTFIX)"
+    implemented: true
+    working: true
+    file: "components/games/ShuttleTable.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Fixed TypeError: Cannot read properties of undefined (reading 'x') in ShuttleTable.jsx. Implemented robust position calculation system with proper guards, layoutReady state, useLayoutEffect for container measurement, collision avoidance in dispersed layout, and loading skeleton. Added containerRef and layoutReady to prevent rendering cells before positions are calculated."
 
 metadata:
-  created_by: "testing_agent"
-  version: "1.0"
+  created_by: "main_agent"
+  version: "2.0"
   test_sequence: 1
   run_ui: false
 
 test_plan:
   current_focus:
-    - "External URL Routing"
+    - "AI Summarize API Endpoint (NEW)"
+    - "AI Questions Generation API Endpoint (NEW)"
+    - "AI Utilities Library"
+    - "ShuttleTable TypeError Fix (HOTFIX)"
   stuck_tasks:
     - "External URL Routing"
     - "Sessions API Endpoints"
@@ -236,3 +297,5 @@ agent_communication:
       message: "Completed comprehensive backend API testing. All endpoints are implemented correctly but fail due to missing Supabase database tables. The APIs are structurally sound with proper validation, CORS headers, and error handling. Main issue: Supabase tables (sessions, settings, gameRuns, sessionSchedules) don't exist in the database, causing 500 errors instead of graceful fallback. External routing via Kubernetes ingress is also failing with 502 errors. Local testing confirms all APIs work when database tables exist."
     - agent: "testing"
       message: "RE-TESTED: Comprehensive testing of newly implemented Spiread backend APIs completed. FINDINGS: 1) All new game APIs (gameRuns, sessionSchedules) are correctly implemented with proper data validation for shuttle, twin_words, par_impar, memory_digits games. 2) API structure accepts all specified data formats from review request. 3) Validation works correctly (400 errors for missing user_id). 4) CORS headers present. 5) Error handling works (404 for invalid endpoints). 6) CRITICAL ISSUE: All database operations fail with 'Could not find table in schema cache' errors - Supabase tables missing: gameRuns, sessionSchedules, sessions, settings, documents. 7) External URL routing still fails with 502 errors. 8) Local testing confirms API implementation is correct - only database tables are missing."
+    - agent: "main"
+      message: "Implemented Sprint A features: 1) HOTFIX: Fixed ShuttleTable.jsx TypeError with robust position calculation system. 2) AI/LLM: Created AI endpoints for text summarization and comprehension questions using Emergent LLM Key, with quota management, caching, and local fallbacks. 3) Added comprehensive AI utilities library and OpenAI client configuration. Ready for backend testing of new AI endpoints. User confirmed Supabase tables are already set up, so previous table missing issues should be resolved."
