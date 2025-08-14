@@ -187,9 +187,72 @@ export default function GameShell({
     // Save to database
     await saveGameRun(results)
     
+    // Update gamification (XP, Streaks, Achievements)
+    await updateGamification(results)
+    
     // Notify parent
     if (onFinish) {
       onFinish(results)
+    }
+  }
+
+  const updateGamification = async (results) => {
+    try {
+      const gameData = {
+        game: gameId,
+        score: results.score || 0,
+        duration_ms: results.duration,
+        metrics: results.metrics || {}
+      }
+
+      // Check if this is a valid run for gamification
+      const isValid = isValidGameRun(gameData)
+      
+      if (isValid) {
+        // Calculate and award XP
+        const xpGain = calculateXpGain(results.score || 0)
+        const profileUpdate = await updateUserProfile(sessionId, xpGain)
+        
+        if (profileUpdate) {
+          toast.success(`¡+${xpGain} XP! Nivel ${profileUpdate.level}`, {
+            duration: 3000,
+            icon: '⭐'
+          })
+          
+          if (profileUpdate.levelUp) {
+            toast.success(`¡Subiste al Nivel ${profileUpdate.level}!`, {
+              duration: 5000,
+              icon: '🎉'
+            })
+          }
+        }
+
+        // Update streak
+        const streakUpdate = await updateStreak(sessionId, true)
+        
+        if (streakUpdate && streakUpdate.increased) {
+          toast.success(`¡Racha de ${streakUpdate.current} días!`, {
+            duration: 3000,
+            icon: '🔥'
+          })
+        }
+
+        // Check and unlock achievements
+        const newAchievements = await checkAchievements(sessionId, gameData)
+        
+        newAchievements.forEach(achievement => {
+          toast.success(`¡Logro desbloqueado: ${achievement.title}!`, {
+            description: achievement.description,
+            duration: 5000,
+            icon: achievement.icon
+          })
+        })
+      } else {
+        // Invalid run - might break streak
+        await updateStreak(sessionId, false)
+      }
+    } catch (error) {
+      console.error('Error updating gamification:', error)
     }
   }
 
