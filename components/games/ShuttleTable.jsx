@@ -163,7 +163,7 @@ function ShuttleGame({ gameContext }) {
   }
 
   const handleNumberClick = (clickedNumber) => {
-    if (!tableStartTime) return
+    if (!tableStartTime || !layoutReady) return
 
     const now = Date.now()
     const params = getGameParameters()
