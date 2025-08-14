@@ -83,9 +83,10 @@ export default function HomePage() {
         }
         
         // Check if user has completed onboarding
-        // TEMP: Skip onboarding to test footer
-        setShowOnboarding(false)
-        setActiveTab('training')
+        if (stats.totalSessions > 0) {
+          setShowOnboarding(false)
+          setActiveTab('training')
+        }
         
         setIsLoading(false)
       } catch (error) {
