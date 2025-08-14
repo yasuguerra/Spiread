@@ -140,6 +140,37 @@ All games use consistent naming:
 4. Run tests: `yarn test:all`
 5. Submit a pull request
 
+## Database
+
+### Schema Management
+
+The application uses Supabase (PostgreSQL) with comprehensive schema management:
+
+```bash
+# Apply database migration
+psql -d your_database -f supabase/migrations/20250614_fix_uuid_and_gamification.sql
+
+# Verify database schema
+psql -d your_database -f scripts/db-verify.sql
+```
+
+### Key Tables
+- `profiles` - User XP, level, and progress tracking
+- `achievements` - Gamification achievements with unique constraints
+- `streaks` - Daily activity tracking for streaks
+- `game_runs` - All game session data and metrics
+- `session_schedules` - Structured training session templates
+- `settings` - User preferences with JSON progress data
+
+## Infrastructure
+
+### Known Issues
+- **502 Errors**: External routing through Kubernetes ingress experiences timeout issues
+- **Local Development**: All functionality works perfectly on `localhost:3000`
+- **Root Cause**: Infrastructure-level proxy timeouts and buffer configurations
+
+See [Infrastructure Documentation](docs/infra/ingress-502.md) for detailed analysis and solutions.
+
 ## License
 
 MIT License - see LICENSE file for details.
