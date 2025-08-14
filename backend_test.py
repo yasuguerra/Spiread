@@ -14,8 +14,8 @@ from datetime import datetime
 BASE_URL = "http://localhost:3000"
 API_BASE = f"{BASE_URL}/api"
 
-# Test user ID
-TEST_USER_ID = "test_user"
+# Test user ID - using proper UUID format for Supabase
+TEST_USER_ID = "550e8400-e29b-41d4-a716-446655440000"
 
 class BackendTester:
     def __init__(self):
