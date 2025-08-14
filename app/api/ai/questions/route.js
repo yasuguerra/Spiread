@@ -36,7 +36,7 @@ const QuestionsResponseSchema = z.object({
 const RequestSchema = z.object({
   docId: z.string().min(1, 'Document ID is required'),
   locale: z.enum(['es', 'en']).default('es'),
-  n: z.number().min(1).max(10).default(5),
+  n: z.number().int().min(3).max(5).default(5),
   userId: z.string().optional().default('anonymous')
 });
 
