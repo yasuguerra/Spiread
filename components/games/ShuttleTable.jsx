@@ -22,6 +22,7 @@ export default function ShuttleTable({ difficultyLevel = 1, durationMs, onFinish
 
 function ShuttleGame({ gameContext }) {
   const [currentTable, setCurrentTable] = useState([])
+  const [layoutReady, setLayoutReady] = useState(false)
   const [currentNumber, setCurrentNumber] = useState(1)
   const [tablesCompleted, setTablesCompleted] = useState(0)
   const [totalPoints, setTotalPoints] = useState(0)
@@ -30,6 +31,7 @@ function ShuttleGame({ gameContext }) {
   const [tableStartTime, setTableStartTime] = useState(null)
   const [streak, setStreak] = useState(0)
   const [clickTimes, setClickTimes] = useState([])
+  const [containerRect, setContainerRect] = useState({ width: 400, height: 400 })
   
   const { 
     gameState, 
@@ -40,6 +42,7 @@ function ShuttleGame({ gameContext }) {
   } = gameContext
 
   const lastClickRef = useRef(null)
+  const containerRef = useRef(null)
 
   // Generate new table when game starts or table completes
   useEffect(() => {
