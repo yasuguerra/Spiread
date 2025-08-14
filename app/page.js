@@ -82,14 +82,10 @@ export default function HomePage() {
         }
         
         // Check if user has completed onboarding
-        // TEMPORAL BYPASS FOR TESTING - Skip onboarding
-        setShowOnboarding(false)
-        setActiveTab('training')
-        
-        // Original condition: if (stats.totalSessions > 0) {
-        //   setShowOnboarding(false)
-        //   setActiveTab('training')
-        // }
+        if (stats.totalSessions > 0) {
+          setShowOnboarding(false)
+          setActiveTab('training')
+        }
         
         setIsLoading(false)
       } catch (error) {
