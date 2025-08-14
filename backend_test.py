@@ -438,7 +438,7 @@ class BackendTester:
         valid_payload = {
             "docId": "test-doc-1",
             "locale": "es",
-            "userId": "test-user"
+            "userId": TEST_USER_ID
         }
         
         response = self.make_request('POST', 'ai/summarize', data=valid_payload)
