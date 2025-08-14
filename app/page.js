@@ -50,6 +50,9 @@ export default function HomePage() {
   const [activeGame, setActiveGame] = useState(null)
   const [sessionTemplate, setSessionTemplate] = useState(null)
   
+  // Get user profile from store
+  const { userProfile, updateProfile } = useAppStore()
+  
   const { 
     currentUser, 
     sessionId, 
