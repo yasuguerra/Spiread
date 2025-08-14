@@ -342,7 +342,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "ShuttleTable TypeError Fix (HOTFIX)"
+    - "Progress API Endpoints (NEW - Phase 1)"
+    - "AI Health Endpoint (NEW - Phase 1)"
+    - "Database Case Conversion Library (NEW - Phase 1)"
   stuck_tasks:
     - "External URL Routing"
     - "Sessions API Endpoints"
