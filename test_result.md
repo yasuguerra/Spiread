@@ -291,9 +291,6 @@ metadata:
 
 test_plan:
   current_focus:
-    - "AI Summarize API Endpoint (NEW)"
-    - "AI Questions Generation API Endpoint (NEW)"
-    - "AI Utilities Library"
     - "ShuttleTable TypeError Fix (HOTFIX)"
   stuck_tasks:
     - "External URL Routing"
