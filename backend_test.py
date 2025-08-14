@@ -487,7 +487,7 @@ class BackendTester:
         english_payload = {
             "docId": "test-doc-2",
             "locale": "en",
-            "userId": "test-user"
+            "userId": TEST_USER_ID
         }
         
         response = self.make_request('POST', 'ai/summarize', data=english_payload)
