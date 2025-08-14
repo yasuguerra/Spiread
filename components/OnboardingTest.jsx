@@ -58,7 +58,7 @@ Los beneficios incluyen mayor absorción de información, mejor concentración, 
   const wordCount = testText.split(/\s+/).length
 
   const steps = [
-    { title: "¡Bienvenido a Campayo Spreeder Pro!", content: "welcome" },
+    { title: "¡Bienvenido a Spiread - Acelera tu lectura, mejora tu comprensión!", content: "welcome" },
     { title: "Test de Velocidad Inicial", content: "reading-test" },
     { title: "Test de Comprensión", content: "comprehension-test" },
     { title: "Resultados de tu Baseline", content: "results" }
