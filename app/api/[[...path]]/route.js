@@ -130,7 +130,7 @@ export async function GET(request, { params }) {
         }
 
         const { data: gameRuns, error: gameRunsError } = await supabase
-          .from('gameRuns')
+          .from('game_runs')
           .select('*')
           .eq('userId', gameUserId)
           .order('createdAt', { ascending: false })
