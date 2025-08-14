@@ -1,25 +1,45 @@
 import { NextResponse } from 'next/server'
 import { v4 as uuidv4 } from 'uuid'
+import { rateLimitCheck } from './lib/rate-limit'
 
 /**
  * Security Middleware for Spiread
- * Implements CSP (Report-Only -> Enforce), HSTS, and other security headers
+ * Implements CSP (Report-Only -> Enforce), HSTS, security headers, and API rate limiting
  * Compatible with PWA, Service Worker, RSVP Worker, and third-party integrations
  */
 
-export function middleware(request) {
-  const response = NextResponse.next()
-  
-  // Skip middleware for static assets and specific API routes
+export async function middleware(request) {
   const { pathname } = request.nextUrl
+  
+  // Skip middleware for static assets
   if (
     pathname.startsWith('/_next/static/') ||
     pathname.startsWith('/_next/image/') ||
     pathname.startsWith('/favicon.ico') ||
     (pathname.includes('.') && !pathname.includes('/api/'))
   ) {
+    return NextResponse.next()
+  }
+
+  // Apply rate limiting to specific API routes
+  if (pathname.startsWith('/api/ai/') || pathname.startsWith('/api/progress/')) {
+    const rateLimitResult = await rateLimitCheck(request)
+    
+    if (!rateLimitResult.allowed) {
+      return rateLimitResult.response
+    }
+    
+    // Continue with rate limit headers
+    const response = NextResponse.next()
+    if (rateLimitResult.headers) {
+      Object.entries(rateLimitResult.headers).forEach(([key, value]) => {
+        response.headers.set(key, value)
+      })
+    }
     return response
   }
+
+  const response = NextResponse.next()
 
   // Generate nonce for inline scripts (if needed)
   const nonce = Buffer.from(uuidv4()).toString('base64')
