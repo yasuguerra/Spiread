@@ -433,8 +433,18 @@ async function updateTokenUsage(userId, tokens) {
   }
 }
 
+function normalizeText(text) {
+  // Normalize whitespace to ensure stable character indexes
+  return text
+    .replace(/\s+/g, ' ')  // Replace multiple whitespace with single space
+    .replace(/\n\s*\n/g, '\n')  // Replace multiple newlines with single newline
+    .trim();
+}
+
 function chunkText(text, maxChunkSize = 1500) {
-  const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 10);
+  // Normalize text before chunking to ensure stable indexes
+  const normalizedText = normalizeText(text);
+  const sentences = normalizedText.split(/[.!?]+/).filter(s => s.trim().length > 10);
   const chunks = [];
   let currentChunk = '';
   
@@ -451,7 +461,7 @@ function chunkText(text, maxChunkSize = 1500) {
     chunks.push(currentChunk.trim());
   }
   
-  return chunks;
+  return { chunks, normalizedText };
 }
 
 function selectRelevantChunks(chunks, n) {
