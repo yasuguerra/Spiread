@@ -289,16 +289,16 @@ export async function POST(request, { params }) {
 
       case 'gameRuns':
         const { data: gameRunData, error: gameRunError } = await supabase
-          .from('gameRuns')
+          .from('game_runs')
           .insert([{
             id: body.id || `gr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            userId: body.userId || body.user_id,
+            user_id: body.userId || body.user_id,
             game: body.game,
-            difficultyLevel: body.difficultyLevel || body.difficulty_level || 1,
-            durationMs: body.durationMs || body.duration_ms || 0,
+            difficulty_level: body.difficultyLevel || body.difficulty_level || 1,
+            duration_ms: body.durationMs || body.duration_ms || 0,
             score: body.score || 0,
             metrics: body.metrics || {},
-            createdAt: new Date().toISOString()
+            created_at: new Date().toISOString()
           }])
           .select()
           .single()
