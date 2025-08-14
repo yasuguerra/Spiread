@@ -21,6 +21,13 @@ import { GAME_STATES, AUTO_PAUSE_DELAY } from '@/lib/constants'
 import { AdaptiveDifficulty } from '@/lib/adaptive-difficulty'
 import { useAppStore } from '@/lib/store'
 import { supabase } from '@/lib/supabase'
+import { 
+  updateUserProfile, 
+  updateStreak, 
+  checkAchievements, 
+  isValidGameRun,
+  calculateXpGain 
+} from '@/lib/gamification'
 
 export default function GameShell({ 
   gameId, 
