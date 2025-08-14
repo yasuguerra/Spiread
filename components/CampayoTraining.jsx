@@ -42,6 +42,39 @@ export default function CampayoTraining() {
     setActiveGame(null) // Return to menu
   }
 
+  // Handle game exit
+  const handleGameExit = () => {
+    setActiveGame(null) // Return to menu
+  }
+
+  // Game configurations
+  const gameConfigs = {
+    running_words: {
+      name: 'running_words',
+      displayName: 'Running Words',
+      description: 'Memoriza palabras en secuencia de 5 líneas',
+      component: RunningWords
+    },
+    letters_grid: {
+      name: 'letters_grid',
+      displayName: 'Letters Grid',
+      description: 'Encuentra las letras objetivo en la cuadrícula',
+      component: LettersGrid
+    },
+    word_search: {
+      name: 'word_search',
+      displayName: 'Word Search',
+      description: 'Encuentra las palabras ocultas en la sopa de letras',
+      component: WordSearch
+    },
+    anagrams: {
+      name: 'anagrams',
+      displayName: 'Anagramas',
+      description: 'Descifra los anagramas antes del tiempo límite',
+      component: Anagrams
+    }
+  }
+
   // Handle session completion
   const handleSessionComplete = (result) => {
     console.log('Session completed:', result)
