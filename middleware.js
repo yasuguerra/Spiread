@@ -45,7 +45,9 @@ export function middleware(request) {
   const scriptSrcOrigins = [
     "'self'",
     "'strict-dynamic'",
-    "'wasm-unsafe-eval'", // Required for some WebAssembly usage
+    "'wasm-unsafe-eval'", // Required for WebAssembly
+    // In development, Next.js needs unsafe-eval for hot reloading
+    ...(process.env.NODE_ENV === 'development' ? ["'unsafe-eval'"] : []),
     // Add Sentry, Analytics if they inject scripts
     sentryDomain && `https://${sentryDomain}`,
     analyticsDomain && `https://${analyticsDomain}`,
