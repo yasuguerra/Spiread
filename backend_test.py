@@ -465,11 +465,13 @@ class BackendTester:
         # Test POST with invalid payload (missing docId)
         invalid_payload = {
             "locale": "es",
-            "userId": "test-user"
+            "userId": TEST_USER_ID
         }
         
         response = self.make_request('POST', 'ai/summarize', data=invalid_payload)
-        if response and response.status_code == 400:
+        if response is None:
+            self.log_result("POST AI Summarize (invalid)", False, "Request failed")
+        elif response.status_code == 400:
             try:
                 data = response.json()
                 if 'error' in data:
