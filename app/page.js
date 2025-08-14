@@ -523,6 +523,9 @@ export default function HomePage() {
           </TabsContent>
         </Tabs>
       </main>
+
+      {/* Footer */}
+      <AppFooter />
     </div>
   )
 }
