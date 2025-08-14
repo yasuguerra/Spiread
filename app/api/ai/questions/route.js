@@ -201,8 +201,8 @@ Respond ONLY with the requested JSON, no additional text.`;
         throw new Error('Invalid JSON response from AI');
       }
       
-      // Validate response structure
-      const validatedResponse = validateAndFixQuestions(questionsData, n, docId, locale, chunkIds);
+      // Validate response structure and pass normalized text for evidence validation
+      const validatedResponse = validateAndFixQuestions(questionsData, n, docId, locale, chunkIds, normalizedText);
       
       // Save to cache
       const cacheData = {
