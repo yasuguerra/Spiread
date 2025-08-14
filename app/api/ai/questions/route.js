@@ -277,23 +277,47 @@ function generateHash(input) {
 async function checkAndUpdateQuota(userId, requestType) {
   try {
     const today = new Date().toISOString().split('T')[0];
+    const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
     const maxCalls = parseInt(process.env.AI_MAX_CALLS_PER_DAY || '10');
+    const maxTokens = parseInt(process.env.AI_MAX_TOKENS_PER_MONTH || '100000');
     
-    // Get current usage
-    const { data: usage, error } = await supabase
+    // Get current usage for today
+    const { data: dailyUsage, error: dailyError } = await supabase
       .from('ai_usage')
       .select('*')
       .eq('user_id', userId)
       .eq('period_start', today)
       .single();
     
-    if (error && error.code !== 'PGRST116') {
-      console.error('Error checking quota:', error);
-      return { allowed: true, remaining: maxCalls - 1 };
+    if (dailyError && dailyError.code !== 'PGRST116') {
+      console.error('Error checking daily quota:', dailyError);
     }
     
-    // If no usage record or first call today
-    if (!usage) {
+    // Check daily quota
+    if (dailyUsage && dailyUsage.calls_used >= maxCalls) {
+      return { allowed: false, remaining: 0, reason: 'Daily calls limit exceeded' };
+    }
+    
+    // Get monthly token usage
+    const { data: monthlyUsages, error: monthlyError } = await supabase
+      .from('ai_usage')
+      .select('tokens_used')
+      .eq('user_id', userId)
+      .gte('period_start', `${currentMonth}-01`)
+      .lt('period_start', `${new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toISOString().split('T')[0]}`);
+    
+    if (monthlyError) {
+      console.error('Error checking monthly quota:', monthlyError);
+    }
+    
+    const monthlyTokens = monthlyUsages?.reduce((sum, usage) => sum + (usage.tokens_used || 0), 0) || 0;
+    
+    if (monthlyTokens >= maxTokens) {
+      return { allowed: false, remaining: 0, reason: 'Monthly tokens limit exceeded' };
+    }
+    
+    // If no daily usage record, create one
+    if (!dailyUsage) {
       const { error: insertError } = await supabase
         .from('ai_usage')
         .insert({
@@ -310,26 +334,21 @@ async function checkAndUpdateQuota(userId, requestType) {
       return { allowed: true, remaining: maxCalls - 1 };
     }
     
-    // Check if quota exceeded
-    if (usage.calls_used >= maxCalls) {
-      return { allowed: false, remaining: 0 };
-    }
-    
-    // Update usage
+    // Update daily usage
     const { error: updateError } = await supabase
       .from('ai_usage')
       .update({
-        calls_used: usage.calls_used + 1,
+        calls_used: dailyUsage.calls_used + 1,
         updated_at: new Date().toISOString()
       })
       .eq('user_id', userId)
       .eq('period_start', today);
     
     if (updateError) {
-      console.error('Error updating quota:', updateError);
+      console.error('Error updating daily quota:', updateError);
     }
     
-    return { allowed: true, remaining: maxCalls - (usage.calls_used + 1) };
+    return { allowed: true, remaining: maxCalls - (dailyUsage.calls_used + 1) };
     
   } catch (error) {
     console.error('Quota check error:', error);
