@@ -238,6 +238,21 @@ export default function HomePage() {
               <Trophy className="w-3 h-3 mr-1" />
               Nivel {stats.level}
             </Badge>
+            {/* Language Switcher */}
+            <div className="flex items-center gap-1" data-testid="lang-switch">
+              <button 
+                className="px-2 py-1 text-xs rounded bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
+                onClick={() => {/* Language switch logic would go here */}}
+              >
+                ES
+              </button>
+              <button 
+                className="px-2 py-1 text-xs rounded bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+                onClick={() => {/* Language switch logic would go here */}}
+              >
+                EN
+              </button>
+            </div>
           </div>
         </div>
       </header>
