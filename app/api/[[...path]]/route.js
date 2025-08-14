@@ -149,7 +149,7 @@ export async function GET(request, { params }) {
 
         return NextResponse.json(gameRuns || [], { headers: corsHeaders })
 
-      case 'sessionSchedules':
+      case 'session_schedules':
         const scheduleUserId = request.nextUrl.searchParams.get('user_id')
         
         if (!scheduleUserId) {
