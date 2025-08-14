@@ -338,7 +338,10 @@ function ShuttleGame({ gameContext }) {
       {/* Game Area */}
       <Card>
         <CardContent className="p-8">
-          <div className="relative min-h-[400px] bg-gray-50 rounded-lg border-2 border-dashed">
+          <div 
+            ref={containerRef}
+            className="relative min-h-[400px] bg-gray-50 rounded-lg border-2 border-dashed"
+          >
             {/* Central fixation point */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="w-2 h-2 bg-red-500 rounded-full"></div>
@@ -347,7 +350,7 @@ function ShuttleGame({ gameContext }) {
 
             {/* Numbers Display */}
             <AnimatePresence>
-              {currentTable.length > 0 && (
+              {layoutReady && currentTable.length > 0 && (
                 <div className="relative w-full h-[400px]">
                   {params.layout === 'grid' ? (
                     // Grid Layout
@@ -357,61 +360,74 @@ function ShuttleGame({ gameContext }) {
                         gridTemplateColumns: `repeat(${Math.ceil(Math.sqrt(params.numbersCount))}, 1fr)`
                       }}
                     >
-                      {currentTable.flat().map((cell, index) => (
-                        cell && (
+                      {currentTable
+                        .filter(cell => cell && cell.position)
+                        .map((cell, index) => (
                           <motion.button
-                            key={`${cell.number}-${index}`}
+                            key={cell.id}
                             initial={{ opacity: 0, scale: 0.5 }}
                             animate={{ opacity: 1, scale: 1 }}
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
-                            onClick={() => handleNumberClick(cell.number)}
+                            onClick={() => handleNumberClick(cell.value)}
                             className={`
                               aspect-square flex items-center justify-center text-xl font-bold
                               bg-white border-2 rounded-lg shadow-md transition-all
-                              ${cell.number === currentNumber 
+                              ${cell.value === currentNumber 
                                 ? 'border-blue-400 bg-blue-50' 
                                 : 'border-gray-300 hover:border-gray-400'
                               }
-                              ${cell.color}
+                              ${cell.color || 'text-gray-800'}
                             `}
                           >
-                            {cell.number}
+                            {cell.value}
                           </motion.button>
                         )
-                      ))}
+                      )}
                     </div>
                   ) : (
-                    // Dispersed Layout
+                    // Dispersed Layout with proper guards
                     <>
-                      {currentTable.map((cell, index) => (
-                        <motion.button
-                          key={`${cell.number}-${index}`}
-                          initial={{ opacity: 0, scale: 0.5 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => handleNumberClick(cell.number)}
-                          className={`
-                            absolute w-12 h-12 flex items-center justify-center text-lg font-bold
-                            bg-white border-2 rounded-lg shadow-md transition-all
-                            ${cell.number === currentNumber 
-                              ? 'border-blue-400 bg-blue-50' 
-                              : 'border-gray-300 hover:border-gray-400'
-                            }
-                            ${cell.color}
-                          `}
-                          style={{
-                            left: `${cell.position.x}%`,
-                            top: `${cell.position.y}%`,
-                            transform: 'translate(-50%, -50%)'
-                          }}
-                        >
-                          {cell.number}
-                        </motion.button>
-                      ))}
+                      {currentTable
+                        .filter(cell => cell && cell.position && cell.position.x !== undefined && cell.position.y !== undefined)
+                        .map((cell) => (
+                          <motion.button
+                            key={cell.id}
+                            initial={{ opacity: 0, scale: 0.5 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => handleNumberClick(cell.value)}
+                            className={`
+                              absolute flex items-center justify-center text-lg font-bold
+                              bg-white border-2 rounded-lg shadow-md transition-all
+                              ${cell.value === currentNumber 
+                                ? 'border-blue-400 bg-blue-50' 
+                                : 'border-gray-300 hover:border-gray-400'
+                              }
+                              ${cell.color || 'text-gray-800'}
+                            `}
+                            style={{
+                              left: `${cell.position.x}px`,
+                              top: `${cell.position.y}px`,
+                              width: `${cell.size || 48}px`,
+                              height: `${cell.size || 48}px`,
+                              transform: 'translate(-50%, -50%)'
+                            }}
+                          >
+                            {cell.value}
+                          </motion.button>
+                        )
+                      )}
                     </>
                   )}
+                </div>
+              )}
+              
+              {/* Loading skeleton while layout is being calculated */}
+              {!layoutReady && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-gray-500">Generando tabla...</div>
                 </div>
               )}
             </AnimatePresence>
