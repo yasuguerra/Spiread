@@ -94,8 +94,8 @@ export async function POST(request) {
     // For MVP, use sample text - in production, fetch from documents table
     const sampleText = getSampleText(locale);
     
-    // Chunk text (1-2k tokens per chunk)
-    const chunks = chunkText(sampleText, 1500);
+    // Chunk text (1-2k tokens per chunk) and normalize for stable indexes
+    const { chunks, normalizedText } = chunkText(sampleText, 1500);
     const selectedChunks = selectRelevantChunks(chunks, n);
     const chunkIds = selectedChunks.map((_, i) => `chunk_${i}`);
     
