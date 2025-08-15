@@ -458,6 +458,78 @@ backend:
           comment: "PHASE 1 TESTING: External URL routing still fails with 502 errors for all new Phase 1 endpoints (/api/progress/*, /api/ai/health). All endpoints work perfectly on localhost:3000. This is a persistent Kubernetes ingress configuration issue affecting external access to the entire backend API. Local testing confirms all Phase 1 implementations are correct."
 
 frontend:
+  - task: "PR A Core UX - GameIntro Component"
+    implemented: true
+    working: "NA"
+    file: "components/games/GameIntro.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "testing"
+          comment: "PR A CORE UX COMPONENT IDENTIFIED: GameIntro component implemented with modal rendering, accessibility features, language support (ES/EN), localStorage persistence for 'don't show today' functionality, keyboard navigation (Enter, Esc, Space), and game-specific instructions for all PR A game types. Component structure supports all PR A Core UX requirements. Backend APIs confirmed working to support this component."
+
+  - task: "PR A Core UX - EndScreen Component"
+    implemented: true
+    working: "NA"
+    file: "components/games/EndScreen.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "testing"
+          comment: "PR A CORE UX COMPONENT IDENTIFIED: EndScreen component implemented with modal rendering, game results display, MiniSparkline chart integration, action buttons functionality, keyboard shortcuts, and performance metrics display. Component integrates with backend Game Runs API for historical data. Backend APIs confirmed working to support EndScreen sparkline data requirements."
+
+  - task: "PR A Core UX - MiniSparkline Component"
+    implemented: true
+    working: "NA"
+    file: "components/games/MiniSparkline.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "testing"
+          comment: "PR A CORE UX COMPONENT IDENTIFIED: MiniSparkline component implemented with Recharts integration, chart rendering for 7-day historical view, trend indicators (up/down/neutral), and data processing capabilities. Component designed to work with EndScreen for displaying game performance trends. Backend Game Runs API confirmed working to provide historical data."
+
+  - task: "PR A Core UX - GameShell Integration"
+    implemented: true
+    working: "NA"
+    file: "components/GameShell.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "testing"
+          comment: "PR A CORE UX COMPONENT IDENTIFIED: GameShell component updated with new props (gameName, gameKey, onBackToGames, onViewStats), GameIntro/EndScreen integration, level persistence functionality, and 'How to play' button (Info icon). Component serves as the main wrapper for all PR A games. Backend Progress API and Settings API confirmed working to support level persistence and game preferences."
+
+  - task: "PR A Core UX - Progress Tracking Helpers"
+    implemented: true
+    working: "NA"
+    file: "lib/progress-tracking.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "testing"
+          comment: "PR A CORE UX LIBRARY IDENTIFIED: Progress tracking helpers implemented with localStorage functions (getLastLevel, setLastLevel, getLastBestScore, updateBestScore), shouldShowGameIntro localStorage check, and getGameHistoricalData mock data generation. Library includes Supabase integration for backend data persistence. Backend APIs confirmed working to support all progress tracking functionality."
+
+  - task: "PR A Core UX - SchulteTableExample Component"
+    implemented: true
+    working: "NA"
+    file: "components/games/SchulteTableExample.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "testing"
+          comment: "PR A CORE UX COMPONENT IDENTIFIED: SchulteTableExample component implemented as basic game implementation using updated GameShell, with proper prop passing for PR A functionality. Component serves as example implementation for other PR A games. Backend Game Runs API confirmed working to support game data persistence."
+
   - task: "ShuttleTable TypeError Fix (HOTFIX)"
     implemented: true
     working: true
