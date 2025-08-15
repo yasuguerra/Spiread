@@ -74,15 +74,32 @@ export async function GET(request) {
       }
     }
 
-    // Analytics configuration
-    let analytics = {
-      provider: 'null',
-      enabled: false,
-      consent: false,
-      dnt: false,
-      gpc: false,
-      lastEventsCount: 0,
-      lastEvents: []
+    // PWA configuration and status
+    const pwa = {
+      swVersion: 'spiread-v1',
+      build: '1.0.0-rc.1',
+      installed: false, // Cannot detect on server-side
+      manifest: {
+        available: true,
+        url: '/manifest.json'
+      },
+      caches: {
+        shell: 'unknown',
+        assets: 'unknown', 
+        data: 'unknown',
+        api: 'unknown'
+      },
+      offlineSupport: {
+        enabled: true,
+        offlinePage: '/offline',
+        backgroundSync: true
+      },
+      features: [
+        'Offline gameplay - 9 games work without internet',
+        'Background sync - data syncs when connection restored',
+        'App shell caching - instant loading',
+        'Smart caching strategies - network-first APIs, cache-first assets'
+      ]
     }
 
     // Try to get analytics status (client-side code)
