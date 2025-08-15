@@ -381,6 +381,20 @@ self.addEventListener('message', event => {
     case 'CLEAR_CACHES':
       event.waitUntil(clearAllCaches())
       break
+      
+    case 'CACHE_RECENT_DOCUMENTS':
+      // Cache recent documents for offline access (N=5)
+      if (data.documents && Array.isArray(data.documents)) {
+        event.waitUntil(cacheRecentDocuments(data.documents.slice(0, 5)))
+      }
+      break
+      
+    case 'CACHE_RECENT_QUIZ_RESULTS': 
+      // Cache recent quiz results for offline access (N=5)
+      if (data.quizResults && Array.isArray(data.quizResults)) {
+        event.waitUntil(cacheRecentQuizResults(data.quizResults.slice(0, 5)))
+      }
+      break
   }
 })
 
