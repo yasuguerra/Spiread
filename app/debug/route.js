@@ -55,6 +55,25 @@ export async function GET(request) {
       emergentKeyConfigured: !!process.env.EMERGENT_LLM_KEY
     }
 
+    // Observability configuration
+    const observability = {
+      sentry: {
+        enabled: !!(process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN),
+        release: process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0',
+        environment: process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV || 'development',
+        tracesSampleRate: parseFloat(process.env.SENTRY_TRACES_SAMPLE_RATE || '0.1'),
+        profilesSampleRate: parseFloat(process.env.SENTRY_PROFILES_SAMPLE_RATE || '0.1'),
+        debug: process.env.SENTRY_DEBUG === 'true',
+        piiScrubbing: 'enabled',
+        sourcemaps: process.env.NODE_ENV === 'production' ? 'enabled' : 'development'
+      },
+      monitoring: {
+        errors: !!(process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN),
+        performance: parseFloat(process.env.SENTRY_TRACES_SAMPLE_RATE || '0.1') > 0,
+        profiling: parseFloat(process.env.SENTRY_PROFILES_SAMPLE_RATE || '0.1') > 0
+      }
+    }
+
     // Database status (without connection string)
     const databaseConfig = {
       supabaseUrlConfigured: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
