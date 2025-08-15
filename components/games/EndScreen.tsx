@@ -314,6 +314,7 @@ export default function EndScreen({
               onClick={onPlayAgain}
               className="flex-1 flex items-center justify-center space-x-2"
               autoFocus
+              data-testid="btn-retry"
             >
               <RotateCcw className="w-4 h-4" />
               <span>{labels.playAgain}</span>
@@ -323,6 +324,7 @@ export default function EndScreen({
               variant="outline" 
               onClick={onBackToGames}
               className="flex-1 flex items-center justify-center space-x-2"
+              data-testid="btn-back-to-games"
             >
               <Home className="w-4 h-4" />
               <span>{labels.backToGames}</span>
@@ -332,6 +334,7 @@ export default function EndScreen({
               variant="ghost" 
               onClick={onViewStats}
               className="flex items-center justify-center space-x-2"
+              data-testid="btn-to-stats"
             >
               <BarChart3 className="w-4 h-4" />
               <span>{labels.viewStats}</span>
