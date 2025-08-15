@@ -66,6 +66,7 @@ export default function RootLayout({ children }) {
         <div className="min-h-screen bg-background font-sans antialiased">
           {children}
         </div>
+        <ConsentBanner />
       </body>
     </html>
   )
