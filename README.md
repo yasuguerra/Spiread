@@ -195,6 +195,59 @@ curl -X POST http://localhost:3000/api/csp-report \
 
 See [Security Documentation](docs/security.md) for complete details.
 
+## Product Analytics
+
+### Privacy-First Analytics
+Spiread tracks product usage while respecting user privacy and consent:
+
+**Supported Providers:**
+- **Plausible**: Privacy-focused, GDPR-compliant web analytics
+- **PostHog**: Open-source product analytics with self-hosting option
+
+```bash
+# Plausible configuration
+NEXT_PUBLIC_PLAUSIBLE_DOMAIN=app.spiread.com
+NEXT_PUBLIC_PLAUSIBLE_API_HOST=https://plausible.io
+
+# PostHog configuration  
+NEXT_PUBLIC_POSTHOG_KEY=phc_your-key
+NEXT_PUBLIC_POSTHOG_HOST=https://app.posthog.com
+
+# Provider selection (auto-detected if not specified)
+NEXT_PUBLIC_ANALYTICS_PROVIDER=plausible
+```
+
+**Privacy Controls:**
+- ✅ **Consent Required**: No tracking without user opt-in
+- ✅ **DNT Respected**: Honors Do Not Track browser setting
+- ✅ **GPC Support**: Respects Global Privacy Control
+- ✅ **No PII**: Only aggregate metrics and usage patterns
+- ✅ **CI Safety**: Automatically disabled in testing environments
+
+**Events Tracked:**
+| Event | Source | Props (No PII) |
+|-------|--------|----------------|
+| `onboarding_done` | OnboardingTest completion | `lang`, `baselineWpm`, `goalWpm` |
+| `rsvp_started` | RSVP Reader start | `lang`, `docLen`, `device`, `pwaInstalled` |
+| `game_run_saved` | Game completion | `gameKey`, `score`, `level`, `durationSec` |
+| `quiz_completed` | AI Quiz finish | `questions`, `correct`, `docLen` |
+| `install_pwa` | PWA installation | `device` |
+| `streak_increment` | Daily streak update | `streakDays` |
+| `session_completed` | Training session finish | `template`, `blocks`, `totalDurationSec` |
+
+**Testing Analytics:**
+```bash
+# Check analytics status
+curl http://localhost:3000/debug | jq '.analytics'
+
+# Enable consent (in Settings UI)
+# Events will appear in /debug analytics.lastEvents
+
+# Test tracking (dev mode shows console logs)
+📊 [SENT] Analytics event: rsvp_started
+📊 [BLOCKED] Analytics event: game_run_saved (reason: no-consent)
+```
+
 ## Observability
 
 ### Error Monitoring with Sentry
