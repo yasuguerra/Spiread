@@ -97,4 +97,4 @@ export function resetAnalytics(): void {
 }
 
 // Export the analytics interface for direct use
-export { AnalyticsAdapter, AnalyticsEvent, AnalyticsProps } from './adapter'
+export type { AnalyticsAdapter, AnalyticsEvent, AnalyticsProps } from './adapter'
