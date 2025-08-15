@@ -25,6 +25,29 @@ let offlineQueue = {
   session_schedules: []
 }
 
+// Pre-cache offline: app shell + 9 games (assets mínimos para cargar cada juego) + últimos N=5 documentos y resultados de quiz
+const OFFLINE_GAME_ASSETS = [
+  // Game components - mínimos para funcionar offline
+  '/_next/static/chunks/pages/components/games/MemoryDigits.js',
+  '/_next/static/chunks/pages/components/games/ParImpar.js', 
+  '/_next/static/chunks/pages/components/games/SchulteTable.js',
+  '/_next/static/chunks/pages/components/games/TwinWordsGrid.js',
+  '/_next/static/chunks/pages/components/games/RunningWords.js',
+  '/_next/static/chunks/pages/components/games/LettersGrid.js',
+  '/_next/static/chunks/pages/components/games/WordSearch.js',
+  '/_next/static/chunks/pages/components/games/Anagrams.js',
+  '/_next/static/chunks/pages/components/games/GameWrapper.js',
+  // Game data and logic
+  '/lib/word-bank.js',
+  '/lib/gamification.js',
+  '/lib/adaptive-difficulty.js',
+  '/lib/enhanced-difficulty.js'
+]
+
+// Cache for recent documents and quiz results (N=5)
+let cachedDocuments = []
+let cachedQuizResults = []
+
 // Game-specific assets for offline functionality (9 games)
 const GAME_ASSETS_PATTERNS = [
   // Game components and data will be cached dynamically
