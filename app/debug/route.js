@@ -197,7 +197,7 @@ export async function GET(request) {
 
     // Go/No-Go Checklist Status for v1.0.0-rc.1
     const goNoGoChecklist = {
-      version: '1.0.0-rc.1',
+      version: '1.0.0',
       timestamp: new Date().toISOString(),
       status: 'READY', // READY | PENDING | BLOCKED
       checks: {
