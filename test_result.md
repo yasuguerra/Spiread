@@ -475,11 +475,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "External URL Routing"
-    - "Sessions API Endpoints"
-    - "Settings API Endpoints"
-    - "Game Runs API Endpoints (NEW)"
-    - "Session Schedules API Endpoints (NEW)"
+    - "Phase 1 - Service Worker PWA Hardening (NEW)"
+    - "Phase 1 - Debug Endpoint PWA Status (NEW)"
+    - "Phase 2 - SEO & Legal Implementation (NEW)"
+    - "Phase 3 - Accessibility & Error Pages (NEW)"
   stuck_tasks:
     - "External URL Routing"
     - "Sessions API Endpoints"
@@ -493,7 +492,7 @@ test_plan:
 
 agent_communication:
     - agent: "main"
-      message: "FASE 6 — Sprint 3: PWA-SEO-LEGAL-RC - PHASE 1 PWA HARDENING COMPLETE! ✅ Service Worker completely rewritten with spiread-v1 versioning and versioned cache names (spiread-shell-v1, spiread-assets-v1, spiread-data-v1). ✅ Controlled invalidation of old caches implemented. ✅ Pre-cache offline for app shell + 9 games + last N=5 documents/quiz results with dedicated cache functions. ✅ BG Sync enhanced with exponential backoff, IndexedDB persistence, and proper retry logic. ✅ Debug endpoint updated with exact PWA status block as specified. ✅ Offline page UX already meets requirements with 'Reintentar' button and clear functionality display. Ready for comprehensive backend testing of PWA hardening implementation."
+      message: "FASE 6 — Sprint 3: PWA-SEO-LEGAL-RC - PHASES 1-3 COMPLETE! ✅ PHASE 1 PWA HARDENING: Service Worker versioned (spiread-v1), cache versioning (spiread-shell-v1, spiread-assets-v1, spiread-data-v1), BG Sync with exponential backoff, debug endpoint with exact PWA status block. ✅ PHASE 2 SEO & LEGAL: robots.txt and sitemap.xml created, comprehensive OG/meta tags with professional brain training image, legal pages (/legal/privacy and /legal/terms) with clear placeholders, ConsentBanner integrated with privacy-first approach. ✅ PHASE 3 ACCESSIBILITY & ERROR PAGES: Consistent /404 and /500 error pages with helpful CTAs and navigation, /offline page already excellent. Ready for comprehensive backend testing of all implementations and Phase 4 QA Final + RC preparation."
     - agent: "testing"
       message: "FASE 6 — Sprint 3: PWA-SEO-LEGAL-RC - PHASE 1 PWA HARDENING BACKEND TESTING COMPLETE! 🎉 ALL PWA HARDENING BACKEND TESTS PASSED (4/5 with 1 timeout)! ✅ DEBUG ENDPOINT: Perfect PWA status block structure with swVersion='spiread-v1', exact cache structure (shell/assets/data), bgSync queueLengths (game_runs/session_schedules), cache versions (spiread-*-v1), and 6 PWA features. ✅ SERVICE WORKER: 19,021 characters of production-ready SW code with proper versioning, all cache names, background sync, exponential backoff, and complete cache management. ✅ OFFLINE PAGE: 15,888 characters with all UX elements (Reintentar, Sin Conexión, Funciones Disponibles), offline features display, and interactive elements. ✅ PWA MANIFEST: Complete manifest.json with 8 icons, 3 shortcuts, proper PWA fields (standalone, portrait-primary), and all required metadata. ✅ HEADERS & CACHING: Proper security headers and caching policies on all endpoints. Phase 1 PWA Hardening is production-ready for v1.0.0-rc.1 release candidate!"
 
