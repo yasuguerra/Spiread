@@ -74,31 +74,44 @@ export async function GET(request) {
       }
     }
 
-    // PWA configuration and status
+    // PWA configuration and status (as per Phase 1 specifications)
     const pwa = {
       swVersion: 'spiread-v1',
-      build: '1.0.0-rc.1',
-      installed: false, // Cannot detect on server-side
+      installed: false, // Cannot detect on server-side reliably
+      caches: {
+        shell: 'unknown', // Will be populated by client-side SW communication
+        assets: 'unknown',
+        data: 'unknown'
+      },
+      bgSync: {
+        queueLengths: {
+          game_runs: 'unknown', // Will be populated by client-side SW communication
+          session_schedules: 'unknown'
+        }
+      },
+      // Additional PWA info
       manifest: {
         available: true,
         url: '/manifest.json'
       },
-      caches: {
-        shell: 'unknown',
-        assets: 'unknown', 
-        data: 'unknown',
-        api: 'unknown'
-      },
       offlineSupport: {
         enabled: true,
         offlinePage: '/offline',
-        backgroundSync: true
+        backgroundSync: true,
+        version: '1.0.0-rc.1'
+      },
+      cacheVersions: {
+        shell: 'spiread-shell-v1',
+        assets: 'spiread-assets-v1',
+        data: 'spiread-data-v1'
       },
       features: [
         'Offline gameplay - 9 games work without internet',
-        'Background sync - data syncs when connection restored',
+        'Background sync - data syncs when connection restored', 
         'App shell caching - instant loading',
-        'Smart caching strategies - network-first APIs, cache-first assets'
+        'Smart caching strategies - network-first APIs, cache-first assets',
+        'Pre-cache offline - games, documents, quizzes (last N=5)',
+        'BG Sync - exponential backoff, IndexedDB persistence'
       ]
     }
 
