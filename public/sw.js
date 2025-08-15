@@ -1,8 +1,8 @@
-// Spiread Service Worker v1.0.0-rc.1
+// Spiread Service Worker v1.0.0 GA
 // PWA Support with Offline Functionality, Background Sync, and Smart Caching
 
 const SW_VERSION = 'spiread-v1'
-const SW_BUILD = '1.0.0-rc.1'
+const SW_BUILD = '1.0.0'
 
 // Versioned cache names for controlled invalidation (as per Phase 1 requirements)
 const CACHES = {
