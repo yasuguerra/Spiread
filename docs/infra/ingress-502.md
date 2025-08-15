@@ -2,7 +2,7 @@
 
 ## Problem Overview
 
-The Spiread application experiences persistent HTTP 502 Bad Gateway errors when accessed through the external Kubernetes ingress route (`https://brain-trainer-5.preview.emergentagent.com`). Local testing on `localhost:3000` works perfectly, indicating the issue is at the infrastructure level.
+The Spiread application experiences persistent HTTP 502 Bad Gateway errors when accessed through the external Kubernetes ingress route (`https://read-faster-2.preview.emergentagent.com`). Local testing on `localhost:3000` works perfectly, indicating the issue is at the infrastructure level.
 
 ## Root Causes
 
@@ -318,17 +318,17 @@ export async function GET() {
 # Test ingress timeouts
 curl -w "@curl-format.txt" \
   -o /dev/null -s \
-  "https://brain-trainer-5.preview.emergentagent.com/api/health"
+  "https://read-faster-2.preview.emergentagent.com/api/health"
 
 # Load test with concurrent connections
 ab -n 1000 -c 10 \
-  "https://brain-trainer-5.preview.emergentagent.com/api/health"
+  "https://read-faster-2.preview.emergentagent.com/api/health"
 
 # Test AI endpoint resilience
 curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"docId":"test","text":"Long text...","locale":"es"}' \
-  "https://brain-trainer-5.preview.emergentagent.com/api/ai/summarize"
+  "https://read-faster-2.preview.emergentagent.com/api/ai/summarize"
 ```
 
 ## Conclusion

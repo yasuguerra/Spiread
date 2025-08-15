@@ -25,7 +25,7 @@ from datetime import datetime, timedelta
 import sys
 
 # Configuration
-BASE_URL = "https://brain-trainer-5.preview.emergentagent.com"
+BASE_URL = "https://read-faster-2.preview.emergentagent.com"
 LOCAL_URL = "http://localhost:3000"
 
 # Test user data

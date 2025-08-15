@@ -1,61 +1,68 @@
 <analysis>
-The previous AI engineer successfully brought the Spiread application from MVP to an MVP+ state, completing several complex development phases. Initially, core RSVP reader and Campayo training games were built. Subsequently, Sprint A introduced AI/LLM features (summarization, question generation with caching and quotas) and foundational gamification (XP, level, streaks, achievements). A hotfix for  was also addressed.
+The previous AI engineer successfully evolved the Spiread application from MVP to a Release Candidate (RC) stage, systematically addressing complex requirements across several sprints. Initially, the core MVP+ Closure Sprint focused on foundational elements, AI/LLM integration, new Campayo games, comprehensive gamification, and initial i18n/a11y/PWA setup.
 
-The current comprehensive MVP+ Closure Sprint was broken into five phases. The engineer completed Phase 1 (Foundation & DB Alignment), Phase 2 (AI Questions System hardening and UI integration), Phase 3 (implementation of four new Campayo games: Running Words, Letters Grid, Word Search, Anagrams, including seed generation and basic integration), and Phase 4 (full gamification logic for XP, levels, streaks, and achievements, with associated UI components and StatsPanel integration). Finally, Phase 5 (Session Runner 2.0, i18n, a11y, PWA setup) was also completed structurally.
+A critical hotfix was then prioritized (Phase 1 of Sprint 1), addressing the incorrect display of games in the UI. The engineer quickly identified that  was the correct location for game card rendering, not , and successfully integrated all 9 games, including the newly added Phase 3 games.
 
-Throughout these phases, the engineer encountered and resolved various issues, including  path resolution, build errors, and minor database naming inconsistencies during backend testing. The engineer is now tasked with addressing a specific frontend display issue where the newly implemented Phase 3 games are not correctly listed in the Entrenamiento Cerebral section of the application UI. The previous engineer consistently logged linting errors but proceeded, indicating a focus on core functionality delivery.
+Following this, a comprehensive Phase 6 - Sprint 1 was executed, broken down into multiple Pull Requests (PRs). This included implementing automated frontend testing (Playwright, Lighthouse CI), fixing Supabase schema inconsistencies (UUIDs, RLS, gamification tables), documenting infrastructure issues (502 errors), implementing robust security features (CSP, HTTP headers), adding API rate limiting (with Redis/memory fallback), integrating observability with Sentry (including PII scrubbing), and setting up product analytics with a privacy-first, adapter-based approach.
+
+The trajectory concludes with the engineer initiating Sprint 3, focusing on PWA hardening (Service Worker versioning, offline capabilities), SEO, legal pages, accessibility, and final QA before the v1.0.0-rc.1 release. The immediate task at the end was updating the Service Worker and the debug endpoint for PWA status, followed by testing.
 </analysis>
 
 <product_requirements>
-Spiread is a web application designed to enhance reading speed and comprehension using Ramón Campayo's methods and an RSVP reader. The core problem it addresses is improving reading efficiency through gamified daily training. Key features include: an onboarding WPM test, a customizable RSVP reader, Campayo training modules with adaptive difficulty, AI/LLM integration (summaries, comprehension questions with cache/quotas via Emergent LLM Key), comprehensive gamification (XP/Level, Streaks, detailed Achievements), and advanced training games (Running Words, Letters Grid, Word Search, Anagrams) with precise 60-second timers and adaptive difficulty. Persistence uses , , and  for game resume. The application leverages Next.js, React, TypeScript, Tailwind, Shadcn-ui, Zustand, and Supabase. Initial MVP completed core RSVP and Campayo modules. Recent requirements include AI/LLM integration, comprehensive gamification, additional advanced training games, session runner with templates, i18n (es/en), accessibility, and PWA capabilities. The product aims for a freemium model.
+Spiread is a web application enhancing reading speed and comprehension using Ramón Campayo's methods and an RSVP reader. The primary goal is to improve reading efficiency through gamified daily training. Key features include an onboarding WPM test, a customizable RSVP reader, adaptive difficulty Campayo training modules, and AI/LLM integration for summarization and comprehension questions with caching and quotas.
+
+The application also features comprehensive gamification (XP, Levels, Streaks, Achievements) and advanced training games (Running Words, Letters Grid, Word Search, Anagrams) with 60-second timers and adaptive difficulty. Data persistence uses , , and  for game resume. Recent updates included an enhanced session runner with templates, i18n (es/en), accessibility, and PWA capabilities. The product aims for a freemium model.
+
+Current work progressed through a hotfix for game display, comprehensive automated testing (UI & API), database schema alignment (UUID, RLS, gamification tables), infrastructure documentation, robust security features (CSP, headers), API rate limiting, Sentry for observability (error/performance monitoring, PII scrubbing), and privacy-first product analytics. The final objective is to release a v1.0.0 Release Candidate with full PWA hardening, SEO, legal pages, and final QA.
 </product_requirements>
 
 <key_technical_concepts>
--   **Next.js 14, React 18, TypeScript, Tailwind CSS, shadcn-ui**: Frontend stack.
+-   **Next.js 14, React 18, TypeScript, Tailwind CSS, shadcn-ui**: Core web stack.
+-   **Supabase (PostgreSQL, Auth, RLS)**: BaaS and database, with  PK/FK.
 -   **Zustand**: Client-side state management.
--   **Supabase (PostgreSQL, Auth, RLS)**: Backend-as-a-Service and database.
 -   **Web Workers**: For RSVP cadencing and game timers.
--   **Adaptive Difficulty (Staircase 3-down/1-up)**: Dynamic game difficulty.
--   **Emergent LLM Key**: Centralized API key for various LLMs (OpenAI, Anthropic, Google).
--   **DB Case Conversion ()**: Utilities for  to .
--   **Recharts**: For displaying historical game data.
+-   **Adaptive Difficulty**: Staircase 3-down/1-up.
+-   **Emergent LLM Key**: Universal API key for OpenAI, Anthropic, Google LLMs.
+-   **DB Case Conversion ()**:  to .
+-   **Recharts**: For historical game data visualization.
 -   **PWA (Manifest, Service Worker)**: Offline capabilities and installability.
 -   **i18n**: Multi-language support (ES/EN).
--   **Zod**: Schema validation.
+-   **Zod**: Schema validation for API routes.
+-   **next-safe**: For Content Security Policy (CSP) and security headers.
+-   **Upstash Redis / In-Memory Fallback**: For API rate limiting.
+-   **Sentry**: Error monitoring, performance tracing, PII scrubbing.
+-   **Plausible/PostHog**: Product analytics, privacy-first adapter pattern.
 </key_technical_concepts>
 
 <code_architecture>
-The application employs a Next.js full-stack architecture, organizing components, API routes, and utilities. Data persistence is managed via Supabase (PostgreSQL).
+The application uses a Next.js full-stack architecture, with components, API routes, and utilities. Data persistence is managed via Supabase (PostgreSQL).
 
 
 
 **Key Files and Changes:**
 
 *   : Main application entry point.
-    *   **Summary**: Renders the core UI and integrates various features.
-    *   **Changes**: Fixed  reference, integrated .
+    *   **Summary**: Renders the core UI, including the main game grid.
+    *   **Changes**: Fixed  reference, integrated . Crucially, it was identified as the actual location for rendering game cards, and updated to include all 9 game cards (originally showing only 5) by adding , , , and  components and their respective game logic. Temporary onboarding bypass added for testing. Integrated .
 *   : Consolidated backend API routes.
     *   **Summary**: Handles diverse API requests.
     *   **Changes**: Integrated  for data consistency, corrected  table naming.
 *   : AI comprehension questions API.
     *   **Summary**: Generates LLM-based questions with advanced controls.
     *   **Changes**: Hardened with schema validation, monthly quotas, text normalization, and  persistence.
-*   : UI for AI features within the RSVP Reader.
-    *   **Summary**: Provides interaction for AI summarization and question generation.
-    *   **Changes**: Adjusted question count selector (3-5), prepared for usage display and quiz rendering.
-*   : Central game selection/display.
-    *   **Summary**: Manages the display and launching of individual training games.
-    *   **Changes**: Updated to structurally include the four new Phase 3 games.
+*   : Previously thought to be central game selection.
+    *   **Summary**: Manages game display; was found *not* to be the primary component in use for the main game grid.
+    *   **Changes**: Updated to structurally include the four new Phase 3 games, but not actively used for main UI display.
 *   : Common game wrapper.
     *   **Summary**: Provides shared game logic and gamification integration.
     *   **Changes**: Enhanced to update XP, Level, Streaks, Achievements upon game completion.
 *   : **NEW**.
-    *   **Summary**: Displays user's XP, Level, and daily streak in the header.
+    *   **Summary**: Displays user's XP, Level, and daily streak.
     *   **Changes**: Created for gamification visualization.
 *   : User statistics dashboard.
     *   **Summary**: Visualizes user performance over time.
     *   **Changes**: Updated to include new games, use Recharts for score graphs, and display last level.  added.
-*   : **NEW**.
+*    (RunningWords, LettersGrid, WordSearch, Anagrams): **NEW**.
     *   **Summary**: Implement the new game mechanics.
     *   **Changes**: Created with specific adaptive difficulty, scoring, and metrics.
 *   : **NEW**.
@@ -73,46 +80,103 @@ The application employs a Next.js full-stack architecture, organizing components
 *   : **NEW**.
     *   **Summary**: Stores localization strings and i18n setup.
     *   **Changes**: Created to enable ES/EN language support.
-*   , : **NEW**.
-    *   **Summary**: PWA manifest and service worker.
-    *   **Changes**: Created to enable installability, offline caching, and background sync.
+*   , : **NEW / MODIFIED**.
+    *   **Summary**: PWA manifest and service worker for offline and installability.
+    *   **Changes**:  created.  was initially created and then extensively modified for PWA hardening, including versioning (spiread-v1), cache strategies (cache-first, network-first, stale-while-revalidate), and controlled invalidation.
 *   : **NEW**.
     *   **Summary**: Script to generate word data for new games.
     *   **Changes**: Created to provide essential seed data.
 *   : Supabase schema.
     *   **Summary**: Defines database structure and RLS policies.
-    *   **Changes**: Updated for , , and new indices.
+    *   **Changes**: Updated for , , new indices, and consistent UUID types for PK/FK.
 *   : TypeScript configuration.
     *   **Summary**: Configures TypeScript compilation.
     *   **Changes**: Updated path aliases () to resolve import errors.
 *   : Global styles.
     *   **Summary**: Defines global Tailwind and custom CSS.
     *   **Changes**: Added accessibility styles for OpenDyslexic font.
+*   : **NEW**.
+    *   **Summary**: Vercel deployment configuration.
+    *   **Changes**: Configured for  domain, extended timeouts for AI, configured CORS, optimized regions.
+*   : **NEW**.
+    *   **Summary**: Example environment variables for deployment.
+    *   **Changes**: Added , , , , feature flags (, , ), AI quotas, Redis (for rate limiting), Sentry, and Analytics variables.
+*   : **NEW**.
+    *   **Summary**: Debug endpoint for system status.
+    *   **Changes**: Created to display version, commit, feature flags, AI health, database config, security headers, rate limit status, Sentry status, and analytics status.
+*   : **NEW**.
+    *   **Summary**: Application footer component.
+    *   **Changes**: Created to display version (), commit hash, environment, system status, and links to privacy/terms/debug.
+*   : **NEW**.
+    *   **Summary**: Comprehensive deployment guide.
+    *   **Changes**: Created with step-by-step configurations and troubleshooting.
+*   : **NEW**.
+    *   **Summary**: Next.js middleware for global security headers and rate limiting.
+    *   **Changes**: Implemented Content Security Policy (CSP) in Report-Only (dev) and Enforce (prod) modes, Strict-Transport-Security, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy. Dynamically allows analytics and Sentry domains. Integrated rate limiting for  and .
+*   : **NEW**.
+    *   **Summary**: Endpoint for receiving CSP violation reports.
+    *   **Changes**: Created to accept  and modern JSON formats, sanitize, and log violations. Responds with 204.
+*   : **NEW**.
+    *   **Summary**: Script to test security headers.
+    *   **Changes**: Created to verify presence and correctness of all security headers.
+*   : **NEW**.
+    *   **Summary**: Rate limiting logic using token bucket algorithm.
+    *   **Changes**: Implemented with dual storage (Upstash Redis preferred, in-memory fallback) and intelligent keys (IP + userId). Includes automatic cleanup.
+*   : **NEW**.
+    *   **Summary**: Endpoint to expose rate limit metrics.
+    *   **Changes**: Created to display status, hits, blocks, P95 response times, and storage health.
+*   : **NEW**.
+    *   **Summary**: Script to test API rate limits.
+    *   **Changes**: Created to automate testing of  and  endpoints for correct 429 responses and rate limit headers.
+*   , , : **NEW**.
+    *   **Summary**: Sentry configuration files for client, edge, and server environments.
+    *   **Changes**: Created with privacy-first approach (), PII scrubbing (authorization headers, sensitive API payloads), performance monitoring (traces/profiles sample rates), and release tracking ().
+*   : **NEW**.
+    *   **Summary**: Test endpoint to simulate and capture errors for observability.
+    *   **Changes**: Created to trigger test errors and messages, verifying Sentry integration.
+*   , , , , : **NEW**.
+    *   **Summary**: Implementation of a privacy-first, provider-agnostic product analytics system.
+    *   **Changes**:  defines the common interface.  and  are concrete adapters.  acts as a factory.  provides the public helper function, respecting user consent, DNT, GPC, and CI flags, with local event buffering.
+*   : **NEW**.
+    *   **Summary**: Endpoint to test analytics tracking.
+    *   **Changes**: Created to trigger and verify analytics events and privacy controls.
+*   : **NEW**.
+    *   **Summary**: Database migration script to fix schema inconsistencies.
+    *   **Changes**: Ensures UUID types for PK/FKs, aligns  and  table structure, and sets up correct RLS policies for gamification tables.
+*   : **NEW**.
+    *   **Summary**: Script to verify database schema consistency.
+    *   **Changes**: Confirms UUID types, existence of tables/indices, and RLS policies.
+*   : **NEW**.
+    *   **Summary**: Documentation for resolving 502 errors related to Nginx/Ingress.
+    *   **Changes**: Provides recommendations for timeouts, keep-alives, and Vercel configurations.
+*   : **NEW**.
+    *   **Summary**: Documentation for the implemented security features (CSP, headers).
+    *   **Changes**: Provides detailed explanations of CSP directives, security headers, and their impact.
+*   : **NEW**.
+    *   **Summary**: Dedicated offline page for PWA.
+    *   **Changes**: Created to provide a consistent user experience when the app is offline.
+
 </code_architecture>
 
 <pending_tasks>
--   **Frontend Display of Games**: Correct the UI listing on the Entrenamiento Cerebral page to display all 9 implemented games, including their respective cards and Jugar 60s buttons.
--   **Phase 5 Frontend Integration**: Fully integrate Session Runner 2.0 UI (templates, in-session AI quiz), i18n (UI string updates), and accessibility features (keyboard navigation, ARIA, high contrast, OpenDyslexic toggle, prefers-reduced-motion) into the user interface.
--   **PWA Frontend Integration**: Implement PWA install prompts and ensure offline content caching is functional from the frontend.
--   **Comprehensive Testing**: Complete unit and E2E tests for Session Runner, i18n/a11y features, and PWA functionality, plus verify correct display/function of all 9 games.
+-   **PWA Hardening (Completion)**: Finish versioning SW caches (, , ), implement offline pre-caching for games, documents, and quizzes, and verify Background Sync for /.
+-   **SEO & Legal**: Create  and , implement OG/meta tags in , create placeholder legal pages (, ), and integrate a consent banner for analytics.
+-   **Accessibility & Error Pages**: Conduct  audits for critical views, ensure Lighthouse A11y ≥ 90, and create consistent ,  error pages.
+-   **Final QA & Release Candidate**: Execute Playwright smoke tests against production, run Lighthouse CI against production (Perf/PWA/Best/A11y ≥ 90), create  tag, and prepare  with Go/No-Go checklist.
 </pending_tasks>
 
 <current_work>
-The AI engineer has just completed the MVP+ Closure Sprint, which encompassed five significant phases of development for the Spiread application.
+The AI engineer has just started **Sprint 3: PWA-SEO-LEGAL-RC**, which is the final sprint before cutting the Release Candidate . The immediate focus is on **PWA Hardening**.
 
-**Phase 1 (Foundation & DB Alignment)** was successfully completed, involving updates to  for new columns (, ) and Row Level Security, creation of  for consistent data casing between frontend and Supabase, and implementation of new backend API endpoints for user progress (, ) and AI service health ().
+Specifically, the engineer has performed the following actions:
+1.  **Updated the Service Worker ()**: The service worker has been completely rewritten to include  versioning, and implement advanced caching strategies (cache-first for app shell, network-first with fallback for APIs, stale-while-revalidate for recent docs/quiz data). It also includes logic for controlled invalidation of older caches.
+2.  **Created the Offline Page ()**: A dedicated page was created to provide a user-friendly experience when the application goes offline.
+3.  **Updated the Debug Endpoint ()**: The  API route has been modified to expose detailed PWA status, including ,  status, cache sizes (, , ), and  queue lengths for  and . This endpoint now also correctly integrates  information alongside existing security and rate limit details.
 
-**Phase 2 (AI Questions System)** focused on hardening the  endpoint. This involved implementing strict schema validation (using Zod), monthly token quotas, a robust caching system using SHA256 hashing, and text normalization for accurate evidence indexing in comprehension questions. The  component was updated to reflect these AI features on the UI. A critical build error related to missing  path aliases was identified and resolved during this phase. Backend testing confirmed the successful implementation and functionality of all Phase 2 requirements for the AI questions API.
-
-**Phase 3 (New Games)** involved the creation and initial integration of four new Campayo-style training games: Running Words, Letters Grid, Word Search, and Anagrams. A  script was developed to generate necessary game content. A  component was introduced to standardize integration of these new games with the existing . While the structural integration within  to manage these games was performed, the user's latest feedback indicates that these new games are not yet fully visible as distinct cards on the Entrenamiento Cerebral frontend page.
-
-**Phase 4 (Complete Gamification)** saw the extensive implementation of gamification logic. This included updating  to handle XP and level calculations, daily streak management, and a comprehensive set of achievements (both existing and new game-specific ones). New UI components like  (for displaying XP/Level/Streak in the header) and  (for level-up and achievement notifications) were created. The  was enhanced to visualize historical game scores using . The backend logic for all gamification features was successfully implemented and tested.
-
-**Phase 5 (Session Runner 2.0, i18n/a11y, PWA)** involved the foundational setup for advanced features.  was created as the core component for structured training sessions. An internationalization (i18n) system was established with dedicated language files (, ) and a . Accessibility (a11y) features were initiated with a  hook and  updates. Furthermore, the application was set up as a Progressive Web App (PWA) with the creation of  and  (service worker) files. Backend testing confirmed the i18n and session persistence logic, and minor database table naming inconsistencies were resolved.
-
-The current immediate task, as per the user's latest request, is to address the frontend display issue where the Entrenamiento Cerebral page currently only shows 5 out of the 9 total implemented games, implying the new Phase 3 games are not yet properly presented in the UI's game listing.
+The current state of work is that these files have been modified or created, and the next step is to test the updated debug endpoint to verify the PWA status information is being correctly reported. This is crucial to ensure the PWA hardening efforts are reflected and measurable.
 </current_work>
 
 <optional_next_step>
-The next step is to modify  to correctly import and render UI cards for all 9 implemented games on the Entrenamiento Cerebral page.
+Test the debug endpoint to verify the PWA status information.
+Ahora voy a testear el debug endpoint con PWA info
 </optional_next_step>

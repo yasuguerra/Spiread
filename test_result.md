@@ -313,7 +313,7 @@ backend:
     status_history:
         - working: false
           agent: "testing"
-          comment: "External URL https://brain-trainer-5.preview.emergentagent.com/api/* returns 502 errors. Local testing on localhost:3000 works correctly. This indicates an ingress routing issue in the Kubernetes configuration."
+          comment: "External URL https://read-faster-2.preview.emergentagent.com/api/* returns 502 errors. Local testing on localhost:3000 works correctly. This indicates an ingress routing issue in the Kubernetes configuration."
         - working: false
           agent: "testing"
           comment: "RE-TESTED: External URL routing still fails with 502 errors for all endpoints including /api/health. Local testing confirms all APIs work correctly on localhost:3000. This is a persistent Kubernetes ingress routing issue that prevents external access to the backend APIs. Stuck count incremented as this issue persists across multiple testing sessions."
