@@ -1,23 +1,23 @@
 #!/usr/bin/env python3
 """
-FINAL RELEASE CANDIDATE TESTING for Spiread v1.0.0-rc.1
-FASE 6 — Sprint 3: PWA-SEO-LEGAL-RC - FINAL RELEASE CANDIDATE VALIDATION
+PR A CORE UX BACKEND TESTING for Spiread
+PHASE 7 - PR A Core UX Testing: GameIntro + EndScreen + Persistencia
 
-This script conducts the FINAL comprehensive backend testing for Release Candidate v1.0.0-rc.1:
+This script tests the backend functionality supporting PR A Core UX components:
 
-**CRITICAL RELEASE CANDIDATE VALIDATION:**
-1. Go/No-Go Checklist Verification via GET /debug
-2. Production Readiness Assessment for all critical endpoints
-3. Release Tag Verification
-4. Final Security & Performance Check
+**PR A CORE UX COMPONENTS BACKEND TESTING:**
+1. Progress API endpoints (GameShell level persistence)
+2. Game Runs API (EndScreen historical data)
+3. Settings API (GameIntro preferences)
+4. CORS headers (Frontend component compatibility)
+5. Health endpoint (Backend responsiveness)
 
 **SUCCESS CRITERIA:**
-- ✅ Go/No-Go status shows "READY_FOR_RC" with 0 blockers
-- ✅ All critical endpoints return HTTP 200 with valid content
-- ✅ PWA functionality fully operational
-- ✅ SEO and legal pages accessible
-- ✅ Security headers and rate limiting active
-- ✅ Release artifacts (tag, notes) properly created
+- ✅ Progress API supports level persistence for all PR A games
+- ✅ Game Runs API provides historical data for EndScreen sparklines
+- ✅ Settings API handles GameIntro "don't show today" preferences
+- ✅ CORS headers allow frontend component communication
+- ✅ All PR A game types (schulte, twinwords, etc.) fully supported
 """
 
 import requests
