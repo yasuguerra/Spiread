@@ -1,5 +1,6 @@
 import './globals.css'
 import { Inter } from 'next/font/google'
+import ConsentBanner from '@/components/ConsentBanner'
 
 const inter = Inter({ subsets: ['latin'] })
 
