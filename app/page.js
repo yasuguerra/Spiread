@@ -82,10 +82,16 @@ export default function HomePage() {
           setSessionId(newSessionId)
         }
         
-        // Check if user has completed onboarding
-        if (stats.totalSessions > 0) {
+        // TEMPORARY BYPASS FOR PR A TESTING - Skip onboarding in development
+        if (process.env.NODE_ENV === 'development') {
           setShowOnboarding(false)
           setActiveTab('training')
+        } else {
+          // Check if user has completed onboarding
+          if (stats.totalSessions > 0) {
+            setShowOnboarding(false)
+            setActiveTab('training')
+          }
         }
         
         setIsLoading(false)
