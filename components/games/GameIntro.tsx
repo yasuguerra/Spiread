@@ -211,6 +211,7 @@ export default function GameIntro({ gameKey, gameName, isOpen, onClose, onStart,
       <DialogContent 
         className="max-w-2xl max-h-[90vh] overflow-y-auto"
         aria-describedby="game-intro-description"
+        data-testid="game-intro"
       >
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-3 text-xl">
