@@ -1,0 +1,193 @@
+{
+  "phase1_pwa": {
+    "debug_endpoint": {
+      "url": "https://read-faster-2.preview.emergentagent.com/debug",
+      "status_code": 200,
+      "content_type": "application/json",
+      "content_length": 2383,
+      "response_time": 2.108297,
+      "success": true,
+      "pwa_validation": {
+        "swVersion": true,
+        "installed": true,
+        "caches_structure": true,
+        "bgSync_structure": true,
+        "cache_versions": true,
+        "features_list": true
+      },
+      "pwa_all_valid": true
+    },
+    "service_worker": {
+      "url": "https://read-faster-2.preview.emergentagent.com/sw.js",
+      "status_code": 200,
+      "content_type": "application/javascript; charset=UTF-8",
+      "content_length": 19027,
+      "response_time": 0.028379,
+      "success": true,
+      "sw_validation": {
+        "spiread_v1_version": true,
+        "cache_names": true,
+        "background_sync": true,
+        "offline_queue": true,
+        "exponential_backoff": true,
+        "cache_management": true
+      },
+      "sw_all_valid": true,
+      "sw_size": 19021
+    },
+    "manifest": {
+      "url": "https://read-faster-2.preview.emergentagent.com/manifest.json",
+      "status_code": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "content_length": 3119,
+      "response_time": 0.02305,
+      "success": true,
+      "manifest_validation": {
+        "name": true,
+        "short_name": true,
+        "start_url": true,
+        "display": true,
+        "theme_color": true,
+        "background_color": true,
+        "icons": true,
+        "shortcuts": true,
+        "features": true,
+        "categories": true
+      },
+      "manifest_all_valid": true,
+      "icons_count": 8
+    },
+    "offline_page": {
+      "url": "https://read-faster-2.preview.emergentagent.com/offline",
+      "status_code": 200,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 19857,
+      "response_time": 11.936262,
+      "success": true,
+      "offline_validation": {
+        "reintentar_button": true,
+        "sin_conexion_status": true,
+        "funciones_disponibles": true,
+        "offline_features": true,
+        "interactive_elements": true,
+        "proper_title": true
+      },
+      "offline_all_valid": true,
+      "html_size": 19809
+    }
+  },
+  "phase2_seo_legal": {
+    "robots_txt": {
+      "url": "https://read-faster-2.preview.emergentagent.com/robots.txt",
+      "status_code": 200,
+      "content_type": "text/plain",
+      "content_length": 300,
+      "response_time": 6.951107,
+      "success": true,
+      "robots_validation": {
+        "user_agent": false,
+        "allow_rules": true,
+        "disallow_rules": true,
+        "sitemap_reference": true,
+        "proper_structure": false
+      },
+      "robots_all_valid": false
+    },
+    "sitemap_xml": {
+      "url": "https://read-faster-2.preview.emergentagent.com/sitemap.xml",
+      "status_code": 200,
+      "content_type": "application/xml",
+      "content_length": 835,
+      "response_time": 1.042963,
+      "success": true,
+      "sitemap_validation": {
+        "valid_xml_start": true,
+        "has_urls": true,
+        "has_home_page": true,
+        "has_legal_pages": true,
+        "proper_namespace": true
+      },
+      "sitemap_all_valid": true,
+      "content_size": 835
+    },
+    "meta_tags": {
+      "url": "https://read-faster-2.preview.emergentagent.com/",
+      "status_code": 200,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 11286,
+      "response_time": 24.81897,
+      "success": true,
+      "meta_validation": {
+        "title": true,
+        "description": true,
+        "og_title": true,
+        "og_description": true,
+        "og_image": true,
+        "og_type": true,
+        "twitter_card": true,
+        "viewport": true
+      },
+      "meta_all_valid": true
+    },
+    "_legal_privacy": {
+      "url": "https://read-faster-2.preview.emergentagent.com/legal/privacy",
+      "status_code": 502,
+      "content_type": "",
+      "content_length": 0,
+      "response_time": 0.40111,
+      "success": false,
+      "error": "Expected content-type text/html, got "
+    },
+    "_legal_terms": {
+      "url": "https://read-faster-2.preview.emergentagent.com/legal/terms",
+      "status_code": 200,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 22191,
+      "response_time": 16.401621,
+      "success": true,
+      "legal_validation": {
+        "has_content": true,
+        "has_title": false,
+        "has_contact_info": true,
+        "has_date": true,
+        "proper_structure": true
+      },
+      "legal_all_valid": false,
+      "content_size": 22066
+    }
+  },
+  "phase3_accessibility": {
+    "error_404": {
+      "url": "https://read-faster-2.preview.emergentagent.com/nonexistent-page-test-404",
+      "status_code": 404,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 20502,
+      "response_time": 8.687341,
+      "success": true
+    },
+    "content_accessibility": {
+      "url": "https://read-faster-2.preview.emergentagent.com/",
+      "status_code": 200,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 11286,
+      "response_time": 20.375119,
+      "success": true,
+      "a11y_validation": {
+        "has_lang_attr": true,
+        "has_title": true,
+        "has_headings": false,
+        "has_proper_html": true,
+        "has_meta_viewport": true,
+        "has_semantic_structure": false
+      },
+      "a11y_all_valid": false,
+      "content_size": 11250
+    }
+  },
+  "summary": {
+    "total": 11,
+    "passed": 10,
+    "failed": 1,
+    "success_rate": 90.9090909090909
+  }
+}
