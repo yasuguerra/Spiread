@@ -505,15 +505,18 @@ frontend:
 
   - task: "PR A Core UX - GameShell Integration"
     implemented: true
-    working: "NA"
+    working: false
     file: "components/GameShell.jsx"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "testing"
           comment: "PR A CORE UX COMPONENT IDENTIFIED: GameShell component updated with new props (gameName, gameKey, onBackToGames, onViewStats), GameIntro/EndScreen integration, level persistence functionality, and 'How to play' button (Info icon). Component serves as the main wrapper for all PR A games. Backend Progress API and Settings API confirmed working to support level persistence and game preferences."
+        - working: false
+          agent: "testing"
+          comment: "PR A CORE UX TESTING COMPLETE: ❌ GameShell integration NOT ACCESSIBLE via current application routing. Component code is properly implemented with all required PR A features (GameIntro/EndScreen integration, level persistence, Info button for manual GameIntro display), but cannot be tested as games section is not reachable through normal user flow. Component requires game context to initialize and display."
 
   - task: "PR A Core UX - Progress Tracking Helpers"
     implemented: true
