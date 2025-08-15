@@ -782,6 +782,12 @@ class BackendTester:
         self.log("🚀 FINAL RELEASE CANDIDATE v1.0.0-rc.1 SUMMARY")
         self.log("=" * 80)
         
+    def generate_release_candidate_summary(self):
+        """Generate FINAL RELEASE CANDIDATE SUMMARY"""
+        self.log("\n" + "=" * 80)
+        self.log("🚀 FINAL RELEASE CANDIDATE v1.0.0-rc.1 SUMMARY")
+        self.log("=" * 80)
+        
         # Count results
         total_tests = 0
         passed_tests = 0
@@ -790,10 +796,12 @@ class BackendTester:
             if phase == 'summary':
                 continue
                 
-            for test_name, result in tests.items():
-                total_tests += 1
-                if result.get('success', False):
-                    passed_tests += 1
+            if isinstance(tests, dict):
+                for test_name, result in tests.items():
+                    if isinstance(result, dict):
+                        total_tests += 1
+                        if result.get('success', False):
+                            passed_tests += 1
         
         self.results['summary'] = {
             'total': total_tests,
@@ -805,44 +813,48 @@ class BackendTester:
         # Print summary by phase
         self.log(f"\nOVERALL RESULTS: {passed_tests}/{total_tests} tests passed ({self.results['summary']['success_rate']:.1f}%)")
         
-        # Phase 1 Summary
-        phase1_results = self.results['phase1_pwa']
-        phase1_passed = sum(1 for r in phase1_results.values() if r.get('success', False))
-        phase1_total = len(phase1_results)
-        self.log(f"\nPHASE 1 - PWA HARDENING: {phase1_passed}/{phase1_total} tests passed")
+        # Go/No-Go Summary
+        go_no_go_result = self.results.get('go_no_go_checklist', {})
+        if go_no_go_result.get('go_no_go_all_valid', False):
+            self.log("✅ GO/NO-GO CHECKLIST: READY FOR RELEASE")
+        else:
+            self.log("❌ GO/NO-GO CHECKLIST: NOT READY FOR RELEASE")
         
-        for test_name, result in phase1_results.items():
-            status = "✅" if result.get('success', False) else "❌"
-            self.log(f"  {status} {test_name.replace('_', ' ').title()}")
+        # Critical Endpoints Summary
+        critical_endpoints = self.results.get('critical_production_endpoints', {})
+        if critical_endpoints.get('all_working', False):
+            self.log("✅ CRITICAL ENDPOINTS: ALL WORKING")
+        else:
+            working = critical_endpoints.get('working_count', 0)
+            total = critical_endpoints.get('total_count', 0)
+            self.log(f"❌ CRITICAL ENDPOINTS: {working}/{total} WORKING")
         
-        # Phase 2 Summary
-        phase2_results = self.results['phase2_seo_legal']
-        phase2_passed = sum(1 for r in phase2_results.values() if r.get('success', False))
-        phase2_total = len(phase2_results)
-        self.log(f"\nPHASE 2 - SEO & LEGAL: {phase2_passed}/{phase2_total} tests passed")
-        
-        for test_name, result in phase2_results.items():
-            status = "✅" if result.get('success', False) else "❌"
-            self.log(f"  {status} {test_name.replace('_', ' ').title()}")
-        
-        # Phase 3 Summary
-        phase3_results = self.results['phase3_accessibility']
-        phase3_passed = sum(1 for r in phase3_results.values() if r.get('success', False))
-        phase3_total = len(phase3_results)
-        self.log(f"\nPHASE 3 - ACCESSIBILITY & ERROR PAGES: {phase3_passed}/{phase3_total} tests passed")
-        
-        for test_name, result in phase3_results.items():
-            status = "✅" if result.get('success', False) else "❌"
-            self.log(f"  {status} {test_name.replace('_', ' ').title()}")
+        # Phase summaries
+        for phase_name, phase_key in [
+            ("PWA HARDENING", "phase1_pwa"),
+            ("SEO & LEGAL", "phase2_seo_legal"),
+            ("ACCESSIBILITY", "phase3_accessibility")
+        ]:
+            phase_results = self.results.get(phase_key, {})
+            if phase_results:
+                phase_passed = sum(1 for r in phase_results.values() if isinstance(r, dict) and r.get('success', False))
+                phase_total = len([r for r in phase_results.values() if isinstance(r, dict)])
+                self.log(f"\n{phase_name}: {phase_passed}/{phase_total} tests passed")
+                
+                for test_name, result in phase_results.items():
+                    if isinstance(result, dict):
+                        status = "✅" if result.get('success', False) else "❌"
+                        self.log(f"  {status} {test_name.replace('_', ' ').title()}")
         
         # Critical Issues
         critical_issues = []
         for phase, tests in self.results.items():
             if phase == 'summary':
                 continue
-            for test_name, result in tests.items():
-                if not result.get('success', False):
-                    critical_issues.append(f"{phase}.{test_name}: {result.get('error', 'Failed')}")
+            if isinstance(tests, dict):
+                for test_name, result in tests.items():
+                    if isinstance(result, dict) and not result.get('success', False):
+                        critical_issues.append(f"{phase}.{test_name}: {result.get('error', 'Failed')}")
         
         if critical_issues:
             self.log(f"\nCRITICAL ISSUES FOUND ({len(critical_issues)}):")
