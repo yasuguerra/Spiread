@@ -484,6 +484,126 @@ async function clearAllCaches() {
   console.log('[SW] All caches cleared')
 }
 
+// Pre-cache offline: últimos N=5 documentos para lectura offline
+async function cacheRecentDocuments(documents) {
+  try {
+    const dataCache = await caches.open(CACHES.data)
+    
+    for (const doc of documents) {
+      const cacheKey = `/offline/documents/${doc.id}`
+      const response = new Response(JSON.stringify(doc), {
+        headers: { 'Content-Type': 'application/json' }
+      })
+      await dataCache.put(cacheKey, response)
+    }
+    
+    cachedDocuments = documents
+    console.log(`[SW] Cached ${documents.length} recent documents for offline access`)
+  } catch (error) {
+    console.error('[SW] Failed to cache recent documents:', error)
+  }
+}
+
+// Pre-cache offline: últimos N=5 resultados de quiz para análisis offline
+async function cacheRecentQuizResults(quizResults) {
+  try {
+    const dataCache = await caches.open(CACHES.data)
+    
+    for (const result of quizResults) {
+      const cacheKey = `/offline/quiz-results/${result.id}`
+      const response = new Response(JSON.stringify(result), {
+        headers: { 'Content-Type': 'application/json' }
+      })
+      await dataCache.put(cacheKey, response)
+    }
+    
+    cachedQuizResults = quizResults
+    console.log(`[SW] Cached ${quizResults.length} recent quiz results for offline access`)
+  } catch (error) {
+    console.error('[SW] Failed to cache recent quiz results:', error)
+  }
+}
+
+// BG Sync: reintentos exponenciales con backoff
+async function retryWithBackoff(fn, maxRetries = 3, baseDelay = 1000) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      return await fn()
+    } catch (error) {
+      if (attempt === maxRetries - 1) throw error
+      
+      const delay = baseDelay * Math.pow(2, attempt) // Exponential backoff
+      console.log(`[SW] Retry attempt ${attempt + 1} failed, waiting ${delay}ms...`)
+      await new Promise(resolve => setTimeout(resolve, delay))
+    }
+  }
+}
+
+// Enhanced background sync with exponential backoff
+async function processOfflineQueueWithBackoff() {
+  try {
+    // Process game runs with exponential backoff
+    for (const gameRun of [...offlineQueue.game_runs]) {
+      try {
+        await retryWithBackoff(async () => {
+          const response = await fetch('/api/progress/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(gameRun)
+          })
+          
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+          }
+          
+          return response
+        })
+        
+        // Success - remove from queue
+        offlineQueue.game_runs = offlineQueue.game_runs.filter(item => item !== gameRun)
+        console.log('[SW] Game run synced successfully with backoff')
+        
+      } catch (error) {
+        console.log('[SW] Failed to sync game run after retries:', error)
+        // Keep in queue for next sync attempt
+      }
+    }
+    
+    // Process session schedules with exponential backoff
+    for (const session of [...offlineQueue.session_schedules]) {
+      try {
+        await retryWithBackoff(async () => {
+          const response = await fetch('/api/sessions', {
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(session)
+          })
+          
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+          }
+          
+          return response
+        })
+        
+        // Success - remove from queue
+        offlineQueue.session_schedules = offlineQueue.session_schedules.filter(item => item !== session)
+        console.log('[SW] Session schedule synced successfully with backoff')
+        
+      } catch (error) {
+        console.log('[SW] Failed to sync session schedule after retries:', error)
+        // Keep in queue for next sync attempt
+      }
+    }
+    
+    // Persist updated queue state
+    await persistOfflineQueue()
+    
+  } catch (error) {
+    console.error('[SW] Background sync with backoff failed:', error)
+  }
+}
+
 // Load offline queue when SW starts
 loadOfflineQueue()
 
