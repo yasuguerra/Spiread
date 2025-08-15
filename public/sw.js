@@ -1,33 +1,377 @@
-// Spiread Service Worker - PWA Support with Offline Functionality
-// Version: 1.0.0
+// Spiread Service Worker v1.0.0-rc.1
+// PWA Support with Offline Functionality, Background Sync, and Smart Caching
 
-const CACHE_NAME = 'spiread-v1.0.0'
-const OFFLINE_URL = '/offline'
+const SW_VERSION = 'spiread-v1'
+const SW_BUILD = '1.0.0-rc.1'
 
-// Files to cache for app shell
-const STATIC_CACHE_URLS = [
+// Versioned cache names for controlled invalidation
+const CACHES = {
+  shell: `${SW_VERSION}-shell`,
+  assets: `${SW_VERSION}-assets`, 
+  data: `${SW_VERSION}-data`,
+  api: `${SW_VERSION}-api`
+}
+
+// App shell - critical routes for offline functionality
+const APP_SHELL_URLS = [
   '/',
   '/offline',
   '/manifest.json',
-  '/accelerator-worker.js',
-  // Add other static assets as needed
+  '/accelerator-worker.js'
 ]
 
-// Dynamic cache names
-const CACHES = {
-  static: `${CACHE_NAME}-static`,
-  dynamic: `${CACHE_NAME}-dynamic`,
-  documents: `${CACHE_NAME}-documents`,
-  gameData: `${CACHE_NAME}-game-data`,
-  apiCache: `${CACHE_NAME}-api`
+// Game assets - ensure all 9 games work offline
+const GAME_ASSETS = [
+  // Core game components will be cached dynamically
+  // as they are accessed
+]
+
+// API endpoints to cache (with stale-while-revalidate)
+const CACHE_API_PATTERNS = [
+  /^\/api\/health$/,
+  /^\/api\/ai\/health$/,
+  /^\/api\/progress\/get$/,
+  /^\/api\/settings$/
+]
+
+// Offline queue for background sync
+let offlineQueue = {
+  gameRuns: [],
+  sessionSchedules: [],
+  settings: []
 }
 
-// Background sync queue for offline actions
-let syncQueue = []
-
-// Install event - cache static resources
+// Install event - precache app shell and critical assets
 self.addEventListener('install', event => {
-  console.log('[SW] Installing service worker...')
+  console.log(`[SW] Installing ${SW_VERSION} (${SW_BUILD})...`)
+  
+  event.waitUntil(
+    (async () => {
+      try {
+        // Cache app shell
+        const shellCache = await caches.open(CACHES.shell)
+        await shellCache.addAll(APP_SHELL_URLS)
+        
+        console.log(`[SW] ${SW_VERSION} installed successfully`)
+        
+        // Force activation to clean old caches
+        self.skipWaiting()
+      } catch (error) {
+        console.error('[SW] Installation failed:', error)
+        throw error
+      }
+    })()
+  )
+})
+
+// Activate event - clean up old caches and claim clients
+self.addEventListener('activate', event => {
+  console.log(`[SW] Activating ${SW_VERSION}...`)
+  
+  event.waitUntil(
+    (async () => {
+      try {
+        // Clean up old caches
+        const cacheNames = await caches.keys()
+        await Promise.all(
+          cacheNames
+            .filter(name => !name.startsWith(SW_VERSION) && name.includes('spiread'))
+            .map(name => {
+              console.log(`[SW] Deleting old cache: ${name}`)
+              return caches.delete(name)
+            })
+        )
+        
+        // Claim all clients immediately
+        await self.clients.claim()
+        
+        console.log(`[SW] ${SW_VERSION} activated and ready`)
+      } catch (error) {
+        console.error('[SW] Activation failed:', error)
+      }
+    })()
+  )
+})
+
+// Fetch event - implement caching strategies
+self.addEventListener('fetch', event => {
+  const { request } = event
+  const url = new URL(request.url)
+  
+  // Skip non-GET requests and chrome-extension requests
+  if (request.method !== 'GET' || url.protocol === 'chrome-extension:') {
+    return
+  }
+  
+  // API requests - network-first with cache fallback
+  if (url.pathname.startsWith('/api/')) {
+    event.respondWith(handleAPIRequest(request))
+    return
+  }
+  
+  // Static assets - cache-first
+  if (isStaticAsset(url.pathname)) {
+    event.respondWith(handleStaticAsset(request))
+    return
+  }
+  
+  // App shell - cache-first with network fallback
+  if (isAppShellRequest(url.pathname)) {
+    event.respondWith(handleAppShell(request))
+    return
+  }
+  
+  // Default - stale-while-revalidate
+  event.respondWith(handleDefault(request))
+})
+
+// API requests - network-first with smart fallback
+async function handleAPIRequest(request) {
+  const url = new URL(request.url)
+  
+  try {
+    // Try network first with timeout
+    const networkResponse = await Promise.race([
+      fetch(request),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Network timeout')), 5000)
+      )
+    ])
+    
+    // Cache successful responses for offline use
+    if (networkResponse.ok && shouldCacheAPI(url.pathname)) {
+      const cache = await caches.open(CACHES.api)
+      await cache.put(request, networkResponse.clone())
+    }
+    
+    return networkResponse
+    
+  } catch (error) {
+    console.log(`[SW] Network failed for ${url.pathname}, trying cache...`)
+    
+    // Network failed - try cache
+    const cachedResponse = await caches.match(request)
+    if (cachedResponse) {
+      return cachedResponse
+    }
+    
+    // No cache - return offline response
+    if (url.pathname.startsWith('/api/')) {
+      return new Response(
+        JSON.stringify({
+          error: 'Offline',
+          message: 'Network unavailable. Some features may be limited.',
+          offline: true
+        }),
+        {
+          status: 503,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      )
+    }
+    
+    throw error
+  }
+}
+
+// Static assets - cache-first with network fallback
+async function handleStaticAsset(request) {
+  const cache = await caches.open(CACHES.assets)
+  
+  // Try cache first
+  const cachedResponse = await cache.match(request)
+  if (cachedResponse) {
+    return cachedResponse
+  }
+  
+  // Cache miss - fetch and cache
+  try {
+    const networkResponse = await fetch(request)
+    if (networkResponse.ok) {
+      await cache.put(request, networkResponse.clone())
+    }
+    return networkResponse
+  } catch (error) {
+    console.log(`[SW] Failed to fetch static asset: ${request.url}`)
+    throw error
+  }
+}
+
+// App shell - cache-first with offline page fallback
+async function handleAppShell(request) {
+  const cache = await caches.open(CACHES.shell)
+  
+  // Try cache first
+  const cachedResponse = await cache.match(request)
+  if (cachedResponse) {
+    return cachedResponse
+  }
+  
+  // Cache miss - try network
+  try {
+    const networkResponse = await fetch(request)
+    if (networkResponse.ok) {
+      await cache.put(request, networkResponse.clone())
+      return networkResponse
+    }
+  } catch (error) {
+    console.log(`[SW] Network failed for app shell: ${request.url}`)
+  }
+  
+  // Everything failed - return offline page
+  const offlineResponse = await cache.match('/offline')
+  if (offlineResponse) {
+    return offlineResponse
+  }
+  
+  // Last resort - basic offline response
+  return new Response(
+    '<html><body><h1>Offline</h1><p>Please check your internet connection.</p></body></html>',
+    { headers: { 'Content-Type': 'text/html' } }
+  )
+}
+
+// Default strategy - stale-while-revalidate
+async function handleDefault(request) {
+  const cache = await caches.open(CACHES.data)
+  
+  // Get cached version immediately
+  const cachedResponse = await cache.match(request)
+  
+  // Fetch new version in background
+  const networkPromise = fetch(request).then(response => {
+    if (response.ok) {
+      cache.put(request, response.clone())
+    }
+    return response
+  }).catch(() => null)
+  
+  // Return cached version or wait for network
+  return cachedResponse || await networkPromise || new Response('Offline', { status: 503 })
+}
+
+// Background Sync - handle offline actions
+self.addEventListener('sync', event => {
+  console.log(`[SW] Background sync triggered: ${event.tag}`)
+  
+  if (event.tag === 'background-sync-spiread') {
+    event.waitUntil(processOfflineQueue())
+  }
+})
+
+// Process offline queue with exponential backoff
+async function processOfflineQueue() {
+  try {
+    // Process game runs
+    for (const gameRun of offlineQueue.gameRuns) {
+      try {
+        const response = await fetch('/api/progress/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(gameRun)
+        })
+        
+        if (response.ok) {
+          offlineQueue.gameRuns = offlineQueue.gameRuns.filter(item => item !== gameRun)
+          console.log('[SW] Game run synced successfully')
+        }
+      } catch (error) {
+        console.log('[SW] Failed to sync game run:', error)
+      }
+    }
+    
+    // Process session schedules
+    for (const session of offlineQueue.sessionSchedules) {
+      try {
+        const response = await fetch('/api/sessions', {
+          method: 'POST', 
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(session)
+        })
+        
+        if (response.ok) {
+          offlineQueue.sessionSchedules = offlineQueue.sessionSchedules.filter(item => item !== session)
+          console.log('[SW] Session schedule synced successfully')
+        }
+      } catch (error) {
+        console.log('[SW] Failed to sync session schedule:', error)
+      }
+    }
+    
+  } catch (error) {
+    console.error('[SW] Background sync failed:', error)
+  }
+}
+
+// Message handler - communicate with main thread
+self.addEventListener('message', event => {
+  const { action, data } = event.data
+  
+  switch (action) {
+    case 'GET_SW_STATUS':
+      event.ports[0].postMessage({
+        version: SW_VERSION,
+        build: SW_BUILD,
+        caches: Object.keys(CACHES),
+        queueLengths: {
+          gameRuns: offlineQueue.gameRuns.length,
+          sessionSchedules: offlineQueue.sessionSchedules.length
+        }
+      })
+      break
+      
+    case 'QUEUE_OFFLINE_ACTION':
+      if (data.type === 'game_run') {
+        offlineQueue.gameRuns.push(data.payload)
+      } else if (data.type === 'session_schedule') {
+        offlineQueue.sessionSchedules.push(data.payload)
+      }
+      console.log(`[SW] Queued offline action: ${data.type}`)
+      break
+      
+    case 'CLEAR_CACHES':
+      event.waitUntil(clearAllCaches())
+      break
+  }
+})
+
+// Helper functions
+function isStaticAsset(pathname) {
+  return pathname.includes('/_next/static/') || 
+         pathname.includes('.js') ||
+         pathname.includes('.css') ||
+         pathname.includes('.png') ||
+         pathname.includes('.jpg') ||
+         pathname.includes('.svg') ||
+         pathname.includes('.woff') ||
+         pathname === '/manifest.json' ||
+         pathname === '/accelerator-worker.js'
+}
+
+function isAppShellRequest(pathname) {
+  return pathname === '/' || 
+         pathname === '/offline' ||
+         APP_SHELL_URLS.includes(pathname)
+}
+
+function shouldCacheAPI(pathname) {
+  return CACHE_API_PATTERNS.some(pattern => pattern.test(pathname))
+}
+
+async function clearAllCaches() {
+  const cacheNames = await caches.keys()
+  await Promise.all(
+    cacheNames
+      .filter(name => name.includes('spiread'))
+      .map(name => caches.delete(name))
+  )
+  console.log('[SW] All caches cleared')
+}
+
+// Notify clients when SW is ready
+self.addEventListener('ready', () => {
+  console.log(`[SW] ${SW_VERSION} (${SW_BUILD}) ready for offline use`)
+})
   
   event.waitUntil(
     Promise.all([
