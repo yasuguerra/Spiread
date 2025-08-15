@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "FASE 6 — Sprint 3: PWA-SEO-LEGAL-RC (FINALIZAR + RC v1.0.0-rc.1) - Completing PWA Hardening with Service Worker versioning (spiread-v1), cache versioning (spiread-shell-v1, spiread-assets-v1, spiread-data-v1), offline pre-caching for 9 games + last N=5 documents/quiz results, BG Sync with exponential backoff, and /debug PWA status reporting"
+user_problem_statement: "PHASE 7 - PR A Core UX Testing: GameIntro + EndScreen + Persistencia - Testing the new UX components and functionality implemented in PR A: GameIntro Component (modal rendering, language support, localStorage persistence), EndScreen Component (modal rendering with game results, sparkline chart integration), MiniSparkline Component (chart rendering with Recharts, trend indicators), GameShell Integration (updated props, level persistence), Progress Tracking Helpers (localStorage functions), and SchulteTableExample Component (basic game implementation)."
 
 backend:
   - task: "Phase 1 - Service Worker PWA Hardening (NEW)"
