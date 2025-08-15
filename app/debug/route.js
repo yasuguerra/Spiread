@@ -112,12 +112,13 @@ export async function GET(request) {
       referer: request.headers.get('referer')
     }
 
-    const response = NextResponse.json({
+    return NextResponse.json({
       status: 'ok',
       timestamp: new Date().toISOString(),
       build: buildInfo,
       features,
       security,
+      observability,
       ai: {
         ...aiConfig,
         healthStatus: aiHealthStatus
@@ -132,8 +133,6 @@ export async function GET(request) {
         'Expires': '0'
       }
     })
-
-    return response
   } catch (error) {
     return NextResponse.json({
       status: 'error',
