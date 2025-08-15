@@ -102,6 +102,17 @@ export async function GET(request) {
       ]
     }
 
+    // Analytics configuration
+    let analytics = {
+      provider: 'null',
+      enabled: false,
+      consent: false,
+      dnt: false,
+      gpc: false,
+      lastEventsCount: 0,
+      lastEvents: []
+    }
+
     // Try to get analytics status (client-side code)
     try {
       // Import analytics status function (dynamic import for server-side safety)
