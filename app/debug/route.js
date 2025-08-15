@@ -17,7 +17,7 @@ export async function GET(request) {
       aiEnabled: process.env.AI_ENABLED === 'true',
       pwaEnabled: process.env.PWA_ENABLED === 'true',
       stripeEnabled: process.env.STRIPE_ENABLED === 'true',
-      analyticsEnabled: process.env.ANALYTICS_ENABLED === 'true',
+      analyticsEnabled: process.env.ANALYTICS_DISABLED !== 'true',
       sentryEnabled: process.env.SENTRY_ENABLED === 'true',
       cspEnabled: true // CSP is always enabled via middleware
     }
@@ -74,6 +74,48 @@ export async function GET(request) {
       }
     }
 
+    // Analytics configuration
+    let analytics = {
+      provider: 'null',
+      enabled: false,
+      consent: false,
+      dnt: false,
+      gpc: false,
+      lastEventsCount: 0,
+      lastEvents: []
+    }
+
+    // Try to get analytics status (client-side code)
+    try {
+      // Import analytics status function (dynamic import for server-side safety)
+      const analyticsModule = await import('@/lib/analytics/track')
+      const status = analyticsModule.getAnalyticsStatus()
+      
+      analytics = {
+        provider: status.provider || 'null',
+        enabled: status.enabled || false,
+        consent: status.consent || false,
+        dnt: status.doNotTrack || false,
+        gpc: status.globalPrivacyControl || false,
+        lastEventsCount: status.bufferSize || 0,
+        lastEvents: (status.lastEvents || []).slice(0, 10)
+      }
+    } catch (error) {
+      // Analytics status not available on server-side, provide basic info
+      const provider = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN ? 'plausible' :
+                      process.env.NEXT_PUBLIC_POSTHOG_KEY ? 'posthog' : 'null'
+      
+      analytics = {
+        provider,
+        enabled: process.env.ANALYTICS_DISABLED !== 'true' && provider !== 'null',
+        consent: false, // Cannot check on server-side
+        dnt: false,
+        gpc: false,
+        lastEventsCount: 0,
+        lastEvents: []
+      }
+    }
+
     // Database status (without connection string)
     const databaseConfig = {
       supabaseUrlConfigured: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -119,6 +161,7 @@ export async function GET(request) {
       features,
       security,
       observability,
+      analytics,
       ai: {
         ...aiConfig,
         healthStatus: aiHealthStatus
