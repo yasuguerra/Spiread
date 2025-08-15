@@ -442,10 +442,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Phase 6 - Data-TestID Attributes (NEW)"
-    - "Phase 6 - Playwright Test Suite (NEW)"
-    - "Phase 6 - Lighthouse CI Setup (NEW)"
-    - "Phase 6 - GitHub Actions Workflow (NEW)"
+    - "Phase 1 - Service Worker PWA Hardening (NEW)"
+    - "Phase 1 - Debug Endpoint PWA Status (NEW)"
+    - "Phase 1 - Offline Page UX Enhancement (NEW)"
   stuck_tasks:
     - "External URL Routing"
     - "Sessions API Endpoints"
@@ -456,6 +455,10 @@ test_plan:
     - "Phase 4 - Database Schema (NEW)"
   test_all: false
   test_priority: "high_first"
+
+agent_communication:
+    - agent: "main"
+      message: "FASE 6 — Sprint 3: PWA-SEO-LEGAL-RC - PHASE 1 PWA HARDENING COMPLETE! ✅ Service Worker completely rewritten with spiread-v1 versioning and versioned cache names (spiread-shell-v1, spiread-assets-v1, spiread-data-v1). ✅ Controlled invalidation of old caches implemented. ✅ Pre-cache offline for app shell + 9 games + last N=5 documents/quiz results with dedicated cache functions. ✅ BG Sync enhanced with exponential backoff, IndexedDB persistence, and proper retry logic. ✅ Debug endpoint updated with exact PWA status block as specified. ✅ Offline page UX already meets requirements with 'Reintentar' button and clear functionality display. Ready for comprehensive backend testing of PWA hardening implementation."
 
   - task: "Phase 2 - AI Questions UI Integration (NEW)"
     implemented: true
