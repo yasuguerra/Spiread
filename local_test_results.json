@@ -1,7 +1,7 @@
 {
-  "decision": "ISSUES_FOUND",
+  "decision": "APPROVED_LOCAL",
   "success_criteria": {
-    "go_no_go_ready": false,
+    "go_no_go_ready": true,
     "critical_endpoints_working": true,
     "overall_success_high": true
   },
@@ -12,19 +12,19 @@
       "status_code": 200,
       "content_type": "application/json",
       "content_length": 3499,
-      "response_time": 0.724391,
+      "response_time": 0.076828,
       "success": true,
       "go_no_go_validation": {
         "version_rc": true,
         "overall_status_ready": true,
-        "security_ok": false,
-        "observability_ok": false,
-        "analytics_ok": false,
-        "pwa_ok": false,
-        "seo_legal_ok": false,
+        "security_ok": true,
+        "observability_ok": true,
+        "analytics_ok": true,
+        "pwa_ok": true,
+        "seo_legal_ok": true,
         "release_blockers_empty": true
       },
-      "go_no_go_all_valid": false,
+      "go_no_go_all_valid": true,
       "release_blockers_count": 0
     },
     "critical_endpoints": {
@@ -34,7 +34,7 @@
           "status_code": 200,
           "content_type": "application/json",
           "content_length": 3499,
-          "response_time": 0.037507,
+          "response_time": 0.035142,
           "success": true
         },
         "/sw.js": {
@@ -42,7 +42,7 @@
           "status_code": 200,
           "content_type": "application/javascript; charset=UTF-8",
           "content_length": 19027,
-          "response_time": 0.006752,
+          "response_time": 0.005127,
           "success": true
         },
         "/manifest.json": {
@@ -50,7 +50,7 @@
           "status_code": 200,
           "content_type": "application/json; charset=UTF-8",
           "content_length": 3119,
-          "response_time": 0.003364,
+          "response_time": 0.002941,
           "success": true
         },
         "/robots.txt": {
@@ -58,7 +58,7 @@
           "status_code": 200,
           "content_type": "text/plain",
           "content_length": 300,
-          "response_time": 0.585586,
+          "response_time": 0.021718,
           "success": true
         },
         "/sitemap.xml": {
@@ -66,7 +66,7 @@
           "status_code": 200,
           "content_type": "application/xml",
           "content_length": 835,
-          "response_time": 0.53468,
+          "response_time": 0.044432,
           "success": true
         },
         "/": {
@@ -74,7 +74,7 @@
           "status_code": 200,
           "content_type": "text/html; charset=utf-8",
           "content_length": 11286,
-          "response_time": 9.003299,
+          "response_time": 0.759859,
           "success": true
         },
         "/legal/privacy": {
@@ -82,7 +82,7 @@
           "status_code": 200,
           "content_type": "text/html; charset=utf-8",
           "content_length": 20530,
-          "response_time": 2.826296,
+          "response_time": 0.095961,
           "success": true
         },
         "/legal/terms": {
@@ -90,7 +90,7 @@
           "status_code": 200,
           "content_type": "text/html; charset=utf-8",
           "content_length": 22191,
-          "response_time": 1.274612,
+          "response_time": 0.055566,
           "success": true
         },
         "/offline": {
@@ -98,7 +98,7 @@
           "status_code": 200,
           "content_type": "text/html; charset=utf-8",
           "content_length": 19857,
-          "response_time": 1.925049,
+          "response_time": 0.053235,
           "success": true
         }
       },
@@ -113,7 +113,7 @@
         "status_code": 200,
         "content_type": "application/javascript; charset=UTF-8",
         "content_length": 19027,
-        "response_time": 0.005506,
+        "response_time": 0.003182,
         "success": true,
         "sw_validation": {
           "spiread_v1_version": true,
@@ -131,7 +131,7 @@
         "status_code": 200,
         "content_type": "application/json; charset=UTF-8",
         "content_length": 3119,
-        "response_time": 0.003287,
+        "response_time": 0.003122,
         "success": true,
         "manifest_validation": {
           "name": true,
