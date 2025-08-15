@@ -224,7 +224,8 @@ export default function GameShell({
   const handleGameEnd = async (endData = {}) => {
     const now = Date.now()
     setEndTime(now)
-    setGameState(GAME_STATES.SUMMARY)
+    // PR A - Changed from SUMMARY to directly show EndScreen
+    // setGameState(GAME_STATES.SUMMARY) // Remove this line
     
     const results = {
       gameId,
@@ -243,6 +244,22 @@ export default function GameShell({
     
     // Update gamification (XP, Streaks, Achievements)
     await updateGamification(results)
+    
+    // PR A - Update level persistence and best score
+    if (gameKey) {
+      setLastLevel(gameKey, results.difficultyLevel || currentLevel)
+      const isNewBest = updateBestScore(gameKey, results.score || 0)
+      if (isNewBest) {
+        setBestScore(results.score || 0)
+      }
+      
+      // Refresh historical data
+      const newHistoricalData = await getGameHistoricalData(gameKey, 7)
+      setHistoricalData(newHistoricalData)
+    }
+    
+    // PR A - Show EndScreen instead of going to SUMMARY state
+    setShowEndScreen(true)
     
     // Notify parent
     if (onFinish) {
