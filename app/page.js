@@ -39,6 +39,7 @@ import AppFooter from '@/components/AppFooter'
 
 // Import new games
 import ShuttleTable from '@/components/games/ShuttleTable'
+import SchulteTablePRB from '@/components/games/SchulteTablePRB' // PR B
 import TwinWordsGrid from '@/components/games/TwinWordsGrid'
 import ParImpar from '@/components/games/ParImpar'
 import MemoryDigits from '@/components/games/MemoryDigits'
