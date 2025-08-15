@@ -92,11 +92,11 @@ class LocalBackendTester:
                 go_no_go_checks = {
                     'version_rc': go_no_go.get('version') == '1.0.0-rc.1',
                     'overall_status_ready': go_no_go.get('overall_status') == 'READY_FOR_RC',
-                    'security_ok': go_no_go.get('security', {}).get('status') == 'OK',
-                    'observability_ok': go_no_go.get('observability', {}).get('status') == 'OK',
-                    'analytics_ok': go_no_go.get('analytics', {}).get('status') == 'OK',
-                    'pwa_ok': go_no_go.get('pwa', {}).get('status') == 'OK',
-                    'seo_legal_ok': go_no_go.get('seo_legal', {}).get('status') == 'OK',
+                    'security_ok': go_no_go.get('checks', {}).get('security', {}).get('status') == 'OK',
+                    'observability_ok': go_no_go.get('checks', {}).get('observability', {}).get('status') == 'OK',
+                    'analytics_ok': go_no_go.get('checks', {}).get('analytics', {}).get('status') == 'OK',
+                    'pwa_ok': go_no_go.get('checks', {}).get('pwa', {}).get('status') == 'OK',
+                    'seo_legal_ok': go_no_go.get('checks', {}).get('seo_legal', {}).get('status') == 'OK',
                     'release_blockers_empty': len(go_no_go.get('release_blockers', [])) == 0,
                 }
                 
