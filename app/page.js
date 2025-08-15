@@ -43,6 +43,7 @@ import SchulteTablePRB from '@/components/games/SchulteTablePRB' // PR B
 import TwinWordsGrid from '@/components/games/TwinWordsGrid'
 import TwinWordsGridPRC from '@/components/games/TwinWordsGridPRC' // PR C
 import ParImpar from '@/components/games/ParImpar'
+import ParImparPRD from '@/components/games/ParImparPRD' // PR D
 import MemoryDigits from '@/components/games/MemoryDigits'
 import SessionRunner from '@/components/SessionRunner'
 
