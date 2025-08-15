@@ -1,0 +1,161 @@
+{
+  "decision": "ISSUES_FOUND",
+  "success_criteria": {
+    "go_no_go_ready": false,
+    "critical_endpoints_working": true,
+    "overall_success_high": true
+  },
+  "overall_success_rate": 100.0,
+  "results": {
+    "go_no_go": {
+      "url": "http://localhost:3000/debug",
+      "status_code": 200,
+      "content_type": "application/json",
+      "content_length": 3499,
+      "response_time": 0.724391,
+      "success": true,
+      "go_no_go_validation": {
+        "version_rc": true,
+        "overall_status_ready": true,
+        "security_ok": false,
+        "observability_ok": false,
+        "analytics_ok": false,
+        "pwa_ok": false,
+        "seo_legal_ok": false,
+        "release_blockers_empty": true
+      },
+      "go_no_go_all_valid": false,
+      "release_blockers_count": 0
+    },
+    "critical_endpoints": {
+      "endpoints": {
+        "/debug": {
+          "url": "http://localhost:3000/debug",
+          "status_code": 200,
+          "content_type": "application/json",
+          "content_length": 3499,
+          "response_time": 0.037507,
+          "success": true
+        },
+        "/sw.js": {
+          "url": "http://localhost:3000/sw.js",
+          "status_code": 200,
+          "content_type": "application/javascript; charset=UTF-8",
+          "content_length": 19027,
+          "response_time": 0.006752,
+          "success": true
+        },
+        "/manifest.json": {
+          "url": "http://localhost:3000/manifest.json",
+          "status_code": 200,
+          "content_type": "application/json; charset=UTF-8",
+          "content_length": 3119,
+          "response_time": 0.003364,
+          "success": true
+        },
+        "/robots.txt": {
+          "url": "http://localhost:3000/robots.txt",
+          "status_code": 200,
+          "content_type": "text/plain",
+          "content_length": 300,
+          "response_time": 0.585586,
+          "success": true
+        },
+        "/sitemap.xml": {
+          "url": "http://localhost:3000/sitemap.xml",
+          "status_code": 200,
+          "content_type": "application/xml",
+          "content_length": 835,
+          "response_time": 0.53468,
+          "success": true
+        },
+        "/": {
+          "url": "http://localhost:3000/",
+          "status_code": 200,
+          "content_type": "text/html; charset=utf-8",
+          "content_length": 11286,
+          "response_time": 9.003299,
+          "success": true
+        },
+        "/legal/privacy": {
+          "url": "http://localhost:3000/legal/privacy",
+          "status_code": 200,
+          "content_type": "text/html; charset=utf-8",
+          "content_length": 20530,
+          "response_time": 2.826296,
+          "success": true
+        },
+        "/legal/terms": {
+          "url": "http://localhost:3000/legal/terms",
+          "status_code": 200,
+          "content_type": "text/html; charset=utf-8",
+          "content_length": 22191,
+          "response_time": 1.274612,
+          "success": true
+        },
+        "/offline": {
+          "url": "http://localhost:3000/offline",
+          "status_code": 200,
+          "content_type": "text/html; charset=utf-8",
+          "content_length": 19857,
+          "response_time": 1.925049,
+          "success": true
+        }
+      },
+      "all_working": true,
+      "working_count": 9,
+      "total_count": 9,
+      "success_rate": 100.0
+    },
+    "pwa_hardening": {
+      "service_worker": {
+        "url": "http://localhost:3000/sw.js",
+        "status_code": 200,
+        "content_type": "application/javascript; charset=UTF-8",
+        "content_length": 19027,
+        "response_time": 0.005506,
+        "success": true,
+        "sw_validation": {
+          "spiread_v1_version": true,
+          "cache_names": true,
+          "background_sync": true,
+          "offline_queue": true,
+          "exponential_backoff": true,
+          "cache_management": true
+        },
+        "sw_all_valid": true,
+        "sw_size": 19021
+      },
+      "manifest": {
+        "url": "http://localhost:3000/manifest.json",
+        "status_code": 200,
+        "content_type": "application/json; charset=UTF-8",
+        "content_length": 3119,
+        "response_time": 0.003287,
+        "success": true,
+        "manifest_validation": {
+          "name": true,
+          "short_name": true,
+          "start_url": true,
+          "display": true,
+          "theme_color": true,
+          "background_color": true,
+          "icons": true,
+          "shortcuts": true,
+          "features": true,
+          "categories": true
+        },
+        "manifest_all_valid": true,
+        "icons_count": 8
+      }
+    },
+    "seo_legal": {},
+    "accessibility": {},
+    "summary": {
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "success_rate": 100.0
+    }
+  }
+}
