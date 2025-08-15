@@ -199,9 +199,9 @@ export default function HomePage() {
       )
     }
 
-    // Original games
+    // Original games with PR B updates
     const gameComponents = {
-      shuttle: ShuttleTable,
+      shuttle: SchulteTablePRB, // PR B: Updated Schulte with UX polish
       twin_words: TwinWordsGrid,
       par_impar: ParImpar,
       memory_digits: MemoryDigits,
@@ -213,6 +213,8 @@ export default function HomePage() {
       return <GameComponent 
         onFinish={handleGameFinish}
         onExit={() => setActiveGame(null)}
+        onBackToGames={() => setActiveGame(null)} // PR A integration
+        onViewStats={() => setActiveTab('stats')} // PR A integration
       />
     }
   }
