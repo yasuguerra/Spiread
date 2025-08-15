@@ -45,8 +45,7 @@ export const metadata = {
       'max-image-preview': 'large',
       'max-snippet': -1,
     },
-  },
-  themeColor: '#2563eb'
+  }
 }
 
 export const viewport = {
