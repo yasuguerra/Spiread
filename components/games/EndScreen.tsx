@@ -230,13 +230,14 @@ export default function EndScreen({
                   </Badge>
                 </div>
                 
-                <div className="relative">
-                  <MiniSparkline 
-                    data={historicalData}
-                    height={80}
-                    color="#3b82f6"
-                    className="mb-4"
-                  />
+                  <div className="relative">
+                    <MiniSparkline 
+                      data={historicalData}
+                      height={80}
+                      color="#3b82f6"
+                      className="mb-4"
+                      data-testid="mini-sparkline"
+                    />
                   
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div className="flex items-center space-x-2">
