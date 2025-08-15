@@ -1172,12 +1172,12 @@ agent_communication:
 
 test_plan:
   current_focus:
-    - "PR A Core UX - GameIntro Component"
-    - "PR A Core UX - EndScreen Component"
-    - "PR A Core UX - MiniSparkline Component"
-    - "PR A Core UX - GameShell Integration"
-    - "PR A Core UX - Progress Tracking Helpers"
-    - "PR A Core UX - SchulteTableExample Component"
+    - "PR B - SchulteTable UX Polish & Mobile"
+    - "PR C - TwinWords 60s Adaptive Gameplay"
+    - "PR B - SchulteTable EndScreen Integration"
+    - "PR C - TwinWords Scoring & Difficulty"
+    - "PR B - SchulteTable Level Persistence"
+    - "PR C - TwinWords Pair Regeneration"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
