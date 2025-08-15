@@ -96,5 +96,22 @@ export function resetAnalytics(): void {
   analyticsInstance = null
 }
 
-// Export the analytics interface for direct use
-export type { AnalyticsAdapter, AnalyticsEvent, AnalyticsProps } from './adapter'
+// Export types and interfaces
+export type {
+  AnalyticsEvent,
+  AnalyticsProps,
+  DeviceType,
+  AnalyticsEventRecord,
+  AnalyticsAdapter,
+  PrivacyControls,
+  AnalyticsConfig
+} from './adapter'
+
+// Export classes and utilities
+export {
+  NullAnalyticsAdapter,
+  EVENT_SOURCES,
+  getDeviceType,
+  getPrivacyControls,
+  shouldBlockAnalytics
+} from './adapter'
