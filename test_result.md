@@ -475,15 +475,18 @@ frontend:
 
   - task: "PR A Core UX - EndScreen Component"
     implemented: true
-    working: "NA"
+    working: false
     file: "components/games/EndScreen.tsx"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "testing"
           comment: "PR A CORE UX COMPONENT IDENTIFIED: EndScreen component implemented with modal rendering, game results display, MiniSparkline chart integration, action buttons functionality, keyboard shortcuts, and performance metrics display. Component integrates with backend Game Runs API for historical data. Backend APIs confirmed working to support EndScreen sparkline data requirements."
+        - working: false
+          agent: "testing"
+          comment: "PR A CORE UX TESTING COMPLETE: ❌ EndScreen component NOT ACCESSIBLE via current application routing. Component code is properly implemented with all required features (data-testid='end-screen', MiniSparkline integration, action buttons with data-testids 'btn-retry', 'btn-back-to-games', 'btn-to-stats', keyboard shortcuts ESC/ENTER/S), but cannot be tested as games are not accessible through normal user flow. Component requires game completion to trigger display."
 
   - task: "PR A Core UX - MiniSparkline Component"
     implemented: true
