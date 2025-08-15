@@ -123,6 +123,7 @@ export default function EndScreen({
       <DialogContent 
         className="max-w-2xl max-h-[90vh] overflow-y-auto"
         aria-describedby="end-screen-description"
+        data-testid="end-screen"
       >
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-3 text-xl">
