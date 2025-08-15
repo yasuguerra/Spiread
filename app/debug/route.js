@@ -189,6 +189,7 @@ export async function GET(request) {
       features,
       security,
       observability,
+      pwa,
       analytics,
       ai: {
         ...aiConfig,
