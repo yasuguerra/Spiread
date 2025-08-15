@@ -68,8 +68,13 @@ self.addEventListener('install', event => {
         const shellCache = await caches.open(CACHES.shell)
         await shellCache.addAll(APP_SHELL_URLS)
         
-        // Pre-cache critical game assets
+        // Pre-cache critical game assets for offline functionality
         const assetsCache = await caches.open(CACHES.assets)
+        // Note: Game assets will be cached dynamically as they are accessed
+        // since Next.js generates hashed filenames that we can't predict
+        
+        // Initialize data cache for documents and quiz results  
+        const dataCache = await caches.open(CACHES.data)
         
         console.log(`[SW] ${SW_VERSION} installed successfully with versioned caches`)
         
