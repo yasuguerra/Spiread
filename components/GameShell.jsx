@@ -44,10 +44,14 @@ import {
 
 export default function GameShell({ 
   gameId, 
+  gameName, // Add gameName prop for PR A
+  gameKey, // Add gameKey prop for PR A (e.g., 'schulte', 'twinwords')
   difficultyLevel = 3, 
-  durationMs,
+  durationMs = 60000, // Default to 60 seconds (PR A)
   onFinish,
   onExit,
+  onBackToGames, // Add callback for "Back to Games" (PR A)
+  onViewStats, // Add callback for "View Stats" (PR A)
   children 
 }) {
   const [gameState, setGameState] = useState(GAME_STATES.IDLE)
@@ -58,6 +62,14 @@ export default function GameShell({
   const [gameResults, setGameResults] = useState(null)
   const [adaptiveDifficulty, setAdaptiveDifficulty] = useState(null)
   const [isTabVisible, setIsTabVisible] = useState(true)
+  
+  // PR A - Core UX: GameIntro and EndScreen states
+  const [showGameIntro, setShowGameIntro] = useState(false)
+  const [showEndScreen, setShowEndScreen] = useState(false)
+  const [currentLevel, setCurrentLevel] = useState(1)
+  const [bestScore, setBestScore] = useState(0)
+  const [historicalData, setHistoricalData] = useState([])
+  const [forceShowIntro, setForceShowIntro] = useState(false) // For manual intro show
   
   const timerRef = useRef(null)
   const pauseTimeoutRef = useRef(null)
