@@ -670,10 +670,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Phase 1 - Service Worker PWA Hardening (NEW)"
-    - "Phase 1 - Debug Endpoint PWA Status (NEW)"
-    - "Phase 2 - SEO & Legal Implementation (NEW)"
-    - "Phase 3 - Accessibility & Error Pages (NEW)"
+    - "PR D ParImpar Enhancement - Backend Support"
+    - "PR D ParImpar Enhancement - Component Implementation"
   stuck_tasks:
     - "External URL Routing"
     - "Sessions API Endpoints"
