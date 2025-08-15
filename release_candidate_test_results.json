@@ -1,0 +1,244 @@
+{
+  "phase1_pwa": {
+    "debug_endpoint": {
+      "url": "https://read-faster-2.preview.emergentagent.com/debug",
+      "status_code": 502,
+      "content_type": "",
+      "content_length": 0,
+      "response_time": 0.022132,
+      "success": false,
+      "error": "Expected content-type application/json, got "
+    },
+    "service_worker": {
+      "url": "https://read-faster-2.preview.emergentagent.com/sw.js",
+      "status_code": 502,
+      "content_type": "",
+      "content_length": 0,
+      "response_time": 0.027842,
+      "success": false,
+      "error": "Expected content-type application/javascript, got "
+    },
+    "manifest": {
+      "url": "https://read-faster-2.preview.emergentagent.com/manifest.json",
+      "status_code": 502,
+      "content_type": "",
+      "content_length": 0,
+      "response_time": 0.020607,
+      "success": false,
+      "error": "Expected content-type application/json, got "
+    }
+  },
+  "phase2_seo_legal": {
+    "robots_txt": {
+      "url": "https://read-faster-2.preview.emergentagent.com/robots.txt",
+      "status_code": 502,
+      "content_type": "",
+      "content_length": 0,
+      "response_time": 0.022293,
+      "success": false,
+      "error": "Expected content-type text/plain, got "
+    },
+    "sitemap_xml": {
+      "url": "https://read-faster-2.preview.emergentagent.com/sitemap.xml",
+      "status_code": 502,
+      "content_type": "",
+      "content_length": 0,
+      "response_time": 0.016055,
+      "success": false,
+      "error": "Expected content-type application/xml, got "
+    },
+    "meta_tags": {
+      "url": "https://read-faster-2.preview.emergentagent.com/",
+      "status_code": 502,
+      "content_type": "",
+      "content_length": 0,
+      "response_time": 0.025846,
+      "success": false,
+      "error": "Expected content-type text/html, got "
+    },
+    "_legal_privacy": {
+      "url": "https://read-faster-2.preview.emergentagent.com/legal/privacy",
+      "status_code": 200,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 20530,
+      "response_time": 16.19805,
+      "success": true,
+      "legal_validation": {
+        "has_content": true,
+        "has_title": false,
+        "has_contact_info": true,
+        "has_date": true,
+        "proper_structure": true
+      },
+      "legal_all_valid": false,
+      "content_size": 20435
+    },
+    "_legal_terms": {
+      "url": "https://read-faster-2.preview.emergentagent.com/legal/terms",
+      "status_code": 200,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 22191,
+      "response_time": 8.491721,
+      "success": true,
+      "legal_validation": {
+        "has_content": true,
+        "has_title": false,
+        "has_contact_info": true,
+        "has_date": true,
+        "proper_structure": true
+      },
+      "legal_all_valid": false,
+      "content_size": 22066
+    }
+  },
+  "phase3_accessibility": {
+    "error_404": {
+      "url": "https://read-faster-2.preview.emergentagent.com/nonexistent-page-test-404",
+      "status_code": 404,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 20502,
+      "response_time": 0.589221,
+      "success": true
+    },
+    "content_accessibility": {
+      "url": "https://read-faster-2.preview.emergentagent.com/",
+      "status_code": 200,
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 11286,
+      "response_time": 20.243434,
+      "success": true,
+      "a11y_validation": {
+        "has_lang_attr": true,
+        "has_title": true,
+        "has_headings": false,
+        "has_proper_html": true,
+        "has_meta_viewport": true,
+        "has_semantic_structure": false
+      },
+      "a11y_all_valid": false,
+      "content_size": 11250
+    }
+  },
+  "summary": {
+    "total": 13,
+    "passed": 4,
+    "failed": 9,
+    "success_rate": 30.76923076923077
+  },
+  "go_no_go_checklist": {
+    "url": "https://read-faster-2.preview.emergentagent.com/debug",
+    "status_code": 200,
+    "content_type": "application/json",
+    "content_length": 3497,
+    "response_time": 2.132426,
+    "success": true,
+    "go_no_go_validation": {
+      "version_rc": true,
+      "overall_status_ready": true,
+      "security_ok": false,
+      "observability_ok": false,
+      "analytics_ok": false,
+      "pwa_ok": false,
+      "seo_legal_ok": false,
+      "release_blockers_empty": true,
+      "recommendations_present": true
+    },
+    "go_no_go_all_valid": false,
+    "release_blockers_count": 0,
+    "recommendations_count": 3
+  },
+  "critical_production_endpoints": {
+    "endpoints": {
+      "/debug": {
+        "url": "https://read-faster-2.preview.emergentagent.com/debug",
+        "status_code": 200,
+        "content_type": "application/json",
+        "content_length": 3497,
+        "response_time": 0.054635,
+        "success": true
+      },
+      "/sw.js": {
+        "url": "https://read-faster-2.preview.emergentagent.com/sw.js",
+        "status_code": 200,
+        "content_type": "application/javascript; charset=UTF-8",
+        "content_length": 19027,
+        "response_time": 0.023429,
+        "success": true
+      },
+      "/manifest.json": {
+        "url": "https://read-faster-2.preview.emergentagent.com/manifest.json",
+        "status_code": 200,
+        "content_type": "application/json; charset=UTF-8",
+        "content_length": 3119,
+        "response_time": 0.025809,
+        "success": true
+      },
+      "/robots.txt": {
+        "url": "https://read-faster-2.preview.emergentagent.com/robots.txt",
+        "status_code": 200,
+        "content_type": "text/plain",
+        "content_length": 300,
+        "response_time": 0.47001,
+        "success": true
+      },
+      "/sitemap.xml": {
+        "url": "https://read-faster-2.preview.emergentagent.com/sitemap.xml",
+        "status_code": 200,
+        "content_type": "application/xml",
+        "content_length": 835,
+        "response_time": 0.550953,
+        "success": true
+      },
+      "/": {
+        "success": false,
+        "error": "HTTPSConnectionPool(host='read-faster-2.preview.emergentagent.com', port=443): Read timed out. (read timeout=30)",
+        "url": "https://read-faster-2.preview.emergentagent.com/"
+      },
+      "/legal/privacy": {
+        "url": "https://read-faster-2.preview.emergentagent.com/legal/privacy",
+        "status_code": 200,
+        "content_type": "text/html; charset=utf-8",
+        "content_length": 20530,
+        "response_time": 27.603316,
+        "success": true
+      },
+      "/legal/terms": {
+        "url": "https://read-faster-2.preview.emergentagent.com/legal/terms",
+        "status_code": 502,
+        "content_type": "",
+        "content_length": 0,
+        "response_time": 0.102649,
+        "success": false,
+        "error": "Expected content-type text/html, got "
+      },
+      "/offline": {
+        "url": "https://read-faster-2.preview.emergentagent.com/offline",
+        "status_code": 502,
+        "content_type": "",
+        "content_length": 0,
+        "response_time": 0.02004,
+        "success": false,
+        "error": "Expected content-type text/html, got "
+      }
+    },
+    "all_working": false,
+    "working_count": 6,
+    "total_count": 9,
+    "success_rate": 66.66666666666666
+  },
+  "release_and_security": {
+    "release_notes": false,
+    "security_headers": {},
+    "rate_limiting": false
+  },
+  "release_candidate_decision": {
+    "approved": false,
+    "success_criteria": {
+      "go_no_go_ready": false,
+      "critical_endpoints_working": null,
+      "overall_success_high": false
+    },
+    "overall_success_rate": 30.76923076923077,
+    "timestamp": "2025-08-15T02:43:40.052387"
+  }
+}
