@@ -81,6 +81,35 @@ export default function GameShell({
     setAdaptiveDifficulty(adaptive)
   }, [gameId, difficultyLevel])
 
+  // PR A - Core UX: Initialize game intro and persistence
+  useEffect(() => {
+    if (!gameKey) return
+
+    // Load current level and best score from persistence
+    const savedLevel = getLastLevel(gameKey)
+    const savedBestScore = getLastBestScore(gameKey)
+    
+    setCurrentLevel(savedLevel)
+    setBestScore(savedBestScore)
+    
+    // Load historical data for sparkline
+    getGameHistoricalData(gameKey, 7).then(data => {
+      setHistoricalData(data)
+    })
+    
+    // Check if we should show GameIntro
+    if (shouldShowGameIntro(gameKey)) {
+      setShowGameIntro(true)
+    }
+  }, [gameKey])
+
+  // PR A - Update difficulty level when current level changes
+  useEffect(() => {
+    if (adaptiveDifficulty && currentLevel !== adaptiveDifficulty.currentLevel) {
+      adaptiveDifficulty.currentLevel = currentLevel
+    }
+  }, [currentLevel, adaptiveDifficulty])
+
   // Tab visibility handling for auto-pause
   useEffect(() => {
     const handleVisibilityChange = () => {
