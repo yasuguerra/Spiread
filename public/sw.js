@@ -4,12 +4,11 @@
 const SW_VERSION = 'spiread-v1'
 const SW_BUILD = '1.0.0-rc.1'
 
-// Versioned cache names for controlled invalidation
+// Versioned cache names for controlled invalidation (as per Phase 1 requirements)
 const CACHES = {
-  shell: `${SW_VERSION}-shell`,
-  assets: `${SW_VERSION}-assets`, 
-  data: `${SW_VERSION}-data`,
-  api: `${SW_VERSION}-api`
+  shell: `spiread-shell-v1`,
+  assets: `spiread-assets-v1`, 
+  data: `spiread-data-v1`
 }
 
 // App shell - critical routes for offline functionality
