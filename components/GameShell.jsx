@@ -415,6 +415,9 @@ export default function GameShell({
     isPaused,
     isTabVisible,
     adaptiveDifficulty,
+    // PR A - Add level and score context
+    currentLevel,
+    bestScore,
     startGame,
     pauseGame,
     resumeGame,
