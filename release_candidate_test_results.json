@@ -1,7 +1,7 @@
 {
   "phase1_pwa": {
     "debug_endpoint": {
-      "url": "https://read-faster-2.preview.emergentagent.com/debug",
+      "url": "https://brain-games-2.preview.emergentagent.com/debug",
       "status_code": 502,
       "content_type": "",
       "content_length": 0,
@@ -10,7 +10,7 @@
       "error": "Expected content-type application/json, got "
     },
     "service_worker": {
-      "url": "https://read-faster-2.preview.emergentagent.com/sw.js",
+      "url": "https://brain-games-2.preview.emergentagent.com/sw.js",
       "status_code": 502,
       "content_type": "",
       "content_length": 0,
@@ -19,7 +19,7 @@
       "error": "Expected content-type application/javascript, got "
     },
     "manifest": {
-      "url": "https://read-faster-2.preview.emergentagent.com/manifest.json",
+      "url": "https://brain-games-2.preview.emergentagent.com/manifest.json",
       "status_code": 502,
       "content_type": "",
       "content_length": 0,
@@ -30,7 +30,7 @@
   },
   "phase2_seo_legal": {
     "robots_txt": {
-      "url": "https://read-faster-2.preview.emergentagent.com/robots.txt",
+      "url": "https://brain-games-2.preview.emergentagent.com/robots.txt",
       "status_code": 502,
       "content_type": "",
       "content_length": 0,
@@ -39,7 +39,7 @@
       "error": "Expected content-type text/plain, got "
     },
     "sitemap_xml": {
-      "url": "https://read-faster-2.preview.emergentagent.com/sitemap.xml",
+      "url": "https://brain-games-2.preview.emergentagent.com/sitemap.xml",
       "status_code": 502,
       "content_type": "",
       "content_length": 0,
@@ -50,10 +50,10 @@
     "meta_tags": {
       "success": false,
       "error": "HTTPSConnectionPool(host='read-faster-2.preview.emergentagent.com', port=443): Read timed out. (read timeout=30)",
-      "url": "https://read-faster-2.preview.emergentagent.com/"
+      "url": "https://brain-games-2.preview.emergentagent.com/"
     },
     "_legal_privacy": {
-      "url": "https://read-faster-2.preview.emergentagent.com/legal/privacy",
+      "url": "https://brain-games-2.preview.emergentagent.com/legal/privacy",
       "status_code": 200,
       "content_type": "text/html; charset=utf-8",
       "content_length": 20530,
@@ -70,7 +70,7 @@
       "content_size": 20435
     },
     "_legal_terms": {
-      "url": "https://read-faster-2.preview.emergentagent.com/legal/terms",
+      "url": "https://brain-games-2.preview.emergentagent.com/legal/terms",
       "status_code": 502,
       "content_type": "",
       "content_length": 0,
@@ -81,7 +81,7 @@
   },
   "phase3_accessibility": {
     "error_404": {
-      "url": "https://read-faster-2.preview.emergentagent.com/nonexistent-page-test-404",
+      "url": "https://brain-games-2.preview.emergentagent.com/nonexistent-page-test-404",
       "status_code": 502,
       "content_type": "",
       "content_length": 0,
@@ -90,7 +90,7 @@
       "error": "Expected content-type text/html, got "
     },
     "content_accessibility": {
-      "url": "https://read-faster-2.preview.emergentagent.com/",
+      "url": "https://brain-games-2.preview.emergentagent.com/",
       "status_code": 502,
       "content_type": "",
       "content_length": 0,
@@ -106,7 +106,7 @@
     "success_rate": 7.6923076923076925
   },
   "go_no_go_checklist": {
-    "url": "https://read-faster-2.preview.emergentagent.com/debug",
+    "url": "https://brain-games-2.preview.emergentagent.com/debug",
     "status_code": 200,
     "content_type": "application/json",
     "content_length": 3499,
@@ -130,7 +130,7 @@
   "critical_production_endpoints": {
     "endpoints": {
       "/debug": {
-        "url": "https://read-faster-2.preview.emergentagent.com/debug",
+        "url": "https://brain-games-2.preview.emergentagent.com/debug",
         "status_code": 200,
         "content_type": "application/json",
         "content_length": 3499,
@@ -138,7 +138,7 @@
         "success": true
       },
       "/sw.js": {
-        "url": "https://read-faster-2.preview.emergentagent.com/sw.js",
+        "url": "https://brain-games-2.preview.emergentagent.com/sw.js",
         "status_code": 200,
         "content_type": "application/javascript; charset=UTF-8",
         "content_length": 19027,
@@ -146,7 +146,7 @@
         "success": true
       },
       "/manifest.json": {
-        "url": "https://read-faster-2.preview.emergentagent.com/manifest.json",
+        "url": "https://brain-games-2.preview.emergentagent.com/manifest.json",
         "status_code": 200,
         "content_type": "application/json; charset=UTF-8",
         "content_length": 3119,
@@ -154,7 +154,7 @@
         "success": true
       },
       "/robots.txt": {
-        "url": "https://read-faster-2.preview.emergentagent.com/robots.txt",
+        "url": "https://brain-games-2.preview.emergentagent.com/robots.txt",
         "status_code": 200,
         "content_type": "text/plain",
         "content_length": 300,
@@ -162,7 +162,7 @@
         "success": true
       },
       "/sitemap.xml": {
-        "url": "https://read-faster-2.preview.emergentagent.com/sitemap.xml",
+        "url": "https://brain-games-2.preview.emergentagent.com/sitemap.xml",
         "status_code": 200,
         "content_type": "application/xml",
         "content_length": 835,
@@ -170,7 +170,7 @@
         "success": true
       },
       "/": {
-        "url": "https://read-faster-2.preview.emergentagent.com/",
+        "url": "https://brain-games-2.preview.emergentagent.com/",
         "status_code": 200,
         "content_type": "text/html; charset=utf-8",
         "content_length": 11286,
@@ -178,7 +178,7 @@
         "success": true
       },
       "/legal/privacy": {
-        "url": "https://read-faster-2.preview.emergentagent.com/legal/privacy",
+        "url": "https://brain-games-2.preview.emergentagent.com/legal/privacy",
         "status_code": 502,
         "content_type": "",
         "content_length": 0,
@@ -187,7 +187,7 @@
         "error": "Expected content-type text/html, got "
       },
       "/legal/terms": {
-        "url": "https://read-faster-2.preview.emergentagent.com/legal/terms",
+        "url": "https://brain-games-2.preview.emergentagent.com/legal/terms",
         "status_code": 502,
         "content_type": "",
         "content_length": 0,
@@ -196,7 +196,7 @@
         "error": "Expected content-type text/html, got "
       },
       "/offline": {
-        "url": "https://read-faster-2.preview.emergentagent.com/offline",
+        "url": "https://brain-games-2.preview.emergentagent.com/offline",
         "status_code": 502,
         "content_type": "",
         "content_length": 0,

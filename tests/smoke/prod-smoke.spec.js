@@ -5,7 +5,7 @@
 import { test, expect } from '@playwright/test'
 
 // Production configuration
-const PROD_BASE_URL = process.env.PROD_BASE_URL || 'https://read-faster-2.preview.emergentagent.com'
+const PROD_BASE_URL = process.env.PROD_BASE_URL || 'https://brain-games-2.preview.emergentagent.com'
 const SMOKE_TEST_EMAIL = process.env.SMOKE_TEST_EMAIL || 'smoke.test@spiread.com'
 const SMOKE_TEST_PASSWORD = process.env.SMOKE_TEST_PASSWORD || 'SmokeTest2025!'
 
