@@ -368,6 +368,44 @@ export default function GameShell({
     return minutes > 0 ? `${minutes}:${(seconds % 60).toString().padStart(2, '0')}` : `${seconds}s`
   }
 
+  // PR A - GameIntro callback functions
+  const handleGameIntroClose = () => {
+    setShowGameIntro(false)
+  }
+
+  const handleGameIntroStart = () => {
+    setShowGameIntro(false)
+    startGame()
+  }
+
+  const handleShowIntroManually = () => {
+    setForceShowIntro(true)
+    setShowGameIntro(true)
+  }
+
+  // PR A - EndScreen callback functions
+  const handlePlayAgain = () => {
+    setShowEndScreen(false)
+    setGameState(GAME_STATES.IDLE)
+    setTimeElapsed(0)
+    setGameResults(null)
+  }
+
+  const handleBackToGames = () => {
+    setShowEndScreen(false)
+    if (onBackToGames) {
+      onBackToGames()
+    } else if (onExit) {
+      onExit()
+    }
+  }
+
+  const handleViewStats = () => {
+    if (onViewStats) {
+      onViewStats()
+    }
+  }
+
   const progress = durationMs ? (timeElapsed / durationMs) * 100 : 0
 
   // Game shell context to pass to children
