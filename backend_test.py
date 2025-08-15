@@ -423,7 +423,107 @@ class BackendTester:
             'success_rate': (working_count / total_count * 100) if total_count > 0 else 0
         }
         
-        return all_endpoints_working
+    def test_release_artifacts_and_security(self):
+        """RELEASE TAG VERIFICATION & SECURITY CHECK"""
+        self.log("\n" + "=" * 80)
+        self.log("🏷️  RELEASE TAG VERIFICATION & SECURITY CHECK")
+        self.log("=" * 80)
+        
+        # Test 1: Check for RELEASE_NOTES.md accessibility
+        self.log("\n📋 Testing Release Notes Accessibility")
+        result, response = self.test_endpoint(
+            f"{BASE_URL}/RELEASE_NOTES.md",
+            expected_status=200,
+            expected_content_type="text/plain",
+            description="Release Notes"
+        )
+        
+        release_notes_working = result['success']
+        if release_notes_working and response:
+            content = response.text
+            if 'v1.0.0-rc.1' in content:
+                self.log("✅ Release notes contain v1.0.0-rc.1 tag")
+            else:
+                self.log("⚠️  Release notes accessible but missing v1.0.0-rc.1 tag")
+        
+        # Test 2: Security Headers Check
+        self.log("\n🔒 Testing Security Headers")
+        result, response = self.test_endpoint(
+            f"{BASE_URL}/",
+            expected_status=200,
+            description="Security Headers Check"
+        )
+        
+        security_headers = {}
+        if result['success'] and response:
+            headers = response.headers
+            
+            # Check for important security headers
+            security_checks = {
+                'content_security_policy': 'content-security-policy' in headers or 'csp' in str(headers).lower(),
+                'x_frame_options': 'x-frame-options' in headers,
+                'x_content_type_options': 'x-content-type-options' in headers,
+                'referrer_policy': 'referrer-policy' in headers,
+                'permissions_policy': 'permissions-policy' in headers or 'feature-policy' in headers
+            }
+            
+            security_headers = {
+                'checks': security_checks,
+                'headers_present': sum(security_checks.values()),
+                'total_checks': len(security_checks),
+                'all_present': all(security_checks.values())
+            }
+            
+            self.log(f"🔍 Security Headers Found: {security_headers['headers_present']}/{security_headers['total_checks']}")
+            for header, present in security_checks.items():
+                status = "✅" if present else "⚠️ "
+                self.log(f"  {status} {header.replace('_', '-').upper()}")
+        
+        # Test 3: Rate Limiting Check (if implemented)
+        self.log("\n⚡ Testing Rate Limiting")
+        rate_limit_working = False
+        try:
+            # Make multiple rapid requests to test rate limiting
+            rapid_requests = []
+            for i in range(5):
+                result, response = self.test_endpoint(
+                    f"{BASE_URL}/debug",
+                    expected_status=200,
+                    description=f"Rate Limit Test {i+1}"
+                )
+                if response:
+                    rapid_requests.append({
+                        'status': response.status_code,
+                        'headers': dict(response.headers)
+                    })
+            
+            # Check if any rate limiting headers are present
+            rate_limit_headers = ['x-ratelimit-limit', 'x-ratelimit-remaining', 'retry-after']
+            rate_limit_found = any(
+                any(header in req['headers'] for header in rate_limit_headers)
+                for req in rapid_requests
+            )
+            
+            if rate_limit_found:
+                self.log("✅ Rate limiting headers detected")
+                rate_limit_working = True
+            else:
+                self.log("⚠️  No rate limiting headers detected (may not be implemented)")
+                
+        except Exception as e:
+            self.log(f"⚠️  Rate limiting test failed: {str(e)}")
+        
+        self.results['release_and_security'] = {
+            'release_notes': release_notes_working,
+            'security_headers': security_headers,
+            'rate_limiting': rate_limit_working
+        }
+        
+        return {
+            'release_notes': release_notes_working,
+            'security_headers': security_headers.get('all_present', False),
+            'rate_limiting': rate_limit_working
+        }
     
     def test_phase2_seo_legal(self):
         """PHASE 2 - SEO & LEGAL VERIFICATION"""
