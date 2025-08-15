@@ -661,6 +661,36 @@ export default function GameShell({
           </motion.div>
         )}
       </AnimatePresence>
+      
+      {/* PR A - GameIntro Modal */}
+      {gameKey && gameName && (
+        <GameIntro
+          gameKey={gameKey}
+          gameName={gameName}
+          isOpen={showGameIntro}
+          onClose={handleGameIntroClose}
+          onStart={handleGameIntroStart}
+          language="es" // TODO: Get from context
+        />
+      )}
+      
+      {/* PR A - EndScreen Modal */}
+      {gameKey && gameName && gameResults && (
+        <EndScreen
+          gameKey={gameKey}
+          gameName={gameName}
+          isOpen={showEndScreen}
+          score={gameResults.score || 0}
+          level={gameResults.difficultyLevel || currentLevel}
+          bestScore={bestScore}
+          duration={Math.floor((gameResults.duration || 0) / 1000)}
+          historicalData={historicalData}
+          onPlayAgain={handlePlayAgain}
+          onBackToGames={handleBackToGames}
+          onViewStats={handleViewStats}
+          language="es" // TODO: Get from context
+        />
+      )}
     </div>
   )
 }
