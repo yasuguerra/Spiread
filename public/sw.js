@@ -283,7 +283,7 @@ self.addEventListener('sync', event => {
   console.log(`[SW] Background sync triggered: ${event.tag}`)
   
   if (event.tag === 'background-sync-spiread') {
-    event.waitUntil(processOfflineQueue())
+    event.waitUntil(processOfflineQueueWithBackoff())
   }
 })
 
