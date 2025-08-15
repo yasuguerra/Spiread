@@ -82,7 +82,7 @@ export default function MiniSparkline({
   }
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative ${className}`} data-testid="mini-sparkline">
       <div style={{ height }} className="w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
