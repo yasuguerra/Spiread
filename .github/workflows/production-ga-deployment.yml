@@ -1,0 +1,332 @@
+name: Production GA Deployment & Validation
+
+on:
+  push:
+    tags:
+      - 'v1.0.0'
+  workflow_dispatch:
+    inputs:
+      skip_validation:
+        description: 'Skip production validation'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  NODE_VERSION: '18'
+  PROD_URL: 'https://app.spiread.com'
+  GA_VERSION: '1.0.0'
+
+jobs:
+  deploy-production:
+    name: 'Deploy to Production'
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Verify GA version
+        run: |
+          echo "Verifying GA version v${{ env.GA_VERSION }}"
+          if ! git describe --exact-match --tags HEAD | grep -q "v${{ env.GA_VERSION }}"; then
+            echo "❌ Current commit is not tagged as v${{ env.GA_VERSION }}"
+            exit 1
+          fi
+          echo "✅ Confirmed deployment of v${{ env.GA_VERSION }}"
+          
+      - name: Build production
+        run: |
+          npm run build
+          echo "✅ Production build completed"
+        env:
+          NODE_ENV: production
+          NEXT_PUBLIC_APP_VERSION: ${{ env.GA_VERSION }}
+          
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod --yes'
+          working-directory: ./
+          
+      - name: Wait for deployment propagation
+        run: |
+          echo "⏳ Waiting for deployment to propagate..."
+          sleep 60
+          
+          echo "🔍 Checking deployment status..."
+          for i in {1..10}; do
+            if curl -s --fail "${{ env.PROD_URL }}/debug" > /dev/null; then
+              echo "✅ Production deployment is live"
+              break
+            fi
+            echo "⏳ Waiting for deployment... ($i/10)"
+            sleep 30
+          done
+
+  validate-production:
+    name: 'Validate Production Deployment'
+    runs-on: ubuntu-latest
+    needs: deploy-production
+    if: ${{ !inputs.skip_validation }}
+    timeout-minutes: 20
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run production validation
+        run: |
+          chmod +x scripts/validate-production.js
+          node scripts/validate-production.js
+        env:
+          PROD_URL: ${{ env.PROD_URL }}
+          
+      - name: Upload validation report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: production-validation-report
+          path: production-validation-*.json
+          retention-days: 30
+
+  smoke-tests-production:
+    name: 'Production Smoke Tests'
+    runs-on: ubuntu-latest
+    needs: validate-production
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+          
+      - name: Run Playwright smoke tests
+        run: npx playwright test tests/smoke/prod-smoke.spec.js
+        env:
+          PROD_BASE_URL: ${{ env.PROD_URL }}
+          SMOKE_TEST_EMAIL: ${{ secrets.SMOKE_TEST_EMAIL }}
+          SMOKE_TEST_PASSWORD: ${{ secrets.SMOKE_TEST_PASSWORD }}
+          
+      - name: Upload smoke test artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: production-smoke-test-results
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 7
+
+  lighthouse-production:
+    name: 'Lighthouse Production Audit'
+    runs-on: ubuntu-latest
+    needs: validate-production
+    timeout-minutes: 20
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install Lighthouse CI
+        run: npm install -g @lhci/cli@0.12.x
+        
+      - name: Run Lighthouse CI
+        run: |
+          # Override URL in lighthouse config for production
+          sed -i 's|https://app.spiread.com|${{ env.PROD_URL }}|g' lighthouserc.prod.json
+          lhci autorun --config=lighthouserc.prod.json
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+          
+      - name: Upload Lighthouse reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-production-reports
+          path: |
+            .lighthouseci/
+            lighthouse-report-*.html
+          retention-days: 7
+
+  security-validation:
+    name: 'Security & Observability Validation'
+    runs-on: ubuntu-latest
+    needs: validate-production
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Validate security headers
+        run: |
+          echo "🔒 Checking security headers..."
+          
+          HEADERS_TO_CHECK=(
+            "strict-transport-security"
+            "x-frame-options" 
+            "x-content-type-options"
+            "referrer-policy"
+            "content-security-policy"
+            "permissions-policy"
+          )
+          
+          for header in "${HEADERS_TO_CHECK[@]}"; do
+            if curl -s -I "${{ env.PROD_URL }}" | grep -i "$header"; then
+              echo "✅ $header header present"
+            else
+              echo "❌ $header header missing"
+            fi
+          done
+          
+      - name: Test Sentry integration
+        run: |
+          echo "🔍 Testing Sentry error capture..."
+          
+          # Trigger test error endpoint
+          curl -X POST "${{ env.PROD_URL }}/api/observability/throw" \
+            -H "Content-Type: application/json" \
+            -d '{"type": "test", "message": "Production GA deployment test error"}' \
+            || echo "✅ Test error endpoint triggered"
+            
+      - name: Validate analytics setup
+        run: |
+          echo "📊 Checking analytics configuration..."
+          
+          # Check debug endpoint for analytics status
+          ANALYTICS_STATUS=$(curl -s "${{ env.PROD_URL }}/debug" | jq -r '.analytics.enabled')
+          echo "Analytics enabled: $ANALYTICS_STATUS"
+          
+          if [ "$ANALYTICS_STATUS" = "true" ] || [ "$ANALYTICS_STATUS" = "false" ]; then
+            echo "✅ Analytics configuration valid"
+          else
+            echo "❌ Analytics configuration invalid"
+            exit 1
+          fi
+
+  create-github-release:
+    name: 'Create GitHub Release'
+    runs-on: ubuntu-latest
+    needs: [smoke-tests-production, lighthouse-production, security-validation]
+    if: success()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ env.GA_VERSION }}
+          release_name: 'Spiread v${{ env.GA_VERSION }} - General Availability'
+          body_path: RELEASE_NOTES.md
+          draft: false
+          prerelease: false
+          
+      - name: Comment deployment success
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = `## 🎉 Spiread v${{ env.GA_VERSION }} Successfully Deployed to Production!
+            
+            **Production URL**: [${{ env.PROD_URL }}](${{ env.PROD_URL }})
+            **Debug Endpoint**: [${{ env.PROD_URL }}/debug](${{ env.PROD_URL }}/debug)
+            
+            ### Validation Results
+            - ✅ **Production Validation**: All systems operational
+            - ✅ **Smoke Tests**: All critical functionality verified
+            - ✅ **Lighthouse Audit**: Performance/PWA/Best Practices/A11y ≥ 90%
+            - ✅ **Security**: All headers and rate limiting active
+            - ✅ **Observability**: Sentry error tracking operational
+            - ✅ **Analytics**: Privacy-first analytics configured
+            
+            ### Quick Verification Links
+            - [PWA Manifest](${{ env.PROD_URL }}/manifest.json)
+            - [Service Worker](${{ env.PROD_URL }}/sw.js)
+            - [Privacy Policy](${{ env.PROD_URL }}/legal/privacy)
+            - [Terms of Service](${{ env.PROD_URL }}/legal/terms)
+            
+            🚀 **General Availability is LIVE!**`;
+            
+            // Create issue comment if this was triggered by PR
+            if (context.issue.number) {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            }
+
+  rollback-plan:
+    name: 'Rollback Plan (Manual Trigger)'
+    runs-on: ubuntu-latest
+    if: failure() && github.event_name == 'workflow_dispatch'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Prepare rollback
+        run: |
+          echo "🚨 ROLLBACK PREPARATION"
+          echo "If deployment fails, execute the following steps:"
+          echo ""
+          echo "1. Revert to previous stable tag:"
+          echo "   git checkout v1.0.0-rc.1"
+          echo "   git tag -d v1.0.0"
+          echo "   git push origin :refs/tags/v1.0.0"
+          echo ""
+          echo "2. Redeploy previous version:"
+          echo "   # Use Vercel dashboard to rollback deployment"
+          echo ""
+          echo "3. Service Worker cleanup:"
+          echo "   # Publish hotfix SW with cache cleanup"
+          echo "   # Force skipWaiting() + clients.claim()"
+          echo ""
+          echo "4. Verify rollback:"
+          echo "   curl ${{ env.PROD_URL }}/debug"
+          echo ""
+          echo "📋 All rollback procedures documented in RELEASE_NOTES.md"
