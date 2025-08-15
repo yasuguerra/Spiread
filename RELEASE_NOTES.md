@@ -1,8 +1,10 @@
-# Spiread v1.0.0-rc.1 Release Notes
+# Spiread v1.0.0 General Availability Release
 
 **Release Date**: December 2024  
-**Release Type**: Release Candidate  
-**Previous Version**: v1.0.0-mvp  
+**Release Type**: General Availability (GA)  
+**Previous Version**: v1.0.0-rc.1  
+
+🎉 **GENERAL AVAILABILITY RELEASE** - Spiread v1.0.0 is now production-ready!
 
 ---
 
