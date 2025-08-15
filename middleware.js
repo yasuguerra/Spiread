@@ -48,15 +48,30 @@ export async function middleware(request) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
   const sentryDomain = process.env.SENTRY_DSN ? 
     new URL(process.env.SENTRY_DSN).hostname : ''
-  const analyticsDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN || 
-    process.env.NEXT_PUBLIC_POSTHOG_HOST || ''
+  
+  // Analytics domains
+  const plausibleDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN
+  const plausibleApiHost = process.env.NEXT_PUBLIC_PLAUSIBLE_API_HOST || 'https://plausible.io'
+  const postHogHost = process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://app.posthog.com'
+  const analyticsProvider = process.env.NEXT_PUBLIC_ANALYTICS_PROVIDER
+  
+  let analyticsDomains = []
+  if (analyticsProvider === 'plausible' && plausibleDomain) {
+    analyticsDomains.push(plausibleApiHost)
+  } else if (analyticsProvider === 'posthog') {
+    analyticsDomains.push(postHogHost)
+  } else {
+    // Auto-detect based on env vars
+    if (plausibleDomain) analyticsDomains.push(plausibleApiHost)
+    if (process.env.NEXT_PUBLIC_POSTHOG_KEY) analyticsDomains.push(postHogHost)
+  }
   
   // Build dynamic CSP origins
   const connectSrcOrigins = [
     "'self'",
     supabaseUrl,
     sentryDomain && `https://${sentryDomain}`,
-    analyticsDomain && `https://${analyticsDomain}`,
+    ...analyticsDomains,
     'https://vitals.vercel-insights.com',
     'https://vercel-insights.com',
     'wss:', // WebSocket support for Supabase realtime
@@ -70,7 +85,7 @@ export async function middleware(request) {
     ...(process.env.NODE_ENV === 'development' ? ["'unsafe-eval'"] : []),
     // Add Sentry, Analytics if they inject scripts
     sentryDomain && `https://${sentryDomain}`,
-    analyticsDomain && `https://${analyticsDomain}`,
+    ...analyticsDomains,
     'https://vercel-insights.com',
   ].filter(Boolean).join(' ')
 
