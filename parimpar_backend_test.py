@@ -45,8 +45,8 @@ from datetime import datetime
 BASE_URL = "http://localhost:3000"
 API_BASE = f"{BASE_URL}/api"
 
-# Test user ID for testing
-TEST_USER_ID = f"test_user_{uuid.uuid4().hex[:8]}"
+# Test user ID for testing (proper UUID format)
+TEST_USER_ID = str(uuid.uuid4())
 
 def log_test(test_name, status, details=""):
     """Log test results with timestamp"""
