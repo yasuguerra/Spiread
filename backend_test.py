@@ -1,23 +1,38 @@
 #!/usr/bin/env python3
 """
-PR A CORE UX BACKEND TESTING for Spiread
-PHASE 7 - PR A Core UX Testing: GameIntro + EndScreen + Persistencia
+BACKEND API TESTING for PR D ParImpar Enhancement
+Tests backend API compatibility for parimpar game type
 
-This script tests the backend functionality supporting PR A Core UX components:
+This script tests the backend functionality supporting PR D ParImpar Enhancement:
 
-**PR A CORE UX COMPONENTS BACKEND TESTING:**
-1. Progress API endpoints (GameShell level persistence)
-2. Game Runs API (EndScreen historical data)
-3. Settings API (GameIntro preferences)
-4. CORS headers (Frontend component compatibility)
-5. Health endpoint (Backend responsiveness)
+**PR D PARIMPAR ENHANCEMENT BACKEND TESTING:**
+1. Progress API endpoints (/api/progress/save and /api/progress/get) with parimpar game data
+2. Game Runs API endpoints to ensure they can store parimpar game results
+3. Verify all required game data fields are properly supported
+4. Test parimpar game type recognition and data integrity
+5. CORS headers for frontend compatibility
+
+**EXPECTED GAME DATA STRUCTURE:**
+{
+  "game": "parimpar",
+  "score": 150,
+  "metrics": {
+    "total_rounds": 8,
+    "final_level": 5,
+    "average_accuracy": 0.87,
+    "average_time": 2400,
+    "total_hits": 45,
+    "total_false_positives": 6,
+    "best_round_score": 25
+  }
+}
 
 **SUCCESS CRITERIA:**
-- ✅ Progress API supports level persistence for all PR A games
-- ✅ Game Runs API provides historical data for EndScreen sparklines
-- ✅ Settings API handles GameIntro "don't show today" preferences
-- ✅ CORS headers allow frontend component communication
-- ✅ All PR A game types (schulte, twinwords, etc.) fully supported
+- ✅ Progress API supports parimpar game type for level persistence
+- ✅ Game Runs API can store and retrieve parimpar game results
+- ✅ All parimpar-specific metrics are properly stored
+- ✅ Game type 'parimpar' is recognized and supported
+- ✅ CORS headers allow ParImparPRD.jsx component communication
 """
 
 import requests
