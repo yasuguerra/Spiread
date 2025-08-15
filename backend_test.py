@@ -327,7 +327,103 @@ class BackendTester:
                     status = "✅" if passed else "❌"
                     self.log(f"   {status} {check}")
         
-        self.results['phase1_pwa']['offline_page'] = result
+    def test_critical_production_endpoints(self):
+        """PRODUCTION READINESS ASSESSMENT - All Critical Endpoints"""
+        self.log("\n" + "=" * 80)
+        self.log("🏭 PRODUCTION READINESS ASSESSMENT - CRITICAL ENDPOINTS")
+        self.log("=" * 80)
+        
+        # Define all critical endpoints for production
+        critical_endpoints = [
+            ('/debug', 'application/json', 'System Status & Go/No-Go'),
+            ('/sw.js', 'application/javascript', 'Service Worker (spiread-v1)'),
+            ('/manifest.json', 'application/json', 'PWA Manifest'),
+            ('/robots.txt', 'text/plain', 'SEO Robots File'),
+            ('/sitemap.xml', 'application/xml', 'SEO Sitemap'),
+            ('/', 'text/html', 'Main Page (OG/Meta Tags)'),
+            ('/legal/privacy', 'text/html', 'Privacy Policy'),
+            ('/legal/terms', 'text/html', 'Terms of Service'),
+            ('/offline', 'text/html', 'Offline Experience')
+        ]
+        
+        production_results = {}
+        all_endpoints_working = True
+        
+        for endpoint, expected_content_type, description in critical_endpoints:
+            self.log(f"\n🔍 Testing Critical Endpoint: {description}")
+            result, response = self.test_endpoint(
+                f"{BASE_URL}{endpoint}",
+                expected_status=200,
+                expected_content_type=expected_content_type,
+                description=description
+            )
+            
+            # Additional validation for specific endpoints
+            if result['success'] and response:
+                if endpoint == '/sw.js':
+                    # Verify Service Worker contains spiread-v1
+                    if 'spiread-v1' not in response.text:
+                        result['success'] = False
+                        result['error'] = 'Service Worker missing spiread-v1 version'
+                        self.log("❌ Service Worker missing spiread-v1 version", "ERROR")
+                    else:
+                        self.log("✅ Service Worker contains spiread-v1 version")
+                
+                elif endpoint == '/debug':
+                    # Verify debug endpoint has proper structure
+                    try:
+                        data = response.json()
+                        if 'goNoGo' not in data:
+                            result['success'] = False
+                            result['error'] = 'Debug endpoint missing goNoGo object'
+                            self.log("❌ Debug endpoint missing goNoGo object", "ERROR")
+                        else:
+                            self.log("✅ Debug endpoint has proper goNoGo structure")
+                    except:
+                        result['success'] = False
+                        result['error'] = 'Debug endpoint invalid JSON'
+                        self.log("❌ Debug endpoint returned invalid JSON", "ERROR")
+                
+                elif endpoint == '/manifest.json':
+                    # Verify PWA manifest has required fields
+                    try:
+                        manifest = response.json()
+                        required_fields = ['name', 'short_name', 'start_url', 'display', 'icons']
+                        missing_fields = [field for field in required_fields if field not in manifest]
+                        if missing_fields:
+                            result['success'] = False
+                            result['error'] = f'Manifest missing fields: {missing_fields}'
+                            self.log(f"❌ Manifest missing fields: {missing_fields}", "ERROR")
+                        else:
+                            self.log("✅ PWA Manifest has all required fields")
+                    except:
+                        result['success'] = False
+                        result['error'] = 'Manifest invalid JSON'
+                        self.log("❌ Manifest returned invalid JSON", "ERROR")
+            
+            production_results[endpoint] = result
+            if not result['success']:
+                all_endpoints_working = False
+        
+        # Summary of critical endpoints
+        working_count = sum(1 for r in production_results.values() if r['success'])
+        total_count = len(production_results)
+        
+        self.log(f"\n📊 CRITICAL ENDPOINTS SUMMARY: {working_count}/{total_count} working")
+        
+        for endpoint, result in production_results.items():
+            status = "✅" if result['success'] else "❌"
+            self.log(f"  {status} {endpoint}")
+        
+        self.results['critical_production_endpoints'] = {
+            'endpoints': production_results,
+            'all_working': all_endpoints_working,
+            'working_count': working_count,
+            'total_count': total_count,
+            'success_rate': (working_count / total_count * 100) if total_count > 0 else 0
+        }
+        
+        return all_endpoints_working
     
     def test_phase2_seo_legal(self):
         """PHASE 2 - SEO & LEGAL VERIFICATION"""
