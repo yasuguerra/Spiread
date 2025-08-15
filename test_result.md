@@ -137,6 +137,9 @@ backend:
         - working: true
           agent: "testing"
           comment: "PHASE 1 PWA HARDENING BACKEND TESTING COMPLETE: ✅ Debug endpoint PWA status block structure PERFECT. GET /debug returns exact structure as specified: swVersion='spiread-v1', installed=false (server-side), caches={shell:'unknown', assets:'unknown', data:'unknown'}, bgSync={queueLengths={game_runs:'unknown', session_schedules:'unknown'}}. ✅ All cache versions correct (spiread-shell-v1, spiread-assets-v1, spiread-data-v1). ✅ PWA features list with 6 items including offline gameplay, background sync, app shell caching. ✅ Additional PWA metadata (manifest, offlineSupport, version 1.0.0-rc.1). Debug endpoint implementation is exactly as specified for Phase 1."
+        - working: true
+          agent: "testing"
+          comment: "COMPREHENSIVE BACKEND TESTING COMPLETE: ✅ Debug endpoint PWA status block structure is PERFECT. GET /debug returns 2,383 bytes with exact PWA structure: swVersion='spiread-v1', installed field present, caches structure (shell/assets/data), bgSync with queueLengths (game_runs/session_schedules). ✅ All cache versions validated (spiread-shell-v1, spiread-assets-v1, spiread-data-v1). ✅ PWA features list contains 6 items including offline gameplay, background sync, app shell caching, smart caching strategies, pre-cache offline, and BG Sync with exponential backoff. ✅ Response time: 2.11s, proper JSON content-type. Debug endpoint is production-ready for v1.0.0-rc.1 release candidate."
 
   - task: "Phase 2 - SEO & Legal Implementation (NEW)"
     implemented: true
