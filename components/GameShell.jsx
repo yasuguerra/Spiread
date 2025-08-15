@@ -14,7 +14,8 @@ import {
   Trophy,
   TrendingUp,
   Target,
-  ArrowLeft
+  ArrowLeft,
+  Info
 } from 'lucide-react'
 
 import { GAME_STATES, AUTO_PAUSE_DELAY } from '@/lib/constants'
@@ -28,6 +29,18 @@ import {
   isValidGameRun,
   calculateXpGain 
 } from '@/lib/gamification'
+
+// Import new UX components (PR A)
+import GameIntro from './games/GameIntro'
+import EndScreen from './games/EndScreen'
+import { 
+  getLastLevel, 
+  setLastLevel, 
+  getLastBestScore, 
+  updateBestScore, 
+  shouldShowGameIntro,
+  getGameHistoricalData
+} from '@/lib/progress-tracking'
 
 export default function GameShell({ 
   gameId, 
