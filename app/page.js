@@ -41,6 +41,7 @@ import AppFooter from '@/components/AppFooter'
 import ShuttleTable from '@/components/games/ShuttleTable'
 import SchulteTablePRB from '@/components/games/SchulteTablePRB' // PR B
 import TwinWordsGrid from '@/components/games/TwinWordsGrid'
+import TwinWordsGridPRC from '@/components/games/TwinWordsGridPRC' // PR C
 import ParImpar from '@/components/games/ParImpar'
 import MemoryDigits from '@/components/games/MemoryDigits'
 import SessionRunner from '@/components/SessionRunner'
