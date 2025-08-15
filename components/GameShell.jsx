@@ -433,12 +433,26 @@ export default function GameShell({
             <div className="flex items-center gap-4">
               <CardTitle className="flex items-center gap-2">
                 <Timer className="w-5 h-5" />
-                {gameId.charAt(0).toUpperCase() + gameId.slice(1).replace('_', ' ')}
+                {gameName || gameId.charAt(0).toUpperCase() + gameId.slice(1).replace('_', ' ')}
               </CardTitle>
+              
+              {/* PR A - How to play button */}
+              {gameKey && (
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  onClick={handleShowIntroManually}
+                  className="p-2"
+                  title="¿Cómo se juega?"
+                >
+                  <Info className="w-4 h-4" />
+                </Button>
+              )}
+              
               {onExit && (
                 <Button size="sm" variant="outline" onClick={onExit}>
                   <ArrowLeft className="w-4 h-4 mr-1" />
-                  Salir
+                  {gameState === GAME_STATES.PLAYING ? 'Salir' : 'Volver'}
                 </Button>
               )}
             </div>
