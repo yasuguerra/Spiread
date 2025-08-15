@@ -42,7 +42,7 @@ import uuid
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://brain-games-2.preview.emergentagent.com"
+BASE_URL = "http://localhost:3000"
 API_BASE = f"{BASE_URL}/api"
 
 # Test user ID for testing
