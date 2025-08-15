@@ -1,0 +1,225 @@
+name: Production Smoke Tests & Lighthouse CI
+
+on:
+  push:
+    tags:
+      - 'v*.*.*-rc.*'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to test'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+
+env:
+  NODE_VERSION: '18'
+  PROD_BASE_URL: 'https://app.spiread.com'
+  SMOKE_TEST_EMAIL: ${{ secrets.SMOKE_TEST_EMAIL }}
+  SMOKE_TEST_PASSWORD: ${{ secrets.SMOKE_TEST_PASSWORD }}
+
+jobs:
+  smoke-tests:
+    name: 'Production Smoke Tests'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+          
+      - name: Wait for deployment
+        run: |
+          echo "Waiting for production deployment to be ready..."
+          for i in {1..30}; do
+            if curl -s --fail "$PROD_BASE_URL/debug" > /dev/null; then
+              echo "✅ Production is ready"
+              break
+            fi
+            echo "⏳ Waiting for production... ($i/30)"
+            sleep 10
+          done
+          
+      - name: Run Playwright smoke tests
+        run: npx playwright test tests/smoke/prod-smoke.spec.js
+        env:
+          PROD_BASE_URL: ${{ env.PROD_BASE_URL }}
+          SMOKE_TEST_EMAIL: ${{ env.SMOKE_TEST_EMAIL }}
+          SMOKE_TEST_PASSWORD: ${{ env.SMOKE_TEST_PASSWORD }}
+          
+      - name: Upload Playwright artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-smoke-results
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 7
+
+  lighthouse-ci:
+    name: 'Lighthouse CI Production'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: smoke-tests
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install Lighthouse CI
+        run: npm install -g @lhci/cli@0.12.x
+        
+      - name: Wait for deployment
+        run: |
+          for i in {1..20}; do
+            if curl -s --fail "$PROD_BASE_URL" > /dev/null; then
+              echo "✅ Production is ready for Lighthouse"
+              break
+            fi
+            echo "⏳ Waiting for production... ($i/20)"
+            sleep 10
+          done
+          
+      - name: Run Lighthouse CI
+        run: lhci autorun --config=lighthouserc.prod.json
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+          
+      - name: Upload Lighthouse artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-reports
+          path: |
+            .lighthouseci/
+            lighthouse-report-*.html
+          retention-days: 7
+          
+      - name: Comment PR with Lighthouse results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            // Read Lighthouse results
+            const lhciDir = '.lighthouseci';
+            if (fs.existsSync(lhciDir)) {
+              const manifestPath = path.join(lhciDir, 'manifest.json');
+              if (fs.existsSync(manifestPath)) {
+                const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+                
+                let comment = '## 🚦 Lighthouse CI Results\n\n';
+                
+                for (const result of manifest) {
+                  const url = result.url;
+                  const summary = result.summary;
+                  
+                  comment += `### ${url}\n`;
+                  comment += `- **Performance**: ${Math.round(summary.performance * 100)}%\n`;
+                  comment += `- **Accessibility**: ${Math.round(summary.accessibility * 100)}%\n`;
+                  comment += `- **Best Practices**: ${Math.round(summary['best-practices'] * 100)}%\n`;
+                  comment += `- **PWA**: ${Math.round(summary.pwa * 100)}%\n\n`;
+                }
+                
+                comment += `\n[View detailed reports](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID})`;
+                
+                github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: comment
+                });
+              }
+            }
+
+  go-no-go-check:
+    name: 'Go/No-Go Release Check'
+    runs-on: ubuntu-latest
+    needs: [smoke-tests, lighthouse-ci]
+    if: always()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Check Go/No-Go Status
+        run: |
+          echo "🔍 Checking Go/No-Go status from production debug endpoint..."
+          
+          RESPONSE=$(curl -s "$PROD_BASE_URL/debug")
+          GO_NO_GO=$(echo "$RESPONSE" | jq -r '.goNoGo')
+          
+          OVERALL_STATUS=$(echo "$GO_NO_GO" | jq -r '.overall_status')
+          RELEASE_BLOCKERS=$(echo "$GO_NO_GO" | jq -r '.release_blockers | length')
+          
+          echo "## 🚀 Go/No-Go Release Status" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Overall Status**: $OVERALL_STATUS" >> $GITHUB_STEP_SUMMARY
+          echo "**Release Blockers**: $RELEASE_BLOCKERS" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Check individual components
+          CHECKS=$(echo "$GO_NO_GO" | jq -r '.checks | to_entries[] | "\(.key): \(.value.status)"')
+          echo "### Component Status:" >> $GITHUB_STEP_SUMMARY
+          echo "$CHECKS" | while read line; do
+            echo "- $line" >> $GITHUB_STEP_SUMMARY
+          done
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Recommendations:" >> $GITHUB_STEP_SUMMARY
+          echo "$GO_NO_GO" | jq -r '.recommendations[]' | while read rec; do
+            echo "- $rec" >> $GITHUB_STEP_SUMMARY
+          done
+          
+          # Determine if release should proceed
+          if [ "$OVERALL_STATUS" = "READY_FOR_RC" ] && [ "$RELEASE_BLOCKERS" = "0" ]; then
+            echo "✅ GO: Release is ready to proceed"
+            echo "release_decision=GO" >> $GITHUB_OUTPUT
+          else
+            echo "❌ NO-GO: Release has blockers that need attention"
+            echo "release_decision=NOGO" >> $GITHUB_OUTPUT
+          fi
+        env:
+          PROD_BASE_URL: ${{ env.PROD_BASE_URL }}
+          
+      - name: Update release notes with test results
+        if: always()
+        run: |
+          echo "## 📊 Test Results" >> RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          echo "- **Smoke Tests**: ${{ needs.smoke-tests.result }}" >> RELEASE_NOTES.md
+          echo "- **Lighthouse CI**: ${{ needs.lighthouse-ci.result }}" >> RELEASE_NOTES.md
+          echo "- **Go/No-Go Check**: ${{ steps.check-status.outputs.release_decision }}" >> RELEASE_NOTES.md
+          echo "- **Test Date**: $(date -u +"%Y-%m-%d %H:%M UTC")" >> RELEASE_NOTES.md
+          
+      - name: Commit updated release notes
+        if: always()
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add RELEASE_NOTES.md
+          git commit -m "Update release notes with test results" || exit 0
+          git push origin HEAD || exit 0
