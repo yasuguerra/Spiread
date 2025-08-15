@@ -111,7 +111,8 @@ self.addEventListener('activate', event => {
             })
         )
         
-        // Claim all clients immediately
+        // Claim all clients immediately for GA deployment
+        console.log(`[SW] Claiming all clients immediately for GA v${SW_BUILD}`)
         await self.clients.claim()
         
         console.log(`[SW] ${SW_VERSION} activated and ready with cache cleanup complete`)
