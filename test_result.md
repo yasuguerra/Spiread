@@ -460,15 +460,18 @@ backend:
 frontend:
   - task: "PR A Core UX - GameIntro Component"
     implemented: true
-    working: "NA"
+    working: false
     file: "components/games/GameIntro.tsx"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "testing"
           comment: "PR A CORE UX COMPONENT IDENTIFIED: GameIntro component implemented with modal rendering, accessibility features, language support (ES/EN), localStorage persistence for 'don't show today' functionality, keyboard navigation (Enter, Esc, Space), and game-specific instructions for all PR A game types. Component structure supports all PR A Core UX requirements. Backend APIs confirmed working to support this component."
+        - working: false
+          agent: "testing"
+          comment: "PR A CORE UX TESTING COMPLETE: ❌ GameIntro component NOT ACCESSIBLE via current application routing. Component code is properly implemented with all required features (data-testid='game-intro', keyboard navigation, localStorage persistence, i18n support), but games section is not reachable through normal user flow. Application shows onboarding flow instead of games grid. Navigation to /games returns 404 with helpful links, but clicking 'Juegos de Entrenamiento' redirects back to onboarding. Component cannot be tested in isolation as it requires game context to trigger."
 
   - task: "PR A Core UX - EndScreen Component"
     implemented: true
