@@ -195,6 +195,42 @@ curl -X POST http://localhost:3000/api/csp-report \
 
 See [Security Documentation](docs/security.md) for complete details.
 
+## Observability
+
+### Error Monitoring with Sentry
+Production error tracking and performance monitoring:
+
+```bash
+# Environment configuration
+SENTRY_DSN=https://your-sentry-dsn@sentry.io/project-id
+SENTRY_ENVIRONMENT=production
+SENTRY_TRACES_SAMPLE_RATE=0.1
+SENTRY_PROFILES_SAMPLE_RATE=0.1
+
+# Test error capturing
+curl "http://localhost:3000/api/observability/throw?type=error"
+curl "http://localhost:3000/api/observability/throw?type=performance"
+```
+
+**Features:**
+- **Error Tracking**: Client & server-side error capture
+- **Performance Monitoring**: API routes and page load tracing  
+- **Release Tracking**: Versioned with sourcemaps for production
+- **PII Scrubbing**: `sendDefaultPii=false` + custom filters
+- **Privacy-First**: Authorization headers, user content filtered
+
+**Testing:**
+```bash
+# Test endpoint
+GET /api/observability/throw?type=error
+GET /api/observability/throw?type=message
+GET /api/observability/throw?type=performance
+
+# Status check
+POST /api/observability/throw
+{"action": "status"}
+```
+
 ## Database
 
 ### Schema Management
