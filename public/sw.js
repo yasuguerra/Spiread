@@ -78,7 +78,8 @@ self.addEventListener('install', event => {
         
         console.log(`[SW] ${SW_VERSION} installed successfully with versioned caches`)
         
-        // Force activation to clean old caches
+        // Force activation immediately for GA deployment
+        console.log(`[SW] Forcing immediate activation for GA v${SW_BUILD}`)
         self.skipWaiting()
       } catch (error) {
         console.error('[SW] Installation failed:', error)
