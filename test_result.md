@@ -463,9 +463,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Phase 1 - Service Worker PWA Hardening (NEW)"
-    - "Phase 1 - Debug Endpoint PWA Status (NEW)"
-    - "Phase 1 - Offline Page UX Enhancement (NEW)"
+    - "External URL Routing"
+    - "Sessions API Endpoints"
+    - "Settings API Endpoints"
+    - "Game Runs API Endpoints (NEW)"
+    - "Session Schedules API Endpoints (NEW)"
   stuck_tasks:
     - "External URL Routing"
     - "Sessions API Endpoints"
