@@ -13,7 +13,8 @@
         "test:ui": "playwright test --ui",
         "test:debug": "playwright test --debug",
         "lighthouse": "lhci autorun",
-        "test:all": "yarn test && yarn lighthouse"
+        "test:all": "yarn test && yarn lighthouse",
+        "check:env": "node scripts/check-env.js"
     },
     "dependencies": {
         "@hookform/resolvers": "^5.1.1",
