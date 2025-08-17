@@ -244,7 +244,8 @@ export default function ParImparPRD({
       currentScore={totalScore}
       currentLevel={level}
     >
-      <div className="space-y-6">
+      {(context) => (
+        <div className="space-y-6">
         {/* Game Status */}
         <div className="text-center space-y-2">
           <div className="flex items-center justify-center gap-2 mb-4">
@@ -495,7 +496,8 @@ export default function ParImparPRD({
             </div>
           </div>
         )}
-      </div>
+        </div>
+      )}
     </GameShell>
   )
 }
