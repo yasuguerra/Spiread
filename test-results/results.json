@@ -10,7 +10,9 @@
     "grep": {},
     "grepInvert": null,
     "maxFailures": 0,
-    "metadata": {},
+    "metadata": {
+      "actualWorkers": 2
+    },
     "preserveOutput": "always",
     "reporter": [
       [
@@ -40,7 +42,9 @@
         "outputDir": "/app/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {},
+        "metadata": {
+          "actualWorkers": 2
+        },
         "id": "chromium",
         "name": "chromium",
         "testDir": "/app/e2e",
@@ -48,13 +52,15 @@
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
-        "timeout": 30000
+        "timeout": 0
       },
       {
         "outputDir": "/app/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {},
+        "metadata": {
+          "actualWorkers": 2
+        },
         "id": "firefox",
         "name": "firefox",
         "testDir": "/app/e2e",
@@ -62,13 +68,15 @@
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
-        "timeout": 30000
+        "timeout": 0
       },
       {
         "outputDir": "/app/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {},
+        "metadata": {
+          "actualWorkers": 2
+        },
         "id": "webkit",
         "name": "webkit",
         "testDir": "/app/e2e",
@@ -76,13 +84,15 @@
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
-        "timeout": 30000
+        "timeout": 0
       },
       {
         "outputDir": "/app/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {},
+        "metadata": {
+          "actualWorkers": 2
+        },
         "id": "Mobile Chrome",
         "name": "Mobile Chrome",
         "testDir": "/app/e2e",
@@ -90,13 +100,15 @@
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
-        "timeout": 30000
+        "timeout": 0
       },
       {
         "outputDir": "/app/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {},
+        "metadata": {
+          "actualWorkers": 2
+        },
         "id": "Mobile Safari",
         "name": "Mobile Safari",
         "testDir": "/app/e2e",
@@ -104,14 +116,14 @@
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
-        "timeout": 30000
+        "timeout": 0
       }
     ],
     "shard": null,
     "updateSnapshots": "missing",
     "updateSourceMethod": "patch",
     "version": "1.54.2",
-    "workers": 8,
+    "workers": 2,
     "webServer": {
       "command": "yarn dev",
       "url": "http://localhost:3000",
@@ -121,2885 +133,227 @@
   },
   "suites": [
     {
-      "title": "game-navigation.spec.js",
-      "file": "game-navigation.spec.js",
+      "title": "par-impar.spec.js",
+      "file": "par-impar.spec.js",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "Game Navigation & Functionality",
-          "file": "game-navigation.spec.js",
+          "title": "Par/Impar Game",
+          "file": "par-impar.spec.js",
           "line": 3,
           "column": 6,
           "specs": [
             {
-              "title": "should open correct GameShell/component for each game",
-              "ok": true,
+              "title": "should start and show the first round",
+              "ok": false,
               "tags": [],
               "tests": [
                 {
-                  "timeout": 30000,
+                  "timeout": 0,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "chromium",
                   "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 3,
+                      "error": {
+                        "message": "Error: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n╔════════════════════════════════════════════════════════════════════════════════════════════════╗\n║ Looks like you launched a headed browser without having a XServer running.                     ║\n║ Set either 'headless: true' or use 'xvfb-run <your-playwright-app>' before running Playwright. ║\n║                                                                                                ║\n║ <3 Playwright Team                                                                             ║\n╚════════════════════════════════════════════════════════════════════════════════════════════════╝\nCall log:\n\u001b[2m  - <launching> /home/jules/.cache/ms-playwright/chromium-1181/chrome-linux/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AcceptCHFrame,AutoExpandDetailsElement,AvoidUnnecessaryBeforeUnloadCheckSync,CertificateTransparencyComponentUpdater,DestroyProfileOnBrowserClose,DialMediaRouteProvider,ExtensionManifestV2Disabled,GlobalMediaControls,HttpsUpgrades,ImprovedCookieControls,LazyFrameLoading,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-YLIJlh --remote-debugging-pipe --no-startup-window\u001b[22m\n\u001b[2m  - <launched> pid=11881\u001b[22m\n\u001b[2m  - [pid=11881][err] [11881:11881:0817/220906.299041:ERROR:ui/ozone/platform/x11/ozone_platform_x11.cc:249] Missing X server or $DISPLAY\u001b[22m\n\u001b[2m  - [pid=11881][err] [11881:11881:0817/220906.299104:ERROR:ui/aura/env.cc:257] The platform failed to initialize.  Exiting.\u001b[22m\n",
+                        "stack": "Error: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n╔════════════════════════════════════════════════════════════════════════════════════════════════╗\n║ Looks like you launched a headed browser without having a XServer running.                     ║\n║ Set either 'headless: true' or use 'xvfb-run <your-playwright-app>' before running Playwright. ║\n║                                                                                                ║\n║ <3 Playwright Team                                                                             ║\n╚════════════════════════════════════════════════════════════════════════════════════════════════╝\nCall log:\n\u001b[2m  - <launching> /home/jules/.cache/ms-playwright/chromium-1181/chrome-linux/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AcceptCHFrame,AutoExpandDetailsElement,AvoidUnnecessaryBeforeUnloadCheckSync,CertificateTransparencyComponentUpdater,DestroyProfileOnBrowserClose,DialMediaRouteProvider,ExtensionManifestV2Disabled,GlobalMediaControls,HttpsUpgrades,ImprovedCookieControls,LazyFrameLoading,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-YLIJlh --remote-debugging-pipe --no-startup-window\u001b[22m\n\u001b[2m  - <launched> pid=11881\u001b[22m\n\u001b[2m  - [pid=11881][err] [11881:11881:0817/220906.299041:ERROR:ui/ozone/platform/x11/ozone_platform_x11.cc:249] Missing X server or $DISPLAY\u001b[22m\n\u001b[2m  - [pid=11881][err] [11881:11881:0817/220906.299104:ERROR:ui/aura/env.cc:257] The platform failed to initialize.  Exiting.\u001b[22m\n"
+                      },
+                      "errors": [
+                        {
+                          "message": "Error: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n╔════════════════════════════════════════════════════════════════════════════════════════════════╗\n║ Looks like you launched a headed browser without having a XServer running.                     ║\n║ Set either 'headless: true' or use 'xvfb-run <your-playwright-app>' before running Playwright. ║\n║                                                                                                ║\n║ <3 Playwright Team                                                                             ║\n╚════════════════════════════════════════════════════════════════════════════════════════════════╝\nCall log:\n\u001b[2m  - <launching> /home/jules/.cache/ms-playwright/chromium-1181/chrome-linux/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AcceptCHFrame,AutoExpandDetailsElement,AvoidUnnecessaryBeforeUnloadCheckSync,CertificateTransparencyComponentUpdater,DestroyProfileOnBrowserClose,DialMediaRouteProvider,ExtensionManifestV2Disabled,GlobalMediaControls,HttpsUpgrades,ImprovedCookieControls,LazyFrameLoading,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-YLIJlh --remote-debugging-pipe --no-startup-window\u001b[22m\n\u001b[2m  - <launched> pid=11881\u001b[22m\n\u001b[2m  - [pid=11881][err] [11881:11881:0817/220906.299041:ERROR:ui/ozone/platform/x11/ozone_platform_x11.cc:249] Missing X server or $DISPLAY\u001b[22m\n\u001b[2m  - [pid=11881][err] [11881:11881:0817/220906.299104:ERROR:ui/aura/env.cc:257] The platform failed to initialize.  Exiting.\u001b[22m\n"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-17T22:09:05.805Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "unexpected"
                 }
               ],
-              "id": "6b32902699cfbf077749-0cb1a090ef42c1b543d2",
-              "file": "game-navigation.spec.js",
-              "line": 20,
-              "column": 7
+              "id": "23a210ce5c5090bce74d-0c2fe339b7b3710b7e37",
+              "file": "par-impar.spec.js",
+              "line": 4,
+              "column": 3
             },
             {
-              "title": "should test 60s timer countdown for Phase 3 games",
-              "ok": true,
+              "title": "should start and show the first round",
+              "ok": false,
               "tags": [],
               "tests": [
                 {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "6b32902699cfbf077749-a59708871469f2ab5fd5",
-              "file": "game-navigation.spec.js",
-              "line": 55,
-              "column": 7
-            },
-            {
-              "title": "should test hotkeys functionality",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "6b32902699cfbf077749-0da24576da8da2b31746",
-              "file": "game-navigation.spec.js",
-              "line": 92,
-              "column": 7
-            },
-            {
-              "title": "should complete game flow and return to menu",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "6b32902699cfbf077749-6c8c677cfae1ba5c3e33",
-              "file": "game-navigation.spec.js",
-              "line": 135,
-              "column": 7
-            },
-            {
-              "title": "should open correct GameShell/component for each game",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
+                  "timeout": 0,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "firefox",
                   "projectName": "firefox",
-                  "results": [],
-                  "status": "skipped"
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 5,
+                      "error": {
+                        "message": "Error: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n╔════════════════════════════════════════════════════════════════════════════════════════════════╗\n║ Looks like you launched a headed browser without having a XServer running.                     ║\n║ Set either 'headless: true' or use 'xvfb-run <your-playwright-app>' before running Playwright. ║\n║                                                                                                ║\n║ <3 Playwright Team                                                                             ║\n╚════════════════════════════════════════════════════════════════════════════════════════════════╝\nCall log:\n\u001b[2m  - <launching> /home/jules/.cache/ms-playwright/firefox-1489/firefox/firefox -no-remote -wait-for-browser -foreground -profile /tmp/playwright_firefoxdev_profile-EjPCe1 -juggler-pipe -silent\u001b[22m\n\u001b[2m  - <launched> pid=11882\u001b[22m\n\u001b[2m  - [pid=11882][err] Error: no DISPLAY environment variable specified\u001b[22m\n\u001b[2m  - [pid=11882] <process did exit: exitCode=1, signal=null>\u001b[22m\n\u001b[2m  - [pid=11882] starting temporary directories cleanup\u001b[22m\n",
+                        "stack": "Error: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n╔════════════════════════════════════════════════════════════════════════════════════════════════╗\n║ Looks like you launched a headed browser without having a XServer running.                     ║\n║ Set either 'headless: true' or use 'xvfb-run <your-playwright-app>' before running Playwright. ║\n║                                                                                                ║\n║ <3 Playwright Team                                                                             ║\n╚════════════════════════════════════════════════════════════════════════════════════════════════╝\nCall log:\n\u001b[2m  - <launching> /home/jules/.cache/ms-playwright/firefox-1489/firefox/firefox -no-remote -wait-for-browser -foreground -profile /tmp/playwright_firefoxdev_profile-EjPCe1 -juggler-pipe -silent\u001b[22m\n\u001b[2m  - <launched> pid=11882\u001b[22m\n\u001b[2m  - [pid=11882][err] Error: no DISPLAY environment variable specified\u001b[22m\n\u001b[2m  - [pid=11882] <process did exit: exitCode=1, signal=null>\u001b[22m\n\u001b[2m  - [pid=11882] starting temporary directories cleanup\u001b[22m\n"
+                      },
+                      "errors": [
+                        {
+                          "message": "Error: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n╔════════════════════════════════════════════════════════════════════════════════════════════════╗\n║ Looks like you launched a headed browser without having a XServer running.                     ║\n║ Set either 'headless: true' or use 'xvfb-run <your-playwright-app>' before running Playwright. ║\n║                                                                                                ║\n║ <3 Playwright Team                                                                             ║\n╚════════════════════════════════════════════════════════════════════════════════════════════════╝\nCall log:\n\u001b[2m  - <launching> /home/jules/.cache/ms-playwright/firefox-1489/firefox/firefox -no-remote -wait-for-browser -foreground -profile /tmp/playwright_firefoxdev_profile-EjPCe1 -juggler-pipe -silent\u001b[22m\n\u001b[2m  - <launched> pid=11882\u001b[22m\n\u001b[2m  - [pid=11882][err] Error: no DISPLAY environment variable specified\u001b[22m\n\u001b[2m  - [pid=11882] <process did exit: exitCode=1, signal=null>\u001b[22m\n\u001b[2m  - [pid=11882] starting temporary directories cleanup\u001b[22m\n"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-17T22:09:05.842Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "unexpected"
                 }
               ],
-              "id": "6b32902699cfbf077749-74a1c3ae2aa1594c0f86",
-              "file": "game-navigation.spec.js",
-              "line": 20,
-              "column": 7
+              "id": "23a210ce5c5090bce74d-948147362a0cfdf9fd68",
+              "file": "par-impar.spec.js",
+              "line": 4,
+              "column": 3
             },
             {
-              "title": "should test 60s timer countdown for Phase 3 games",
-              "ok": true,
+              "title": "should start and show the first round",
+              "ok": false,
               "tags": [],
               "tests": [
                 {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "firefox",
-                  "projectName": "firefox",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "6b32902699cfbf077749-d914f767adda931108e9",
-              "file": "game-navigation.spec.js",
-              "line": 55,
-              "column": 7
-            },
-            {
-              "title": "should test hotkeys functionality",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "firefox",
-                  "projectName": "firefox",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "6b32902699cfbf077749-c34b61eab29a8f0d7b8c",
-              "file": "game-navigation.spec.js",
-              "line": 92,
-              "column": 7
-            },
-            {
-              "title": "should complete game flow and return to menu",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "firefox",
-                  "projectName": "firefox",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "6b32902699cfbf077749-93495b83310123f8b2f8",
-              "file": "game-navigation.spec.js",
-              "line": 135,
-              "column": 7
-            },
-            {
-              "title": "should open correct GameShell/component for each game",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
+                  "timeout": 0,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "webkit",
                   "projectName": "webkit",
-                  "results": [],
-                  "status": "skipped"
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 7,
+                      "error": {
+                        "message": "Error: browserType.launch: \n╔══════════════════════════════════════════════════════╗\n║ Host system is missing dependencies to run browsers. ║\n║ Missing libraries:                                   ║\n║     libgtk-4.so.1                                    ║\n║     libgraphene-1.0.so.0                             ║\n║     libxslt.so.1                                     ║\n║     libwoff2dec.so.1.0.2                             ║\n║     libvpx.so.9                                      ║\n║     libevent-2.1.so.7                                ║\n║     libopus.so.0                                     ║\n║     libgstallocators-1.0.so.0                        ║\n║     libgstapp-1.0.so.0                               ║\n║     libgstpbutils-1.0.so.0                           ║\n║     libgstaudio-1.0.so.0                             ║\n║     libgsttag-1.0.so.0                               ║\n║     libgstvideo-1.0.so.0                             ║\n║     libgstgl-1.0.so.0                                ║\n║     libgstcodecparsers-1.0.so.0                      ║\n║     libgstfft-1.0.so.0                               ║\n║     libflite.so.1                                    ║\n║     libflite_usenglish.so.1                          ║\n║     libflite_cmu_grapheme_lang.so.1                  ║\n║     libflite_cmu_grapheme_lex.so.1                   ║\n║     libflite_cmu_indic_lang.so.1                     ║\n║     libflite_cmu_indic_lex.so.1                      ║\n║     libflite_cmulex.so.1                             ║\n║     libflite_cmu_time_awb.so.1                       ║\n║     libflite_cmu_us_awb.so.1                         ║\n║     libflite_cmu_us_kal16.so.1                       ║\n║     libflite_cmu_us_kal.so.1                         ║\n║     libflite_cmu_us_rms.so.1                         ║\n║     libflite_cmu_us_slt.so.1                         ║\n║     libwebpdemux.so.2                                ║\n║     libavif.so.16                                    ║\n║     libharfbuzz-icu.so.0                             ║\n║     libwebpmux.so.3                                  ║\n║     libenchant-2.so.2                                ║\n║     libsecret-1.so.0                                 ║\n║     libhyphen.so.0                                   ║\n║     libmanette-0.2.so.0                              ║\n║     libx264.so                                       ║\n╚══════════════════════════════════════════════════════╝",
+                        "stack": "Error: browserType.launch: \n╔══════════════════════════════════════════════════════╗\n║ Host system is missing dependencies to run browsers. ║\n║ Missing libraries:                                   ║\n║     libgtk-4.so.1                                    ║\n║     libgraphene-1.0.so.0                             ║\n║     libxslt.so.1                                     ║\n║     libwoff2dec.so.1.0.2                             ║\n║     libvpx.so.9                                      ║\n║     libevent-2.1.so.7                                ║\n║     libopus.so.0                                     ║\n║     libgstallocators-1.0.so.0                        ║\n║     libgstapp-1.0.so.0                               ║\n║     libgstpbutils-1.0.so.0                           ║\n║     libgstaudio-1.0.so.0                             ║\n║     libgsttag-1.0.so.0                               ║\n║     libgstvideo-1.0.so.0                             ║\n║     libgstgl-1.0.so.0                                ║\n║     libgstcodecparsers-1.0.so.0                      ║\n║     libgstfft-1.0.so.0                               ║\n║     libflite.so.1                                    ║\n║     libflite_usenglish.so.1                          ║\n║     libflite_cmu_grapheme_lang.so.1                  ║\n║     libflite_cmu_grapheme_lex.so.1                   ║\n║     libflite_cmu_indic_lang.so.1                     ║\n║     libflite_cmu_indic_lex.so.1                      ║\n║     libflite_cmulex.so.1                             ║\n║     libflite_cmu_time_awb.so.1                       ║\n║     libflite_cmu_us_awb.so.1                         ║\n║     libflite_cmu_us_kal16.so.1                       ║\n║     libflite_cmu_us_kal.so.1                         ║\n║     libflite_cmu_us_rms.so.1                         ║\n║     libflite_cmu_us_slt.so.1                         ║\n║     libwebpdemux.so.2                                ║\n║     libavif.so.16                                    ║\n║     libharfbuzz-icu.so.0                             ║\n║     libwebpmux.so.3                                  ║\n║     libenchant-2.so.2                                ║\n║     libsecret-1.so.0                                 ║\n║     libhyphen.so.0                                   ║\n║     libmanette-0.2.so.0                              ║\n║     libx264.so                                       ║\n╚══════════════════════════════════════════════════════╝"
+                      },
+                      "errors": [
+                        {
+                          "message": "Error: browserType.launch: \n╔══════════════════════════════════════════════════════╗\n║ Host system is missing dependencies to run browsers. ║\n║ Missing libraries:                                   ║\n║     libgtk-4.so.1                                    ║\n║     libgraphene-1.0.so.0                             ║\n║     libxslt.so.1                                     ║\n║     libwoff2dec.so.1.0.2                             ║\n║     libvpx.so.9                                      ║\n║     libevent-2.1.so.7                                ║\n║     libopus.so.0                                     ║\n║     libgstallocators-1.0.so.0                        ║\n║     libgstapp-1.0.so.0                               ║\n║     libgstpbutils-1.0.so.0                           ║\n║     libgstaudio-1.0.so.0                             ║\n║     libgsttag-1.0.so.0                               ║\n║     libgstvideo-1.0.so.0                             ║\n║     libgstgl-1.0.so.0                                ║\n║     libgstcodecparsers-1.0.so.0                      ║\n║     libgstfft-1.0.so.0                               ║\n║     libflite.so.1                                    ║\n║     libflite_usenglish.so.1                          ║\n║     libflite_cmu_grapheme_lang.so.1                  ║\n║     libflite_cmu_grapheme_lex.so.1                   ║\n║     libflite_cmu_indic_lang.so.1                     ║\n║     libflite_cmu_indic_lex.so.1                      ║\n║     libflite_cmulex.so.1                             ║\n║     libflite_cmu_time_awb.so.1                       ║\n║     libflite_cmu_us_awb.so.1                         ║\n║     libflite_cmu_us_kal16.so.1                       ║\n║     libflite_cmu_us_kal.so.1                         ║\n║     libflite_cmu_us_rms.so.1                         ║\n║     libflite_cmu_us_slt.so.1                         ║\n║     libwebpdemux.so.2                                ║\n║     libavif.so.16                                    ║\n║     libharfbuzz-icu.so.0                             ║\n║     libwebpmux.so.3                                  ║\n║     libenchant-2.so.2                                ║\n║     libsecret-1.so.0                                 ║\n║     libhyphen.so.0                                   ║\n║     libmanette-0.2.so.0                              ║\n║     libx264.so                                       ║\n╚══════════════════════════════════════════════════════╝"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-17T22:09:07.089Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "unexpected"
                 }
               ],
-              "id": "6b32902699cfbf077749-a41d9c9bfa7417da7ce5",
-              "file": "game-navigation.spec.js",
-              "line": 20,
-              "column": 7
+              "id": "23a210ce5c5090bce74d-e147f5badea026ddc6c5",
+              "file": "par-impar.spec.js",
+              "line": 4,
+              "column": 3
             },
             {
-              "title": "should test 60s timer countdown for Phase 3 games",
-              "ok": true,
+              "title": "should start and show the first round",
+              "ok": false,
               "tags": [],
               "tests": [
                 {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "6b32902699cfbf077749-dd021f2bb099a6664362",
-              "file": "game-navigation.spec.js",
-              "line": 55,
-              "column": 7
-            },
-            {
-              "title": "should test hotkeys functionality",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "6b32902699cfbf077749-18cff006c9e0da5c8f9a",
-              "file": "game-navigation.spec.js",
-              "line": 92,
-              "column": 7
-            },
-            {
-              "title": "should complete game flow and return to menu",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "6b32902699cfbf077749-706ee05344ac4f1009cd",
-              "file": "game-navigation.spec.js",
-              "line": 135,
-              "column": 7
-            },
-            {
-              "title": "should open correct GameShell/component for each game",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
+                  "timeout": 0,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "Mobile Chrome",
                   "projectName": "Mobile Chrome",
-                  "results": [],
-                  "status": "skipped"
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 3,
+                      "error": {
+                        "message": "Error: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n╔════════════════════════════════════════════════════════════════════════════════════════════════╗\n║ Looks like you launched a headed browser without having a XServer running.                     ║\n║ Set either 'headless: true' or use 'xvfb-run <your-playwright-app>' before running Playwright. ║\n║                                                                                                ║\n║ <3 Playwright Team                                                                             ║\n╚════════════════════════════════════════════════════════════════════════════════════════════════╝\nCall log:\n\u001b[2m  - <launching> /home/jules/.cache/ms-playwright/chromium-1181/chrome-linux/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AcceptCHFrame,AutoExpandDetailsElement,AvoidUnnecessaryBeforeUnloadCheckSync,CertificateTransparencyComponentUpdater,DestroyProfileOnBrowserClose,DialMediaRouteProvider,ExtensionManifestV2Disabled,GlobalMediaControls,HttpsUpgrades,ImprovedCookieControls,LazyFrameLoading,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-GWiFDp --remote-debugging-pipe --no-startup-window\u001b[22m\n\u001b[2m  - <launched> pid=12175\u001b[22m\n\u001b[2m  - [pid=12175][err] [12175:12175:0817/220907.730021:ERROR:ui/ozone/platform/x11/ozone_platform_x11.cc:249] Missing X server or $DISPLAY\u001b[22m\n\u001b[2m  - [pid=12175][err] [12175:12175:0817/220907.731281:ERROR:ui/aura/env.cc:257] The platform failed to initialize.  Exiting.\u001b[22m\n",
+                        "stack": "Error: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n╔════════════════════════════════════════════════════════════════════════════════════════════════╗\n║ Looks like you launched a headed browser without having a XServer running.                     ║\n║ Set either 'headless: true' or use 'xvfb-run <your-playwright-app>' before running Playwright. ║\n║                                                                                                ║\n║ <3 Playwright Team                                                                             ║\n╚════════════════════════════════════════════════════════════════════════════════════════════════╝\nCall log:\n\u001b[2m  - <launching> /home/jules/.cache/ms-playwright/chromium-1181/chrome-linux/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AcceptCHFrame,AutoExpandDetailsElement,AvoidUnnecessaryBeforeUnloadCheckSync,CertificateTransparencyComponentUpdater,DestroyProfileOnBrowserClose,DialMediaRouteProvider,ExtensionManifestV2Disabled,GlobalMediaControls,HttpsUpgrades,ImprovedCookieControls,LazyFrameLoading,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-GWiFDp --remote-debugging-pipe --no-startup-window\u001b[22m\n\u001b[2m  - <launched> pid=12175\u001b[22m\n\u001b[2m  - [pid=12175][err] [12175:12175:0817/220907.730021:ERROR:ui/ozone/platform/x11/ozone_platform_x11.cc:249] Missing X server or $DISPLAY\u001b[22m\n\u001b[2m  - [pid=12175][err] [12175:12175:0817/220907.731281:ERROR:ui/aura/env.cc:257] The platform failed to initialize.  Exiting.\u001b[22m\n"
+                      },
+                      "errors": [
+                        {
+                          "message": "Error: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n╔════════════════════════════════════════════════════════════════════════════════════════════════╗\n║ Looks like you launched a headed browser without having a XServer running.                     ║\n║ Set either 'headless: true' or use 'xvfb-run <your-playwright-app>' before running Playwright. ║\n║                                                                                                ║\n║ <3 Playwright Team                                                                             ║\n╚════════════════════════════════════════════════════════════════════════════════════════════════╝\nCall log:\n\u001b[2m  - <launching> /home/jules/.cache/ms-playwright/chromium-1181/chrome-linux/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AcceptCHFrame,AutoExpandDetailsElement,AvoidUnnecessaryBeforeUnloadCheckSync,CertificateTransparencyComponentUpdater,DestroyProfileOnBrowserClose,DialMediaRouteProvider,ExtensionManifestV2Disabled,GlobalMediaControls,HttpsUpgrades,ImprovedCookieControls,LazyFrameLoading,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-GWiFDp --remote-debugging-pipe --no-startup-window\u001b[22m\n\u001b[2m  - <launched> pid=12175\u001b[22m\n\u001b[2m  - [pid=12175][err] [12175:12175:0817/220907.730021:ERROR:ui/ozone/platform/x11/ozone_platform_x11.cc:249] Missing X server or $DISPLAY\u001b[22m\n\u001b[2m  - [pid=12175][err] [12175:12175:0817/220907.731281:ERROR:ui/aura/env.cc:257] The platform failed to initialize.  Exiting.\u001b[22m\n"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-17T22:09:07.411Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "unexpected"
                 }
               ],
-              "id": "6b32902699cfbf077749-896b40570fa4eb2269e7",
-              "file": "game-navigation.spec.js",
-              "line": 20,
-              "column": 7
+              "id": "23a210ce5c5090bce74d-e9edb7ba51c9bb0d53ec",
+              "file": "par-impar.spec.js",
+              "line": 4,
+              "column": 3
             },
             {
-              "title": "should test 60s timer countdown for Phase 3 games",
-              "ok": true,
+              "title": "should start and show the first round",
+              "ok": false,
               "tags": [],
               "tests": [
                 {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "6b32902699cfbf077749-b58820cb72d8cfa658fc",
-              "file": "game-navigation.spec.js",
-              "line": 55,
-              "column": 7
-            },
-            {
-              "title": "should test hotkeys functionality",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "6b32902699cfbf077749-d6fc78d63e8df78f4d0c",
-              "file": "game-navigation.spec.js",
-              "line": 92,
-              "column": 7
-            },
-            {
-              "title": "should complete game flow and return to menu",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "6b32902699cfbf077749-83512215b0f13c2a86c8",
-              "file": "game-navigation.spec.js",
-              "line": 135,
-              "column": 7
-            },
-            {
-              "title": "should open correct GameShell/component for each game",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
+                  "timeout": 0,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "Mobile Safari",
                   "projectName": "Mobile Safari",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "6b32902699cfbf077749-525fd995f5a2267970f9",
-              "file": "game-navigation.spec.js",
-              "line": 20,
-              "column": 7
-            },
-            {
-              "title": "should test 60s timer countdown for Phase 3 games",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Safari",
-                  "projectName": "Mobile Safari",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "6b32902699cfbf077749-3128e01c3afbaeb8d560",
-              "file": "game-navigation.spec.js",
-              "line": 55,
-              "column": 7
-            },
-            {
-              "title": "should test hotkeys functionality",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Safari",
-                  "projectName": "Mobile Safari",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "6b32902699cfbf077749-094f72be8578ef82d7a9",
-              "file": "game-navigation.spec.js",
-              "line": 92,
-              "column": 7
-            },
-            {
-              "title": "should complete game flow and return to menu",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Safari",
-                  "projectName": "Mobile Safari",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "6b32902699cfbf077749-e968acd146c2b3984bed",
-              "file": "game-navigation.spec.js",
-              "line": 135,
-              "column": 7
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "games-grid.spec.js",
-      "file": "games-grid.spec.js",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Games Grid Validation",
-          "file": "games-grid.spec.js",
-          "line": 3,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should display exactly 9 game cards",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "f88a574aef1646021d29-09b1d907147f003aff8c",
-              "file": "games-grid.spec.js",
-              "line": 27,
-              "column": 7
-            },
-            {
-              "title": "should display all required game keys",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "f88a574aef1646021d29-51c7b6442da1d5216a78",
-              "file": "games-grid.spec.js",
-              "line": 39,
-              "column": 7
-            },
-            {
-              "title": "should display game card components correctly",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "f88a574aef1646021d29-e205c26ea5131564ac48",
-              "file": "games-grid.spec.js",
-              "line": 52,
-              "column": 7
-            },
-            {
-              "title": "should have working \"Comenzar\" buttons for all games",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "f88a574aef1646021d29-d0092639b7932af21604",
-              "file": "games-grid.spec.js",
-              "line": 79,
-              "column": 7
-            },
-            {
-              "title": "should display games in responsive grid layout",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "f88a574aef1646021d29-6f74221218a8a582c831",
-              "file": "games-grid.spec.js",
-              "line": 93,
-              "column": 7
-            },
-            {
-              "title": "should display exactly 9 game cards",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "firefox",
-                  "projectName": "firefox",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "f88a574aef1646021d29-811b8f91e0df72e037bb",
-              "file": "games-grid.spec.js",
-              "line": 27,
-              "column": 7
-            },
-            {
-              "title": "should display all required game keys",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "firefox",
-                  "projectName": "firefox",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "f88a574aef1646021d29-046e2ee5f4e9e26c92ce",
-              "file": "games-grid.spec.js",
-              "line": 39,
-              "column": 7
-            },
-            {
-              "title": "should display game card components correctly",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "firefox",
-                  "projectName": "firefox",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "f88a574aef1646021d29-f972e11a44771ee30028",
-              "file": "games-grid.spec.js",
-              "line": 52,
-              "column": 7
-            },
-            {
-              "title": "should have working \"Comenzar\" buttons for all games",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "firefox",
-                  "projectName": "firefox",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "f88a574aef1646021d29-c99588d4e56533b47b49",
-              "file": "games-grid.spec.js",
-              "line": 79,
-              "column": 7
-            },
-            {
-              "title": "should display games in responsive grid layout",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "firefox",
-                  "projectName": "firefox",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "f88a574aef1646021d29-937216194fe92cfe54c0",
-              "file": "games-grid.spec.js",
-              "line": 93,
-              "column": 7
-            },
-            {
-              "title": "should display exactly 9 game cards",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "f88a574aef1646021d29-3920f4e9ba133aa47d98",
-              "file": "games-grid.spec.js",
-              "line": 27,
-              "column": 7
-            },
-            {
-              "title": "should display all required game keys",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "f88a574aef1646021d29-c1ccedb07b7387608f93",
-              "file": "games-grid.spec.js",
-              "line": 39,
-              "column": 7
-            },
-            {
-              "title": "should display game card components correctly",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "f88a574aef1646021d29-85e59f74a3b4ec5dc00d",
-              "file": "games-grid.spec.js",
-              "line": 52,
-              "column": 7
-            },
-            {
-              "title": "should have working \"Comenzar\" buttons for all games",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "f88a574aef1646021d29-a793ee06a75aeb93f7ff",
-              "file": "games-grid.spec.js",
-              "line": 79,
-              "column": 7
-            },
-            {
-              "title": "should display games in responsive grid layout",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "f88a574aef1646021d29-c47e08c939a92baa5b41",
-              "file": "games-grid.spec.js",
-              "line": 93,
-              "column": 7
-            },
-            {
-              "title": "should display exactly 9 game cards",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "f88a574aef1646021d29-2194d508684b18d1f946",
-              "file": "games-grid.spec.js",
-              "line": 27,
-              "column": 7
-            },
-            {
-              "title": "should display all required game keys",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "f88a574aef1646021d29-988e8e59a094142a255e",
-              "file": "games-grid.spec.js",
-              "line": 39,
-              "column": 7
-            },
-            {
-              "title": "should display game card components correctly",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "f88a574aef1646021d29-7cc3e8fe207af9f7702c",
-              "file": "games-grid.spec.js",
-              "line": 52,
-              "column": 7
-            },
-            {
-              "title": "should have working \"Comenzar\" buttons for all games",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "f88a574aef1646021d29-bcb58bfde97d60b27dec",
-              "file": "games-grid.spec.js",
-              "line": 79,
-              "column": 7
-            },
-            {
-              "title": "should display games in responsive grid layout",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "f88a574aef1646021d29-64ca75d898bd78fcff34",
-              "file": "games-grid.spec.js",
-              "line": 93,
-              "column": 7
-            },
-            {
-              "title": "should display exactly 9 game cards",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Safari",
-                  "projectName": "Mobile Safari",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "f88a574aef1646021d29-123bbbb4d191b49c4ebf",
-              "file": "games-grid.spec.js",
-              "line": 27,
-              "column": 7
-            },
-            {
-              "title": "should display all required game keys",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Safari",
-                  "projectName": "Mobile Safari",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "f88a574aef1646021d29-18d55d2014a15d7d793f",
-              "file": "games-grid.spec.js",
-              "line": 39,
-              "column": 7
-            },
-            {
-              "title": "should display game card components correctly",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Safari",
-                  "projectName": "Mobile Safari",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "f88a574aef1646021d29-285da0315c58930965b5",
-              "file": "games-grid.spec.js",
-              "line": 52,
-              "column": 7
-            },
-            {
-              "title": "should have working \"Comenzar\" buttons for all games",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Safari",
-                  "projectName": "Mobile Safari",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "f88a574aef1646021d29-84fe281cd743283b2acd",
-              "file": "games-grid.spec.js",
-              "line": 79,
-              "column": 7
-            },
-            {
-              "title": "should display games in responsive grid layout",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Safari",
-                  "projectName": "Mobile Safari",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "f88a574aef1646021d29-7d4c3058792772c35156",
-              "file": "games-grid.spec.js",
-              "line": 93,
-              "column": 7
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "gamification-header.spec.js",
-      "file": "gamification-header.spec.js",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Gamification Header Testing",
-          "file": "gamification-header.spec.js",
-          "line": 3,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should display gamification header elements",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "5fa64310332335d14056-793cdd9708f44d5305ca",
-              "file": "gamification-header.spec.js",
-              "line": 16,
-              "column": 7
-            },
-            {
-              "title": "should display XP progress bar correctly",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "5fa64310332335d14056-ba98690c84c928a20f7c",
-              "file": "gamification-header.spec.js",
-              "line": 58,
-              "column": 7
-            },
-            {
-              "title": "should display streak counter with flame icon",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "5fa64310332335d14056-853423a1aa24976b6156",
-              "file": "gamification-header.spec.js",
-              "line": 86,
-              "column": 7
-            },
-            {
-              "title": "should be responsive across screen sizes",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "5fa64310332335d14056-5335657de56152cb266e",
-              "file": "gamification-header.spec.js",
-              "line": 113,
-              "column": 7
-            },
-            {
-              "title": "should show tooltips on hover",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "5fa64310332335d14056-8157a133ef424252e824",
-              "file": "gamification-header.spec.js",
-              "line": 143,
-              "column": 7
-            },
-            {
-              "title": "should display achievement count if present",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "5fa64310332335d14056-7048f4261331daaa4bbd",
-              "file": "gamification-header.spec.js",
-              "line": 174,
-              "column": 7
-            },
-            {
-              "title": "should display gamification header elements",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "firefox",
-                  "projectName": "firefox",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "5fa64310332335d14056-403341fbdbbba87b0a80",
-              "file": "gamification-header.spec.js",
-              "line": 16,
-              "column": 7
-            },
-            {
-              "title": "should display XP progress bar correctly",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "firefox",
-                  "projectName": "firefox",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "5fa64310332335d14056-c19904d199f168585e08",
-              "file": "gamification-header.spec.js",
-              "line": 58,
-              "column": 7
-            },
-            {
-              "title": "should display streak counter with flame icon",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "firefox",
-                  "projectName": "firefox",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "5fa64310332335d14056-d45dff03f17252743fc3",
-              "file": "gamification-header.spec.js",
-              "line": 86,
-              "column": 7
-            },
-            {
-              "title": "should be responsive across screen sizes",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "firefox",
-                  "projectName": "firefox",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "5fa64310332335d14056-61ca42c7203cb75df342",
-              "file": "gamification-header.spec.js",
-              "line": 113,
-              "column": 7
-            },
-            {
-              "title": "should show tooltips on hover",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "firefox",
-                  "projectName": "firefox",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "5fa64310332335d14056-b8ac0c3749ec3bde1dc8",
-              "file": "gamification-header.spec.js",
-              "line": 143,
-              "column": 7
-            },
-            {
-              "title": "should display achievement count if present",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "firefox",
-                  "projectName": "firefox",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "5fa64310332335d14056-c3e91355e4394e7042b7",
-              "file": "gamification-header.spec.js",
-              "line": 174,
-              "column": 7
-            },
-            {
-              "title": "should display gamification header elements",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "5fa64310332335d14056-af0f1ee50439ae190b65",
-              "file": "gamification-header.spec.js",
-              "line": 16,
-              "column": 7
-            },
-            {
-              "title": "should display XP progress bar correctly",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "5fa64310332335d14056-40b6df2e47b1339a5bf3",
-              "file": "gamification-header.spec.js",
-              "line": 58,
-              "column": 7
-            },
-            {
-              "title": "should display streak counter with flame icon",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "5fa64310332335d14056-b209656b96886b6d0c72",
-              "file": "gamification-header.spec.js",
-              "line": 86,
-              "column": 7
-            },
-            {
-              "title": "should be responsive across screen sizes",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "5fa64310332335d14056-9cebe4fb706eed680952",
-              "file": "gamification-header.spec.js",
-              "line": 113,
-              "column": 7
-            },
-            {
-              "title": "should show tooltips on hover",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "5fa64310332335d14056-e8c4fecafcc2337ebcdc",
-              "file": "gamification-header.spec.js",
-              "line": 143,
-              "column": 7
-            },
-            {
-              "title": "should display achievement count if present",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "5fa64310332335d14056-a755fbcdeddf4169e2a9",
-              "file": "gamification-header.spec.js",
-              "line": 174,
-              "column": 7
-            },
-            {
-              "title": "should display gamification header elements",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "5fa64310332335d14056-977debc88e81db88472d",
-              "file": "gamification-header.spec.js",
-              "line": 16,
-              "column": 7
-            },
-            {
-              "title": "should display XP progress bar correctly",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "5fa64310332335d14056-4f6c18ad779b181747bd",
-              "file": "gamification-header.spec.js",
-              "line": 58,
-              "column": 7
-            },
-            {
-              "title": "should display streak counter with flame icon",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "5fa64310332335d14056-8fb1d8bd5ad7d4dc2b30",
-              "file": "gamification-header.spec.js",
-              "line": 86,
-              "column": 7
-            },
-            {
-              "title": "should be responsive across screen sizes",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "5fa64310332335d14056-f76045a4bd9af7841237",
-              "file": "gamification-header.spec.js",
-              "line": 113,
-              "column": 7
-            },
-            {
-              "title": "should show tooltips on hover",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "5fa64310332335d14056-6f81810a4837ff2fa830",
-              "file": "gamification-header.spec.js",
-              "line": 143,
-              "column": 7
-            },
-            {
-              "title": "should display achievement count if present",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "5fa64310332335d14056-b4f17b1017ad668c0567",
-              "file": "gamification-header.spec.js",
-              "line": 174,
-              "column": 7
-            },
-            {
-              "title": "should display gamification header elements",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Safari",
-                  "projectName": "Mobile Safari",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "5fa64310332335d14056-a5bff9d7a8b7c4864e3b",
-              "file": "gamification-header.spec.js",
-              "line": 16,
-              "column": 7
-            },
-            {
-              "title": "should display XP progress bar correctly",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Safari",
-                  "projectName": "Mobile Safari",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "5fa64310332335d14056-8429a63373abc70352cc",
-              "file": "gamification-header.spec.js",
-              "line": 58,
-              "column": 7
-            },
-            {
-              "title": "should display streak counter with flame icon",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Safari",
-                  "projectName": "Mobile Safari",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "5fa64310332335d14056-c14b77a7f3dfb9b38c51",
-              "file": "gamification-header.spec.js",
-              "line": 86,
-              "column": 7
-            },
-            {
-              "title": "should be responsive across screen sizes",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Safari",
-                  "projectName": "Mobile Safari",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "5fa64310332335d14056-37886364fbb6f605bb16",
-              "file": "gamification-header.spec.js",
-              "line": 113,
-              "column": 7
-            },
-            {
-              "title": "should show tooltips on hover",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Safari",
-                  "projectName": "Mobile Safari",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "5fa64310332335d14056-85bc598e2d0bc1d4ac80",
-              "file": "gamification-header.spec.js",
-              "line": 143,
-              "column": 7
-            },
-            {
-              "title": "should display achievement count if present",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Safari",
-                  "projectName": "Mobile Safari",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "5fa64310332335d14056-6c1627f95974e3b0659e",
-              "file": "gamification-header.spec.js",
-              "line": 174,
-              "column": 7
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "internationalization.spec.js",
-      "file": "internationalization.spec.js",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Internationalization (i18n) Testing",
-          "file": "internationalization.spec.js",
-          "line": 3,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should display language switcher in header",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "751be39df60466f2e4ab-8111f0cda3601e78d583",
-              "file": "internationalization.spec.js",
-              "line": 10,
-              "column": 7
-            },
-            {
-              "title": "should switch between Spanish and English",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "751be39df60466f2e4ab-3500957e6a24a7eff977",
-              "file": "internationalization.spec.js",
-              "line": 25,
-              "column": 7
-            },
-            {
-              "title": "should persist language selection",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "751be39df60466f2e4ab-2fa8c9057631e97714d8",
-              "file": "internationalization.spec.js",
-              "line": 67,
-              "column": 7
-            },
-            {
-              "title": "should translate game titles and descriptions",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "751be39df60466f2e4ab-72b3f9cbee88530ae543",
-              "file": "internationalization.spec.js",
-              "line": 85,
-              "column": 7
-            },
-            {
-              "title": "should translate header gamification elements",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "751be39df60466f2e4ab-726b35a140d89b22ae4a",
-              "file": "internationalization.spec.js",
-              "line": 131,
-              "column": 7
-            },
-            {
-              "title": "should display language switcher in header",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "firefox",
-                  "projectName": "firefox",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "751be39df60466f2e4ab-1fd6b3b44562b4b71c55",
-              "file": "internationalization.spec.js",
-              "line": 10,
-              "column": 7
-            },
-            {
-              "title": "should switch between Spanish and English",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "firefox",
-                  "projectName": "firefox",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "751be39df60466f2e4ab-711ca9d61d8e25d09eba",
-              "file": "internationalization.spec.js",
-              "line": 25,
-              "column": 7
-            },
-            {
-              "title": "should persist language selection",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "firefox",
-                  "projectName": "firefox",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "751be39df60466f2e4ab-cca4065f487d142f9e52",
-              "file": "internationalization.spec.js",
-              "line": 67,
-              "column": 7
-            },
-            {
-              "title": "should translate game titles and descriptions",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "firefox",
-                  "projectName": "firefox",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "751be39df60466f2e4ab-a6a1814b71ba348ab250",
-              "file": "internationalization.spec.js",
-              "line": 85,
-              "column": 7
-            },
-            {
-              "title": "should translate header gamification elements",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "firefox",
-                  "projectName": "firefox",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "751be39df60466f2e4ab-bad2507f405a6aa93e69",
-              "file": "internationalization.spec.js",
-              "line": 131,
-              "column": 7
-            },
-            {
-              "title": "should display language switcher in header",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "751be39df60466f2e4ab-529ee17869c7bd992b03",
-              "file": "internationalization.spec.js",
-              "line": 10,
-              "column": 7
-            },
-            {
-              "title": "should switch between Spanish and English",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "751be39df60466f2e4ab-b1008edac50a13c3043d",
-              "file": "internationalization.spec.js",
-              "line": 25,
-              "column": 7
-            },
-            {
-              "title": "should persist language selection",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "751be39df60466f2e4ab-e52b763405b8fb31765e",
-              "file": "internationalization.spec.js",
-              "line": 67,
-              "column": 7
-            },
-            {
-              "title": "should translate game titles and descriptions",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "751be39df60466f2e4ab-05fa3ad963a5d1e527a6",
-              "file": "internationalization.spec.js",
-              "line": 85,
-              "column": 7
-            },
-            {
-              "title": "should translate header gamification elements",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "751be39df60466f2e4ab-c2835acc93227ec94caf",
-              "file": "internationalization.spec.js",
-              "line": 131,
-              "column": 7
-            },
-            {
-              "title": "should display language switcher in header",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "751be39df60466f2e4ab-a63bd50e3cf908942caf",
-              "file": "internationalization.spec.js",
-              "line": 10,
-              "column": 7
-            },
-            {
-              "title": "should switch between Spanish and English",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "751be39df60466f2e4ab-b403746e548e5981c304",
-              "file": "internationalization.spec.js",
-              "line": 25,
-              "column": 7
-            },
-            {
-              "title": "should persist language selection",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "751be39df60466f2e4ab-d9e3066e6e66d1a998fb",
-              "file": "internationalization.spec.js",
-              "line": 67,
-              "column": 7
-            },
-            {
-              "title": "should translate game titles and descriptions",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "751be39df60466f2e4ab-3f15e01a68f12de58f19",
-              "file": "internationalization.spec.js",
-              "line": 85,
-              "column": 7
-            },
-            {
-              "title": "should translate header gamification elements",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "751be39df60466f2e4ab-ebb20d02f2e2c6b52e6d",
-              "file": "internationalization.spec.js",
-              "line": 131,
-              "column": 7
-            },
-            {
-              "title": "should display language switcher in header",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Safari",
-                  "projectName": "Mobile Safari",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "751be39df60466f2e4ab-eaf20e9a060c6b0d5877",
-              "file": "internationalization.spec.js",
-              "line": 10,
-              "column": 7
-            },
-            {
-              "title": "should switch between Spanish and English",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Safari",
-                  "projectName": "Mobile Safari",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "751be39df60466f2e4ab-b2aa22b922eed783a36c",
-              "file": "internationalization.spec.js",
-              "line": 25,
-              "column": 7
-            },
-            {
-              "title": "should persist language selection",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Safari",
-                  "projectName": "Mobile Safari",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "751be39df60466f2e4ab-02b24c54d5713890b29c",
-              "file": "internationalization.spec.js",
-              "line": 67,
-              "column": 7
-            },
-            {
-              "title": "should translate game titles and descriptions",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Safari",
-                  "projectName": "Mobile Safari",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "751be39df60466f2e4ab-bf7bf41b9ba78e24a852",
-              "file": "internationalization.spec.js",
-              "line": 85,
-              "column": 7
-            },
-            {
-              "title": "should translate header gamification elements",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Safari",
-                  "projectName": "Mobile Safari",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "751be39df60466f2e4ab-893eead96ad15c6d2374",
-              "file": "internationalization.spec.js",
-              "line": 131,
-              "column": 7
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "stats-panel.spec.js",
-      "file": "stats-panel.spec.js",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Stats Panel Testing",
-          "file": "stats-panel.spec.js",
-          "line": 3,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should render stats chart without errors",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-181d1fe01ff2cfc49afe",
-              "file": "stats-panel.spec.js",
-              "line": 20,
-              "column": 7
-            },
-            {
-              "title": "should handle empty/mock data gracefully",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-2ccca90f453ece59fa98",
-              "file": "stats-panel.spec.js",
-              "line": 51,
-              "column": 7
-            },
-            {
-              "title": "should display game tabs correctly",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-c618d3807d95e58d8c5b",
-              "file": "stats-panel.spec.js",
-              "line": 69,
-              "column": 7
-            },
-            {
-              "title": "should show XP and level information",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-34781b537ba65db44fb1",
-              "file": "stats-panel.spec.js",
-              "line": 95,
-              "column": 7
-            },
-            {
-              "title": "should display streak information",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-76d8b693a17a5111b4b9",
-              "file": "stats-panel.spec.js",
-              "line": 115,
-              "column": 7
-            },
-            {
-              "title": "should display achievements section",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-ac10b1ac7b0a01c0285d",
-              "file": "stats-panel.spec.js",
-              "line": 136,
-              "column": 7
-            },
-            {
-              "title": "should be responsive on different screen sizes",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-b4883e43b62aa93e5348",
-              "file": "stats-panel.spec.js",
-              "line": 157,
-              "column": 7
-            },
-            {
-              "title": "should handle chart interactions",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-38792389933646a0fc6c",
-              "file": "stats-panel.spec.js",
-              "line": 183,
-              "column": 7
-            },
-            {
-              "title": "should render stats chart without errors",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "firefox",
-                  "projectName": "firefox",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-3d8e98236887998a468e",
-              "file": "stats-panel.spec.js",
-              "line": 20,
-              "column": 7
-            },
-            {
-              "title": "should handle empty/mock data gracefully",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "firefox",
-                  "projectName": "firefox",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-76615dde0bf8c8efd626",
-              "file": "stats-panel.spec.js",
-              "line": 51,
-              "column": 7
-            },
-            {
-              "title": "should display game tabs correctly",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "firefox",
-                  "projectName": "firefox",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-a7130ece1bfd65e9a2e4",
-              "file": "stats-panel.spec.js",
-              "line": 69,
-              "column": 7
-            },
-            {
-              "title": "should show XP and level information",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "firefox",
-                  "projectName": "firefox",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-8eaad985ef10c2094797",
-              "file": "stats-panel.spec.js",
-              "line": 95,
-              "column": 7
-            },
-            {
-              "title": "should display streak information",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "firefox",
-                  "projectName": "firefox",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-7c6048404c5332ee6f68",
-              "file": "stats-panel.spec.js",
-              "line": 115,
-              "column": 7
-            },
-            {
-              "title": "should display achievements section",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "firefox",
-                  "projectName": "firefox",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-2d2ce191831844693586",
-              "file": "stats-panel.spec.js",
-              "line": 136,
-              "column": 7
-            },
-            {
-              "title": "should be responsive on different screen sizes",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "firefox",
-                  "projectName": "firefox",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-aa0b17312357577a13ec",
-              "file": "stats-panel.spec.js",
-              "line": 157,
-              "column": 7
-            },
-            {
-              "title": "should handle chart interactions",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "firefox",
-                  "projectName": "firefox",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-3ecff2877fccb4bd01a8",
-              "file": "stats-panel.spec.js",
-              "line": 183,
-              "column": 7
-            },
-            {
-              "title": "should render stats chart without errors",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-bff1a111eb5dd0dbcd34",
-              "file": "stats-panel.spec.js",
-              "line": 20,
-              "column": 7
-            },
-            {
-              "title": "should handle empty/mock data gracefully",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-5c70f3241eeea522b758",
-              "file": "stats-panel.spec.js",
-              "line": 51,
-              "column": 7
-            },
-            {
-              "title": "should display game tabs correctly",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-862be96010d836261c59",
-              "file": "stats-panel.spec.js",
-              "line": 69,
-              "column": 7
-            },
-            {
-              "title": "should show XP and level information",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-94e87432a91e7ec1be51",
-              "file": "stats-panel.spec.js",
-              "line": 95,
-              "column": 7
-            },
-            {
-              "title": "should display streak information",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-891be7bce76d171b47d1",
-              "file": "stats-panel.spec.js",
-              "line": 115,
-              "column": 7
-            },
-            {
-              "title": "should display achievements section",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-be9b40074c4aaab9b590",
-              "file": "stats-panel.spec.js",
-              "line": 136,
-              "column": 7
-            },
-            {
-              "title": "should be responsive on different screen sizes",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-7a8a13e9d1ac9224072c",
-              "file": "stats-panel.spec.js",
-              "line": 157,
-              "column": 7
-            },
-            {
-              "title": "should handle chart interactions",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-ab116534ce420646b5d4",
-              "file": "stats-panel.spec.js",
-              "line": 183,
-              "column": 7
-            },
-            {
-              "title": "should render stats chart without errors",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-06785bbdb3fda1dc340f",
-              "file": "stats-panel.spec.js",
-              "line": 20,
-              "column": 7
-            },
-            {
-              "title": "should handle empty/mock data gracefully",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-65d0961722e3669c7ab9",
-              "file": "stats-panel.spec.js",
-              "line": 51,
-              "column": 7
-            },
-            {
-              "title": "should display game tabs correctly",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-449df53e293ae1fde27f",
-              "file": "stats-panel.spec.js",
-              "line": 69,
-              "column": 7
-            },
-            {
-              "title": "should show XP and level information",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-29cada1dddf1f7f9a140",
-              "file": "stats-panel.spec.js",
-              "line": 95,
-              "column": 7
-            },
-            {
-              "title": "should display streak information",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-8c0824f6834e7d833fe8",
-              "file": "stats-panel.spec.js",
-              "line": 115,
-              "column": 7
-            },
-            {
-              "title": "should display achievements section",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-b9328a576e35881d93a5",
-              "file": "stats-panel.spec.js",
-              "line": 136,
-              "column": 7
-            },
-            {
-              "title": "should be responsive on different screen sizes",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-779e9c5943d7fdb3472d",
-              "file": "stats-panel.spec.js",
-              "line": 157,
-              "column": 7
-            },
-            {
-              "title": "should handle chart interactions",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-4803fca9bdc47cb773f1",
-              "file": "stats-panel.spec.js",
-              "line": 183,
-              "column": 7
-            },
-            {
-              "title": "should render stats chart without errors",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Safari",
-                  "projectName": "Mobile Safari",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-5279f953d291a016cd59",
-              "file": "stats-panel.spec.js",
-              "line": 20,
-              "column": 7
-            },
-            {
-              "title": "should handle empty/mock data gracefully",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Safari",
-                  "projectName": "Mobile Safari",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-165b1ce5b148666ae367",
-              "file": "stats-panel.spec.js",
-              "line": 51,
-              "column": 7
-            },
-            {
-              "title": "should display game tabs correctly",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Safari",
-                  "projectName": "Mobile Safari",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-e9a1d7be83ebcc27a9cc",
-              "file": "stats-panel.spec.js",
-              "line": 69,
-              "column": 7
-            },
-            {
-              "title": "should show XP and level information",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Safari",
-                  "projectName": "Mobile Safari",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-9cd0f3d146e5fcafe3eb",
-              "file": "stats-panel.spec.js",
-              "line": 95,
-              "column": 7
-            },
-            {
-              "title": "should display streak information",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Safari",
-                  "projectName": "Mobile Safari",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-8daa96b85fb2760ceafb",
-              "file": "stats-panel.spec.js",
-              "line": 115,
-              "column": 7
-            },
-            {
-              "title": "should display achievements section",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Safari",
-                  "projectName": "Mobile Safari",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-96e1b56483e3297800b2",
-              "file": "stats-panel.spec.js",
-              "line": 136,
-              "column": 7
-            },
-            {
-              "title": "should be responsive on different screen sizes",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Safari",
-                  "projectName": "Mobile Safari",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-291ae010103c8517513e",
-              "file": "stats-panel.spec.js",
-              "line": 157,
-              "column": 7
-            },
-            {
-              "title": "should handle chart interactions",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Safari",
-                  "projectName": "Mobile Safari",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "4e9796ab2753d387231f-000494fa679e028d9941",
-              "file": "stats-panel.spec.js",
-              "line": 183,
-              "column": 7
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 3,
+                      "error": {
+                        "message": "Error: browserType.launch: \n╔══════════════════════════════════════════════════════╗\n║ Host system is missing dependencies to run browsers. ║\n║ Missing libraries:                                   ║\n║     libgtk-4.so.1                                    ║\n║     libgraphene-1.0.so.0                             ║\n║     libxslt.so.1                                     ║\n║     libwoff2dec.so.1.0.2                             ║\n║     libvpx.so.9                                      ║\n║     libevent-2.1.so.7                                ║\n║     libopus.so.0                                     ║\n║     libgstallocators-1.0.so.0                        ║\n║     libgstapp-1.0.so.0                               ║\n║     libgstpbutils-1.0.so.0                           ║\n║     libgstaudio-1.0.so.0                             ║\n║     libgsttag-1.0.so.0                               ║\n║     libgstvideo-1.0.so.0                             ║\n║     libgstgl-1.0.so.0                                ║\n║     libgstcodecparsers-1.0.so.0                      ║\n║     libgstfft-1.0.so.0                               ║\n║     libflite.so.1                                    ║\n║     libflite_usenglish.so.1                          ║\n║     libflite_cmu_grapheme_lang.so.1                  ║\n║     libflite_cmu_grapheme_lex.so.1                   ║\n║     libflite_cmu_indic_lang.so.1                     ║\n║     libflite_cmu_indic_lex.so.1                      ║\n║     libflite_cmulex.so.1                             ║\n║     libflite_cmu_time_awb.so.1                       ║\n║     libflite_cmu_us_awb.so.1                         ║\n║     libflite_cmu_us_kal16.so.1                       ║\n║     libflite_cmu_us_kal.so.1                         ║\n║     libflite_cmu_us_rms.so.1                         ║\n║     libflite_cmu_us_slt.so.1                         ║\n║     libwebpdemux.so.2                                ║\n║     libavif.so.16                                    ║\n║     libharfbuzz-icu.so.0                             ║\n║     libwebpmux.so.3                                  ║\n║     libenchant-2.so.2                                ║\n║     libsecret-1.so.0                                 ║\n║     libhyphen.so.0                                   ║\n║     libmanette-0.2.so.0                              ║\n║     libx264.so                                       ║\n╚══════════════════════════════════════════════════════╝",
+                        "stack": "Error: browserType.launch: \n╔══════════════════════════════════════════════════════╗\n║ Host system is missing dependencies to run browsers. ║\n║ Missing libraries:                                   ║\n║     libgtk-4.so.1                                    ║\n║     libgraphene-1.0.so.0                             ║\n║     libxslt.so.1                                     ║\n║     libwoff2dec.so.1.0.2                             ║\n║     libvpx.so.9                                      ║\n║     libevent-2.1.so.7                                ║\n║     libopus.so.0                                     ║\n║     libgstallocators-1.0.so.0                        ║\n║     libgstapp-1.0.so.0                               ║\n║     libgstpbutils-1.0.so.0                           ║\n║     libgstaudio-1.0.so.0                             ║\n║     libgsttag-1.0.so.0                               ║\n║     libgstvideo-1.0.so.0                             ║\n║     libgstgl-1.0.so.0                                ║\n║     libgstcodecparsers-1.0.so.0                      ║\n║     libgstfft-1.0.so.0                               ║\n║     libflite.so.1                                    ║\n║     libflite_usenglish.so.1                          ║\n║     libflite_cmu_grapheme_lang.so.1                  ║\n║     libflite_cmu_grapheme_lex.so.1                   ║\n║     libflite_cmu_indic_lang.so.1                     ║\n║     libflite_cmu_indic_lex.so.1                      ║\n║     libflite_cmulex.so.1                             ║\n║     libflite_cmu_time_awb.so.1                       ║\n║     libflite_cmu_us_awb.so.1                         ║\n║     libflite_cmu_us_kal16.so.1                       ║\n║     libflite_cmu_us_kal.so.1                         ║\n║     libflite_cmu_us_rms.so.1                         ║\n║     libflite_cmu_us_slt.so.1                         ║\n║     libwebpdemux.so.2                                ║\n║     libavif.so.16                                    ║\n║     libharfbuzz-icu.so.0                             ║\n║     libwebpmux.so.3                                  ║\n║     libenchant-2.so.2                                ║\n║     libsecret-1.so.0                                 ║\n║     libhyphen.so.0                                   ║\n║     libmanette-0.2.so.0                              ║\n║     libx264.so                                       ║\n╚══════════════════════════════════════════════════════╝"
+                      },
+                      "errors": [
+                        {
+                          "message": "Error: browserType.launch: \n╔══════════════════════════════════════════════════════╗\n║ Host system is missing dependencies to run browsers. ║\n║ Missing libraries:                                   ║\n║     libgtk-4.so.1                                    ║\n║     libgraphene-1.0.so.0                             ║\n║     libxslt.so.1                                     ║\n║     libwoff2dec.so.1.0.2                             ║\n║     libvpx.so.9                                      ║\n║     libevent-2.1.so.7                                ║\n║     libopus.so.0                                     ║\n║     libgstallocators-1.0.so.0                        ║\n║     libgstapp-1.0.so.0                               ║\n║     libgstpbutils-1.0.so.0                           ║\n║     libgstaudio-1.0.so.0                             ║\n║     libgsttag-1.0.so.0                               ║\n║     libgstvideo-1.0.so.0                             ║\n║     libgstgl-1.0.so.0                                ║\n║     libgstcodecparsers-1.0.so.0                      ║\n║     libgstfft-1.0.so.0                               ║\n║     libflite.so.1                                    ║\n║     libflite_usenglish.so.1                          ║\n║     libflite_cmu_grapheme_lang.so.1                  ║\n║     libflite_cmu_grapheme_lex.so.1                   ║\n║     libflite_cmu_indic_lang.so.1                     ║\n║     libflite_cmu_indic_lex.so.1                      ║\n║     libflite_cmulex.so.1                             ║\n║     libflite_cmu_time_awb.so.1                       ║\n║     libflite_cmu_us_awb.so.1                         ║\n║     libflite_cmu_us_kal16.so.1                       ║\n║     libflite_cmu_us_kal.so.1                         ║\n║     libflite_cmu_us_rms.so.1                         ║\n║     libflite_cmu_us_slt.so.1                         ║\n║     libwebpdemux.so.2                                ║\n║     libavif.so.16                                    ║\n║     libharfbuzz-icu.so.0                             ║\n║     libwebpmux.so.3                                  ║\n║     libenchant-2.so.2                                ║\n║     libsecret-1.so.0                                 ║\n║     libhyphen.so.0                                   ║\n║     libmanette-0.2.so.0                              ║\n║     libx264.so                                       ║\n╚══════════════════════════════════════════════════════╝"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-17T22:09:08.465Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "23a210ce5c5090bce74d-983ac223754bd428463b",
+              "file": "par-impar.spec.js",
+              "line": 4,
+              "column": 3
             }
           ]
         }
@@ -3008,11 +362,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-08-14T19:22:50.192Z",
-    "duration": 700.5409999999999,
+    "startTime": "2025-08-17T22:09:03.096Z",
+    "duration": 5663.6410000000005,
     "expected": 0,
-    "skipped": 140,
-    "unexpected": 0,
+    "skipped": 0,
+    "unexpected": 5,
     "flaky": 0
   }
 }
