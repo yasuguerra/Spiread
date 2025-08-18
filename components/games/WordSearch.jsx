@@ -65,6 +65,7 @@ export default function WordSearch({
     accuracy: 0
   })
 
+  const gridRef = useRef(null) // Ref for the grid container
   const config = GAME_CONFIG.levels[Math.min(level, 20)]
   const wordsData = WORD_BANK.wordSearch[locale] || WORD_BANK.wordSearch.es
   const roundStartTime = useRef(null)
@@ -192,30 +193,58 @@ export default function WordSearch({
     roundStartTime.current = Date.now()
   }, [generateRound, timeRemaining])
 
-  // Handle mouse down on cell
-  const handleMouseDown = useCallback((row, col) => {
-    if (gameState !== 'playing') return
+  // Get cell coordinates from a pointer event
+  const getCellFromEvent = (e) => {
+    if (!gridRef.current) return null
     
+    const rect = gridRef.current.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+
+    const cellWidth = rect.width / config.gridSize
+    const cellHeight = rect.height / config.gridSize
+
+    const col = Math.floor(x / cellWidth)
+    const row = Math.floor(y / cellHeight)
+
+    if (row >= 0 && row < config.gridSize && col >= 0 && col < config.gridSize) {
+      return { row, col }
+    }
+
+    return null
+  }
+
+  // Handle pointer down on cell
+  const handlePointerDown = useCallback((e) => {
+    if (gameState !== 'playing' || !gridRef.current) return
+
+    const startCell = getCellFromEvent(e)
+    if (!startCell) return
+
+    gridRef.current.setPointerCapture(e.pointerId)
     setIsSelecting(true)
     setSelection({
-      start: { row, col },
-      end: { row, col },
-      cells: [{ row, col }]
+      start: startCell,
+      end: startCell,
+      cells: [startCell]
     })
-  }, [gameState])
+  }, [gameState, config.gridSize])
 
-  // Handle mouse enter on cell (for selection)
-  const handleMouseEnter = useCallback((row, col) => {
+  // Handle pointer move for selection
+  const handlePointerMove = useCallback((e) => {
     if (!isSelecting || !selection.start) return
     
+    const currentCell = getCellFromEvent(e)
+    if (!currentCell) return
+
     // Calculate cells in selection line
-    const cells = getLineCells(selection.start, { row, col })
+    const cells = getLineCells(selection.start, currentCell)
     setSelection(prev => ({
       ...prev,
-      end: { row, col },
+      end: currentCell,
       cells
     }))
-  }, [isSelecting, selection.start])
+  }, [isSelecting, selection.start, config.gridSize])
 
   // Get cells in a straight line between two points
   const getLineCells = useCallback((start, end) => {
@@ -243,10 +272,11 @@ export default function WordSearch({
     return cells
   }, [])
 
-  // Handle mouse up (complete selection)
-  const handleMouseUp = useCallback(() => {
-    if (!isSelecting || !selection.start) return
+  // Handle pointer up (complete selection)
+  const handlePointerUp = useCallback((e) => {
+    if (!isSelecting || !selection.start || !gridRef.current) return
     
+    gridRef.current.releasePointerCapture(e.pointerId)
     setIsSelecting(false)
     
     // Check if selection matches any unfound word
@@ -365,12 +395,18 @@ export default function WordSearch({
           
           <div className="flex justify-center">
             <div 
-              className="grid gap-0 p-2 bg-gray-50 rounded-lg border-2 select-none"
+              ref={gridRef}
+              className="grid gap-0 p-2 bg-gray-50 rounded-lg border-2 select-none cursor-pointer"
+              data-testid="word-search-grid"
               style={{ 
                 gridTemplateColumns: `repeat(${config.gridSize}, 1fr)`,
-                maxWidth: '400px'
+                maxWidth: '400px',
+                touchAction: 'none' // Prevent scrolling on touch devices
               }}
-              onMouseLeave={() => setIsSelecting(false)}
+              onPointerDown={handlePointerDown}
+              onPointerMove={handlePointerMove}
+              onPointerUp={handlePointerUp}
+              onPointerCancel={handlePointerUp} // Treat cancel as up
             >
               {grid.map((row, rowIndex) =>
                 row.map((letter, colIndex) => {
@@ -383,15 +419,12 @@ export default function WordSearch({
                       key={`${rowIndex}-${colIndex}`}
                       className={`
                         w-6 h-6 border border-gray-200 flex items-center justify-center
-                        text-xs font-mono cursor-pointer transition-colors
+                        text-xs font-mono transition-colors pointer-events-none
                         ${isSelected 
                           ? 'bg-blue-500 text-white' 
-                          : 'bg-white hover:bg-gray-100'
+                          : 'bg-white'
                         }
                       `}
-                      onMouseDown={() => handleMouseDown(rowIndex, colIndex)}
-                      onMouseEnter={() => handleMouseEnter(rowIndex, colIndex)}
-                      onMouseUp={handleMouseUp}
                     >
                       {letter}
                     </div>

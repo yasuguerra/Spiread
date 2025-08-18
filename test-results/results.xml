@@ -1,612 +1,179 @@
-<testsuites id="" name="" tests="140" failures="0" skipped="140" errors="0" time="0.700541">
-<testsuite name="game-navigation.spec.js" timestamp="2025-08-14T19:22:50.891Z" hostname="chromium" tests="4" failures="0" skipped="4" time="0" errors="0">
-<testcase name="Game Navigation &amp; Functionality › should open correct GameShell/component for each game" classname="game-navigation.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Game Navigation &amp; Functionality › should test 60s timer countdown for Phase 3 games" classname="game-navigation.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Game Navigation &amp; Functionality › should test hotkeys functionality" classname="game-navigation.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Game Navigation &amp; Functionality › should complete game flow and return to menu" classname="game-navigation.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-</testsuite>
-<testsuite name="games-grid.spec.js" timestamp="2025-08-14T19:22:50.891Z" hostname="chromium" tests="5" failures="0" skipped="5" time="0" errors="0">
-<testcase name="Games Grid Validation › should display exactly 9 game cards" classname="games-grid.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Games Grid Validation › should display all required game keys" classname="games-grid.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Games Grid Validation › should display game card components correctly" classname="games-grid.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Games Grid Validation › should have working &quot;Comenzar&quot; buttons for all games" classname="games-grid.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Games Grid Validation › should display games in responsive grid layout" classname="games-grid.spec.js" time="0">
-<skipped>
-</skipped>
+<testsuites id="" name="" tests="5" failures="5" skipped="0" errors="0" time="5.663641">
+<testsuite name="par-impar.spec.js" timestamp="2025-08-17T22:09:04.503Z" hostname="chromium" tests="1" failures="1" skipped="0" time="0.003" errors="0">
+<testcase name="Par/Impar Game › should start and show the first round" classname="par-impar.spec.js" time="0.003">
+<failure message="par-impar.spec.js:4:3 should start and show the first round" type="FAILURE">
+<![CDATA[  [chromium] › par-impar.spec.js:4:3 › Par/Impar Game › should start and show the first round ──────
+
+    Error: browserType.launch: Target page, context or browser has been closed
+    Browser logs:
+
+    ╔════════════════════════════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like you launched a headed browser without having a XServer running.                     ║
+    ║ Set either 'headless: true' or use 'xvfb-run <your-playwright-app>' before running Playwright. ║
+    ║                                                                                                ║
+    ║ <3 Playwright Team                                                                             ║
+    ╚════════════════════════════════════════════════════════════════════════════════════════════════╝
+    Call log:
+      - <launching> /home/jules/.cache/ms-playwright/chromium-1181/chrome-linux/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AcceptCHFrame,AutoExpandDetailsElement,AvoidUnnecessaryBeforeUnloadCheckSync,CertificateTransparencyComponentUpdater,DestroyProfileOnBrowserClose,DialMediaRouteProvider,ExtensionManifestV2Disabled,GlobalMediaControls,HttpsUpgrades,ImprovedCookieControls,LazyFrameLoading,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-YLIJlh --remote-debugging-pipe --no-startup-window
+      - <launched> pid=11881
+      - [pid=11881][err] [11881:11881:0817/220906.299041:ERROR:ui/ozone/platform/x11/ozone_platform_x11.cc:249] Missing X server or $DISPLAY
+      - [pid=11881][err] [11881:11881:0817/220906.299104:ERROR:ui/aura/env.cc:257] The platform failed to initialize.  Exiting.
+
+]]>
+</failure>
 </testcase>
 </testsuite>
-<testsuite name="gamification-header.spec.js" timestamp="2025-08-14T19:22:50.891Z" hostname="chromium" tests="6" failures="0" skipped="6" time="0" errors="0">
-<testcase name="Gamification Header Testing › should display gamification header elements" classname="gamification-header.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Gamification Header Testing › should display XP progress bar correctly" classname="gamification-header.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Gamification Header Testing › should display streak counter with flame icon" classname="gamification-header.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Gamification Header Testing › should be responsive across screen sizes" classname="gamification-header.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Gamification Header Testing › should show tooltips on hover" classname="gamification-header.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Gamification Header Testing › should display achievement count if present" classname="gamification-header.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-</testsuite>
-<testsuite name="internationalization.spec.js" timestamp="2025-08-14T19:22:50.891Z" hostname="chromium" tests="5" failures="0" skipped="5" time="0" errors="0">
-<testcase name="Internationalization (i18n) Testing › should display language switcher in header" classname="internationalization.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Internationalization (i18n) Testing › should switch between Spanish and English" classname="internationalization.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Internationalization (i18n) Testing › should persist language selection" classname="internationalization.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Internationalization (i18n) Testing › should translate game titles and descriptions" classname="internationalization.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Internationalization (i18n) Testing › should translate header gamification elements" classname="internationalization.spec.js" time="0">
-<skipped>
-</skipped>
+<testsuite name="par-impar.spec.js" timestamp="2025-08-17T22:09:04.503Z" hostname="firefox" tests="1" failures="1" skipped="0" time="0.005" errors="0">
+<testcase name="Par/Impar Game › should start and show the first round" classname="par-impar.spec.js" time="0.005">
+<failure message="par-impar.spec.js:4:3 should start and show the first round" type="FAILURE">
+<![CDATA[  [firefox] › par-impar.spec.js:4:3 › Par/Impar Game › should start and show the first round ───────
+
+    Error: browserType.launch: Target page, context or browser has been closed
+    Browser logs:
+
+    ╔════════════════════════════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like you launched a headed browser without having a XServer running.                     ║
+    ║ Set either 'headless: true' or use 'xvfb-run <your-playwright-app>' before running Playwright. ║
+    ║                                                                                                ║
+    ║ <3 Playwright Team                                                                             ║
+    ╚════════════════════════════════════════════════════════════════════════════════════════════════╝
+    Call log:
+      - <launching> /home/jules/.cache/ms-playwright/firefox-1489/firefox/firefox -no-remote -wait-for-browser -foreground -profile /tmp/playwright_firefoxdev_profile-EjPCe1 -juggler-pipe -silent
+      - <launched> pid=11882
+      - [pid=11882][err] Error: no DISPLAY environment variable specified
+      - [pid=11882] <process did exit: exitCode=1, signal=null>
+      - [pid=11882] starting temporary directories cleanup
+
+]]>
+</failure>
 </testcase>
 </testsuite>
-<testsuite name="stats-panel.spec.js" timestamp="2025-08-14T19:22:50.891Z" hostname="chromium" tests="8" failures="0" skipped="8" time="0" errors="0">
-<testcase name="Stats Panel Testing › should render stats chart without errors" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should handle empty/mock data gracefully" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should display game tabs correctly" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should show XP and level information" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should display streak information" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should display achievements section" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should be responsive on different screen sizes" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should handle chart interactions" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-</testsuite>
-<testsuite name="game-navigation.spec.js" timestamp="2025-08-14T19:22:50.891Z" hostname="firefox" tests="4" failures="0" skipped="4" time="0" errors="0">
-<testcase name="Game Navigation &amp; Functionality › should open correct GameShell/component for each game" classname="game-navigation.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Game Navigation &amp; Functionality › should test 60s timer countdown for Phase 3 games" classname="game-navigation.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Game Navigation &amp; Functionality › should test hotkeys functionality" classname="game-navigation.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Game Navigation &amp; Functionality › should complete game flow and return to menu" classname="game-navigation.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-</testsuite>
-<testsuite name="games-grid.spec.js" timestamp="2025-08-14T19:22:50.891Z" hostname="firefox" tests="5" failures="0" skipped="5" time="0" errors="0">
-<testcase name="Games Grid Validation › should display exactly 9 game cards" classname="games-grid.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Games Grid Validation › should display all required game keys" classname="games-grid.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Games Grid Validation › should display game card components correctly" classname="games-grid.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Games Grid Validation › should have working &quot;Comenzar&quot; buttons for all games" classname="games-grid.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Games Grid Validation › should display games in responsive grid layout" classname="games-grid.spec.js" time="0">
-<skipped>
-</skipped>
+<testsuite name="par-impar.spec.js" timestamp="2025-08-17T22:09:04.503Z" hostname="webkit" tests="1" failures="1" skipped="0" time="0.007" errors="0">
+<testcase name="Par/Impar Game › should start and show the first round" classname="par-impar.spec.js" time="0.007">
+<failure message="par-impar.spec.js:4:3 should start and show the first round" type="FAILURE">
+<![CDATA[  [webkit] › par-impar.spec.js:4:3 › Par/Impar Game › should start and show the first round ────────
+
+    Error: browserType.launch:
+    ╔══════════════════════════════════════════════════════╗
+    ║ Host system is missing dependencies to run browsers. ║
+    ║ Missing libraries:                                   ║
+    ║     libgtk-4.so.1                                    ║
+    ║     libgraphene-1.0.so.0                             ║
+    ║     libxslt.so.1                                     ║
+    ║     libwoff2dec.so.1.0.2                             ║
+    ║     libvpx.so.9                                      ║
+    ║     libevent-2.1.so.7                                ║
+    ║     libopus.so.0                                     ║
+    ║     libgstallocators-1.0.so.0                        ║
+    ║     libgstapp-1.0.so.0                               ║
+    ║     libgstpbutils-1.0.so.0                           ║
+    ║     libgstaudio-1.0.so.0                             ║
+    ║     libgsttag-1.0.so.0                               ║
+    ║     libgstvideo-1.0.so.0                             ║
+    ║     libgstgl-1.0.so.0                                ║
+    ║     libgstcodecparsers-1.0.so.0                      ║
+    ║     libgstfft-1.0.so.0                               ║
+    ║     libflite.so.1                                    ║
+    ║     libflite_usenglish.so.1                          ║
+    ║     libflite_cmu_grapheme_lang.so.1                  ║
+    ║     libflite_cmu_grapheme_lex.so.1                   ║
+    ║     libflite_cmu_indic_lang.so.1                     ║
+    ║     libflite_cmu_indic_lex.so.1                      ║
+    ║     libflite_cmulex.so.1                             ║
+    ║     libflite_cmu_time_awb.so.1                       ║
+    ║     libflite_cmu_us_awb.so.1                         ║
+    ║     libflite_cmu_us_kal16.so.1                       ║
+    ║     libflite_cmu_us_kal.so.1                         ║
+    ║     libflite_cmu_us_rms.so.1                         ║
+    ║     libflite_cmu_us_slt.so.1                         ║
+    ║     libwebpdemux.so.2                                ║
+    ║     libavif.so.16                                    ║
+    ║     libharfbuzz-icu.so.0                             ║
+    ║     libwebpmux.so.3                                  ║
+    ║     libenchant-2.so.2                                ║
+    ║     libsecret-1.so.0                                 ║
+    ║     libhyphen.so.0                                   ║
+    ║     libmanette-0.2.so.0                              ║
+    ║     libx264.so                                       ║
+    ╚══════════════════════════════════════════════════════╝
+]]>
+</failure>
 </testcase>
 </testsuite>
-<testsuite name="gamification-header.spec.js" timestamp="2025-08-14T19:22:50.891Z" hostname="firefox" tests="6" failures="0" skipped="6" time="0" errors="0">
-<testcase name="Gamification Header Testing › should display gamification header elements" classname="gamification-header.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Gamification Header Testing › should display XP progress bar correctly" classname="gamification-header.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Gamification Header Testing › should display streak counter with flame icon" classname="gamification-header.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Gamification Header Testing › should be responsive across screen sizes" classname="gamification-header.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Gamification Header Testing › should show tooltips on hover" classname="gamification-header.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Gamification Header Testing › should display achievement count if present" classname="gamification-header.spec.js" time="0">
-<skipped>
-</skipped>
+<testsuite name="par-impar.spec.js" timestamp="2025-08-17T22:09:04.503Z" hostname="Mobile Chrome" tests="1" failures="1" skipped="0" time="0.003" errors="0">
+<testcase name="Par/Impar Game › should start and show the first round" classname="par-impar.spec.js" time="0.003">
+<failure message="par-impar.spec.js:4:3 should start and show the first round" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › par-impar.spec.js:4:3 › Par/Impar Game › should start and show the first round ─
+
+    Error: browserType.launch: Target page, context or browser has been closed
+    Browser logs:
+
+    ╔════════════════════════════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like you launched a headed browser without having a XServer running.                     ║
+    ║ Set either 'headless: true' or use 'xvfb-run <your-playwright-app>' before running Playwright. ║
+    ║                                                                                                ║
+    ║ <3 Playwright Team                                                                             ║
+    ╚════════════════════════════════════════════════════════════════════════════════════════════════╝
+    Call log:
+      - <launching> /home/jules/.cache/ms-playwright/chromium-1181/chrome-linux/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AcceptCHFrame,AutoExpandDetailsElement,AvoidUnnecessaryBeforeUnloadCheckSync,CertificateTransparencyComponentUpdater,DestroyProfileOnBrowserClose,DialMediaRouteProvider,ExtensionManifestV2Disabled,GlobalMediaControls,HttpsUpgrades,ImprovedCookieControls,LazyFrameLoading,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-GWiFDp --remote-debugging-pipe --no-startup-window
+      - <launched> pid=12175
+      - [pid=12175][err] [12175:12175:0817/220907.730021:ERROR:ui/ozone/platform/x11/ozone_platform_x11.cc:249] Missing X server or $DISPLAY
+      - [pid=12175][err] [12175:12175:0817/220907.731281:ERROR:ui/aura/env.cc:257] The platform failed to initialize.  Exiting.
+
+]]>
+</failure>
 </testcase>
 </testsuite>
-<testsuite name="internationalization.spec.js" timestamp="2025-08-14T19:22:50.891Z" hostname="firefox" tests="5" failures="0" skipped="5" time="0" errors="0">
-<testcase name="Internationalization (i18n) Testing › should display language switcher in header" classname="internationalization.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Internationalization (i18n) Testing › should switch between Spanish and English" classname="internationalization.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Internationalization (i18n) Testing › should persist language selection" classname="internationalization.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Internationalization (i18n) Testing › should translate game titles and descriptions" classname="internationalization.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Internationalization (i18n) Testing › should translate header gamification elements" classname="internationalization.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-</testsuite>
-<testsuite name="stats-panel.spec.js" timestamp="2025-08-14T19:22:50.891Z" hostname="firefox" tests="8" failures="0" skipped="8" time="0" errors="0">
-<testcase name="Stats Panel Testing › should render stats chart without errors" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should handle empty/mock data gracefully" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should display game tabs correctly" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should show XP and level information" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should display streak information" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should display achievements section" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should be responsive on different screen sizes" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should handle chart interactions" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-</testsuite>
-<testsuite name="game-navigation.spec.js" timestamp="2025-08-14T19:22:50.891Z" hostname="webkit" tests="4" failures="0" skipped="4" time="0" errors="0">
-<testcase name="Game Navigation &amp; Functionality › should open correct GameShell/component for each game" classname="game-navigation.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Game Navigation &amp; Functionality › should test 60s timer countdown for Phase 3 games" classname="game-navigation.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Game Navigation &amp; Functionality › should test hotkeys functionality" classname="game-navigation.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Game Navigation &amp; Functionality › should complete game flow and return to menu" classname="game-navigation.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-</testsuite>
-<testsuite name="games-grid.spec.js" timestamp="2025-08-14T19:22:50.891Z" hostname="webkit" tests="5" failures="0" skipped="5" time="0" errors="0">
-<testcase name="Games Grid Validation › should display exactly 9 game cards" classname="games-grid.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Games Grid Validation › should display all required game keys" classname="games-grid.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Games Grid Validation › should display game card components correctly" classname="games-grid.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Games Grid Validation › should have working &quot;Comenzar&quot; buttons for all games" classname="games-grid.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Games Grid Validation › should display games in responsive grid layout" classname="games-grid.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-</testsuite>
-<testsuite name="gamification-header.spec.js" timestamp="2025-08-14T19:22:50.891Z" hostname="webkit" tests="6" failures="0" skipped="6" time="0" errors="0">
-<testcase name="Gamification Header Testing › should display gamification header elements" classname="gamification-header.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Gamification Header Testing › should display XP progress bar correctly" classname="gamification-header.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Gamification Header Testing › should display streak counter with flame icon" classname="gamification-header.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Gamification Header Testing › should be responsive across screen sizes" classname="gamification-header.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Gamification Header Testing › should show tooltips on hover" classname="gamification-header.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Gamification Header Testing › should display achievement count if present" classname="gamification-header.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-</testsuite>
-<testsuite name="internationalization.spec.js" timestamp="2025-08-14T19:22:50.891Z" hostname="webkit" tests="5" failures="0" skipped="5" time="0" errors="0">
-<testcase name="Internationalization (i18n) Testing › should display language switcher in header" classname="internationalization.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Internationalization (i18n) Testing › should switch between Spanish and English" classname="internationalization.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Internationalization (i18n) Testing › should persist language selection" classname="internationalization.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Internationalization (i18n) Testing › should translate game titles and descriptions" classname="internationalization.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Internationalization (i18n) Testing › should translate header gamification elements" classname="internationalization.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-</testsuite>
-<testsuite name="stats-panel.spec.js" timestamp="2025-08-14T19:22:50.891Z" hostname="webkit" tests="8" failures="0" skipped="8" time="0" errors="0">
-<testcase name="Stats Panel Testing › should render stats chart without errors" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should handle empty/mock data gracefully" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should display game tabs correctly" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should show XP and level information" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should display streak information" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should display achievements section" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should be responsive on different screen sizes" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should handle chart interactions" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-</testsuite>
-<testsuite name="game-navigation.spec.js" timestamp="2025-08-14T19:22:50.891Z" hostname="Mobile Chrome" tests="4" failures="0" skipped="4" time="0" errors="0">
-<testcase name="Game Navigation &amp; Functionality › should open correct GameShell/component for each game" classname="game-navigation.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Game Navigation &amp; Functionality › should test 60s timer countdown for Phase 3 games" classname="game-navigation.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Game Navigation &amp; Functionality › should test hotkeys functionality" classname="game-navigation.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Game Navigation &amp; Functionality › should complete game flow and return to menu" classname="game-navigation.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-</testsuite>
-<testsuite name="games-grid.spec.js" timestamp="2025-08-14T19:22:50.891Z" hostname="Mobile Chrome" tests="5" failures="0" skipped="5" time="0" errors="0">
-<testcase name="Games Grid Validation › should display exactly 9 game cards" classname="games-grid.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Games Grid Validation › should display all required game keys" classname="games-grid.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Games Grid Validation › should display game card components correctly" classname="games-grid.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Games Grid Validation › should have working &quot;Comenzar&quot; buttons for all games" classname="games-grid.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Games Grid Validation › should display games in responsive grid layout" classname="games-grid.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-</testsuite>
-<testsuite name="gamification-header.spec.js" timestamp="2025-08-14T19:22:50.891Z" hostname="Mobile Chrome" tests="6" failures="0" skipped="6" time="0" errors="0">
-<testcase name="Gamification Header Testing › should display gamification header elements" classname="gamification-header.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Gamification Header Testing › should display XP progress bar correctly" classname="gamification-header.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Gamification Header Testing › should display streak counter with flame icon" classname="gamification-header.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Gamification Header Testing › should be responsive across screen sizes" classname="gamification-header.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Gamification Header Testing › should show tooltips on hover" classname="gamification-header.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Gamification Header Testing › should display achievement count if present" classname="gamification-header.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-</testsuite>
-<testsuite name="internationalization.spec.js" timestamp="2025-08-14T19:22:50.891Z" hostname="Mobile Chrome" tests="5" failures="0" skipped="5" time="0" errors="0">
-<testcase name="Internationalization (i18n) Testing › should display language switcher in header" classname="internationalization.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Internationalization (i18n) Testing › should switch between Spanish and English" classname="internationalization.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Internationalization (i18n) Testing › should persist language selection" classname="internationalization.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Internationalization (i18n) Testing › should translate game titles and descriptions" classname="internationalization.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Internationalization (i18n) Testing › should translate header gamification elements" classname="internationalization.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-</testsuite>
-<testsuite name="stats-panel.spec.js" timestamp="2025-08-14T19:22:50.891Z" hostname="Mobile Chrome" tests="8" failures="0" skipped="8" time="0" errors="0">
-<testcase name="Stats Panel Testing › should render stats chart without errors" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should handle empty/mock data gracefully" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should display game tabs correctly" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should show XP and level information" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should display streak information" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should display achievements section" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should be responsive on different screen sizes" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should handle chart interactions" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-</testsuite>
-<testsuite name="game-navigation.spec.js" timestamp="2025-08-14T19:22:50.891Z" hostname="Mobile Safari" tests="4" failures="0" skipped="4" time="0" errors="0">
-<testcase name="Game Navigation &amp; Functionality › should open correct GameShell/component for each game" classname="game-navigation.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Game Navigation &amp; Functionality › should test 60s timer countdown for Phase 3 games" classname="game-navigation.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Game Navigation &amp; Functionality › should test hotkeys functionality" classname="game-navigation.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Game Navigation &amp; Functionality › should complete game flow and return to menu" classname="game-navigation.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-</testsuite>
-<testsuite name="games-grid.spec.js" timestamp="2025-08-14T19:22:50.891Z" hostname="Mobile Safari" tests="5" failures="0" skipped="5" time="0" errors="0">
-<testcase name="Games Grid Validation › should display exactly 9 game cards" classname="games-grid.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Games Grid Validation › should display all required game keys" classname="games-grid.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Games Grid Validation › should display game card components correctly" classname="games-grid.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Games Grid Validation › should have working &quot;Comenzar&quot; buttons for all games" classname="games-grid.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Games Grid Validation › should display games in responsive grid layout" classname="games-grid.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-</testsuite>
-<testsuite name="gamification-header.spec.js" timestamp="2025-08-14T19:22:50.891Z" hostname="Mobile Safari" tests="6" failures="0" skipped="6" time="0" errors="0">
-<testcase name="Gamification Header Testing › should display gamification header elements" classname="gamification-header.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Gamification Header Testing › should display XP progress bar correctly" classname="gamification-header.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Gamification Header Testing › should display streak counter with flame icon" classname="gamification-header.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Gamification Header Testing › should be responsive across screen sizes" classname="gamification-header.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Gamification Header Testing › should show tooltips on hover" classname="gamification-header.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Gamification Header Testing › should display achievement count if present" classname="gamification-header.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-</testsuite>
-<testsuite name="internationalization.spec.js" timestamp="2025-08-14T19:22:50.891Z" hostname="Mobile Safari" tests="5" failures="0" skipped="5" time="0" errors="0">
-<testcase name="Internationalization (i18n) Testing › should display language switcher in header" classname="internationalization.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Internationalization (i18n) Testing › should switch between Spanish and English" classname="internationalization.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Internationalization (i18n) Testing › should persist language selection" classname="internationalization.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Internationalization (i18n) Testing › should translate game titles and descriptions" classname="internationalization.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Internationalization (i18n) Testing › should translate header gamification elements" classname="internationalization.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-</testsuite>
-<testsuite name="stats-panel.spec.js" timestamp="2025-08-14T19:22:50.891Z" hostname="Mobile Safari" tests="8" failures="0" skipped="8" time="0" errors="0">
-<testcase name="Stats Panel Testing › should render stats chart without errors" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should handle empty/mock data gracefully" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should display game tabs correctly" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should show XP and level information" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should display streak information" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should display achievements section" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should be responsive on different screen sizes" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
-</testcase>
-<testcase name="Stats Panel Testing › should handle chart interactions" classname="stats-panel.spec.js" time="0">
-<skipped>
-</skipped>
+<testsuite name="par-impar.spec.js" timestamp="2025-08-17T22:09:04.503Z" hostname="Mobile Safari" tests="1" failures="1" skipped="0" time="0.003" errors="0">
+<testcase name="Par/Impar Game › should start and show the first round" classname="par-impar.spec.js" time="0.003">
+<failure message="par-impar.spec.js:4:3 should start and show the first round" type="FAILURE">
+<![CDATA[  [Mobile Safari] › par-impar.spec.js:4:3 › Par/Impar Game › should start and show the first round ─
+
+    Error: browserType.launch:
+    ╔══════════════════════════════════════════════════════╗
+    ║ Host system is missing dependencies to run browsers. ║
+    ║ Missing libraries:                                   ║
+    ║     libgtk-4.so.1                                    ║
+    ║     libgraphene-1.0.so.0                             ║
+    ║     libxslt.so.1                                     ║
+    ║     libwoff2dec.so.1.0.2                             ║
+    ║     libvpx.so.9                                      ║
+    ║     libevent-2.1.so.7                                ║
+    ║     libopus.so.0                                     ║
+    ║     libgstallocators-1.0.so.0                        ║
+    ║     libgstapp-1.0.so.0                               ║
+    ║     libgstpbutils-1.0.so.0                           ║
+    ║     libgstaudio-1.0.so.0                             ║
+    ║     libgsttag-1.0.so.0                               ║
+    ║     libgstvideo-1.0.so.0                             ║
+    ║     libgstgl-1.0.so.0                                ║
+    ║     libgstcodecparsers-1.0.so.0                      ║
+    ║     libgstfft-1.0.so.0                               ║
+    ║     libflite.so.1                                    ║
+    ║     libflite_usenglish.so.1                          ║
+    ║     libflite_cmu_grapheme_lang.so.1                  ║
+    ║     libflite_cmu_grapheme_lex.so.1                   ║
+    ║     libflite_cmu_indic_lang.so.1                     ║
+    ║     libflite_cmu_indic_lex.so.1                      ║
+    ║     libflite_cmulex.so.1                             ║
+    ║     libflite_cmu_time_awb.so.1                       ║
+    ║     libflite_cmu_us_awb.so.1                         ║
+    ║     libflite_cmu_us_kal16.so.1                       ║
+    ║     libflite_cmu_us_kal.so.1                         ║
+    ║     libflite_cmu_us_rms.so.1                         ║
+    ║     libflite_cmu_us_slt.so.1                         ║
+    ║     libwebpdemux.so.2                                ║
+    ║     libavif.so.16                                    ║
+    ║     libharfbuzz-icu.so.0                             ║
+    ║     libwebpmux.so.3                                  ║
+    ║     libenchant-2.so.2                                ║
+    ║     libsecret-1.so.0                                 ║
+    ║     libhyphen.so.0                                   ║
+    ║     libmanette-0.2.so.0                              ║
+    ║     libx264.so                                       ║
+    ╚══════════════════════════════════════════════════════╝
+]]>
+</failure>
 </testcase>
 </testsuite>
 </testsuites>
