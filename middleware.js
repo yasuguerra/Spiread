@@ -46,8 +46,15 @@ export async function middleware(request) {
   
   // Get environment-based origins
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-  const sentryDomain = process.env.SENTRY_DSN ? 
-    new URL(process.env.SENTRY_DSN).hostname : ''
+  let sentryDomain = ''
+  try {
+    if (process.env.SENTRY_DSN && process.env.SENTRY_DSN.startsWith('http')) {
+      const url = new URL(process.env.SENTRY_DSN)
+      sentryDomain = url.hostname
+    }
+  } catch (error) {
+    console.warn('Invalid SENTRY_DSN URL, skipping Sentry configuration')
+  }
   
   // Analytics domains
   const plausibleDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN

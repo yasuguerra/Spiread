@@ -1,5 +1,6 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+
 # IDE and editors
 .idea/
 .vscode/
@@ -31,8 +32,11 @@ dist/
 dist
 
 # Environment files (comprehensive coverage)
+
+
 *token.json*
 *credentials.json*
+
 
 # Logs and debug files
 npm-debug.log*
@@ -67,6 +71,7 @@ agenthub/agents/youtube/db
 **/*.zip
 **/*.tar.gz
 **/*.tar
+
 **/*.tgz
 *.pack
 *.deb
@@ -79,3 +84,10 @@ agenthub/agents/youtube/db
 android-sdk/ node_modules/@next/swc-linux-arm64-gnu/next-swc.linux-arm64-gnu.node
 node_modules/@next/swc-linux-arm64-musl/next-swc.linux-arm64-musl.node
 node_modules/@next/swc-linux-arm64-gnu/next-swc.linux-arm64-gnu.node
+
+.env
+
+.env.*.local
+playwright-report/
+test-results/
+.lighthouseci/

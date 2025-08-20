@@ -19,6 +19,7 @@ export default function TermsOfServicePage() {
             size="sm"
             onClick={() => router.back()}
             className="flex items-center space-x-2"
+            asChild={false}
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Volver</span>
