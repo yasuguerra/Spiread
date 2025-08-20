@@ -55,9 +55,9 @@ const Anagrams = lazy(() => import('@/components/games/Anagrams'))
 const GameWrapper = lazy(() => import('@/components/games/GameWrapper'))
 
 export default function HomePage() {
-  const [activeTab, setActiveTab] = useState('onboarding')
+  const [activeTab, setActiveTab] = useState('training') // Start on training instead of onboarding
   const [isLoading, setIsLoading] = useState(false) // Don't block initial render
-  const [showOnboarding, setShowOnboarding] = useState(true)
+  const [showOnboarding, setShowOnboarding] = useState(false) // Default to false, make onboarding opt-in
   const [activeGame, setActiveGame] = useState(null)
   const [sessionTemplate, setSessionTemplate] = useState(null)
   const [dbInitialized, setDbInitialized] = useState(false)
@@ -107,12 +107,12 @@ export default function HomePage() {
       setActiveTab('training')
     }
     
-    // PRODUCTION FIX: Add automatic bypass after 10 seconds if onboarding doesn't complete
+    // AGGRESSIVE PRODUCTION FIX: Auto-bypass onboarding after 3 seconds
     const timeout = setTimeout(() => {
-      console.log('Auto-bypassing onboarding due to timeout')
+      console.log('Auto-bypassing onboarding - force redirect to main app')
       setShowOnboarding(false)
       setActiveTab('training')
-    }, 10000) // 10 seconds
+    }, 3000) // 3 seconds instead of 10
     
     return () => clearTimeout(timeout)
   }, [stats.totalSessions])
@@ -379,6 +379,21 @@ export default function HomePage() {
               <p className="text-muted-foreground">
                 Potencia tu velocidad de lectura y habilidades cognitivas
               </p>
+              
+              {/* Onboarding access button */}
+              <div className="mt-4">
+                <Button 
+                  variant="outline"
+                  onClick={() => setShowOnboarding(true)}
+                  className="mr-2"
+                >
+                  <Target className="w-4 h-4 mr-2" />
+                  Hacer Test Inicial
+                </Button>
+                <Badge variant="secondary" className="text-xs">
+                  Opcional - Mide tu velocidad base
+                </Badge>
+              </div>
             </div>
 
             <Tabs defaultValue="games" className="w-full">
