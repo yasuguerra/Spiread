@@ -1,8 +1,9 @@
 import './globals.css'
-import { Inter } from 'next/font/google'
+// import { Inter } from 'next/font/google'
 import ConsentBanner from '@/components/ConsentBanner'
 
-const inter = Inter({ subsets: ['latin'] })
+// const inter = Inter({ subsets: ['latin'] })
+const inter = { className: '' }
 
 export const metadata = {
   title: 'Spiread — Acelera tu lectura, mejora tu comprensión',
