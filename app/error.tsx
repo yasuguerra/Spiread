@@ -1,7 +1,6 @@
 'use client';
 import { useEffect } from 'react';
 import { AlertTriangle } from 'lucide-react';
-import { Card, CardHeader, CardContent } from '@/components/ui/card';
 
 export default function Error({
   error,

@@ -1,8 +1,5 @@
 'use client'
 
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { ArrowLeft, FileText, Users, AlertTriangle, Mail, Calendar, Scale } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
