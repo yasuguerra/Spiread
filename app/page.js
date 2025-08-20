@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -29,30 +29,32 @@ import { useAppStore, useRSVPStore } from '@/lib/store'
 import { initializeDatabase, createAnonymousSession } from '@/lib/supabase'
 import { APP_NAME } from '@/lib/constants'
 
-// Import components
+// Import core components (always needed)
 import RSVPReader from '@/components/RSVPReader'
 import OnboardingTest from '@/components/OnboardingTest'
-import StatsPanel from '@/components/StatsPanel'
-import SettingsPanel from '@/components/SettingsPanel'
 import GamificationHeader from '@/components/GamificationHeader'
 import AppFooter from '@/components/AppFooter'
 
-// Import new games
-import ShuttleTable from '@/components/games/ShuttleTable'
-import SchulteTablePRB from '@/components/games/SchulteTablePRB' // PR B
-import TwinWordsGrid from '@/components/games/TwinWordsGrid'
-import TwinWordsGridPRC from '@/components/games/TwinWordsGridPRC' // PR C
-import ParImpar from '@/components/games/ParImpar'
-import ParImparPRD from '@/components/games/ParImparPRD' // PR D
-import MemoryDigits from '@/components/games/MemoryDigits'
-import SessionRunner from '@/components/SessionRunner'
+// Lazy load heavy components
+const StatsPanel = lazy(() => import('@/components/StatsPanel'))
+const SettingsPanel = lazy(() => import('@/components/SettingsPanel'))
+const SessionRunner = lazy(() => import('@/components/SessionRunner'))
 
-// Import Phase 3 games
-import RunningWords from '@/components/games/RunningWords'
-import LettersGrid from '@/components/games/LettersGrid'
-import WordSearch from '@/components/games/WordSearch'
-import Anagrams from '@/components/games/Anagrams'
-import GameWrapper from '@/components/games/GameWrapper'
+// Lazy load games (only when needed)
+const ShuttleTable = lazy(() => import('@/components/games/ShuttleTable'))
+const SchulteTablePRB = lazy(() => import('@/components/games/SchulteTablePRB'))
+const TwinWordsGrid = lazy(() => import('@/components/games/TwinWordsGrid'))
+const TwinWordsGridPRC = lazy(() => import('@/components/games/TwinWordsGridPRC'))
+const ParImpar = lazy(() => import('@/components/games/ParImpar'))
+const ParImparPRD = lazy(() => import('@/components/games/ParImparPRD'))
+const MemoryDigits = lazy(() => import('@/components/games/MemoryDigits'))
+
+// Lazy load Phase 3 games
+const RunningWords = lazy(() => import('@/components/games/RunningWords'))
+const LettersGrid = lazy(() => import('@/components/games/LettersGrid'))
+const WordSearch = lazy(() => import('@/components/games/WordSearch'))
+const Anagrams = lazy(() => import('@/components/games/Anagrams'))
+const GameWrapper = lazy(() => import('@/components/games/GameWrapper'))
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState('onboarding')
@@ -153,10 +155,21 @@ export default function HomePage() {
 
   // If in session mode
   if (sessionTemplate) {
-    return <SessionRunner 
-      template={sessionTemplate} 
-      onSessionComplete={handleSessionComplete} 
-    />
+    return (
+      <Suspense fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Cargando sesión...</p>
+          </div>
+        </div>
+      }>
+        <SessionRunner 
+          template={sessionTemplate} 
+          onSessionComplete={handleSessionComplete} 
+        />
+      </Suspense>
+    )
   }
 
   // If playing individual game
@@ -522,11 +535,23 @@ export default function HomePage() {
           </TabsContent>
 
           <TabsContent value="stats" className="space-y-6">
-            <StatsPanel />
+            <Suspense fallback={
+              <div className="flex items-center justify-center h-64">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              </div>
+            }>
+              <StatsPanel />
+            </Suspense>
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-6">
-            <SettingsPanel />
+            <Suspense fallback={
+              <div className="flex items-center justify-center h-64">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              </div>
+            }>
+              <SettingsPanel />
+            </Suspense>
           </TabsContent>
 
           <TabsContent value="achievements" className="space-y-6">
