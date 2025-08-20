@@ -14,38 +14,36 @@ export default function TermsOfServicePage() {
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center space-x-4">
-          <Button 
-            variant="outline" 
-            size="sm"
+          <button
+            type="button"
             onClick={() => router.back()}
-            className="flex items-center space-x-2"
-            asChild={false}
+            className="inline-flex items-center gap-2 px-3 py-1.5 border rounded-md text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Volver</span>
-          </Button>
-          <Badge variant="secondary">
-            <Calendar className="w-3 h-3 mr-1" />
+          </button>
+          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 border rounded-md text-xs bg-white/60 dark:bg-gray-900/50">
+            <Calendar className="w-3 h-3" />
             Actualizado: {new Date().toLocaleDateString('es-ES')}
-          </Badge>
+          </span>
         </div>
 
         {/* Main Card */}
-        <Card>
-          <CardHeader>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm">
+          <div className="p-6 border-b border-gray-200 dark:border-gray-800">
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
                 <FileText className="w-6 h-6 text-blue-600" />
               </div>
               <div>
-                <CardTitle className="text-3xl font-bold">Términos de Servicio</CardTitle>
-                <p className="text-muted-foreground mt-1">
+                <h1 className="text-3xl font-bold">Términos de Servicio</h1>
+                <p className="text-gray-600 dark:text-gray-300 mt-1">
                   Spiread — Condiciones de uso de la plataforma
                 </p>
               </div>
             </div>
-          </CardHeader>
-          <CardContent className="space-y-8">
+          </div>
+          <div className="p-6 space-y-8">
             
             {/* Important Notice */}
             <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
@@ -225,12 +223,14 @@ export default function TermsOfServicePage() {
                     Versión: 1.0.0-rc.1
                   </p>
                 </div>
-                <Badge variant="outline">Términos Placeholder</Badge>
+                <span className="inline-flex items-center px-2 py-0.5 border rounded-md text-xs">
+                  Términos Placeholder
+                </span>
               </div>
             </section>
 
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   )
