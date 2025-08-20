@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, lazy, Suspense } from 'react'
-import { motion } from 'framer-motion'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -26,16 +25,15 @@ import {
 } from 'lucide-react'
 
 import { useAppStore, useRSVPStore } from '@/lib/store'
-import { initializeDatabase, createAnonymousSession } from '@/lib/supabase'
 import { APP_NAME } from '@/lib/constants'
 
-// Import core components (always needed)
-import RSVPReader from '@/components/RSVPReader'
-import OnboardingTest from '@/components/OnboardingTest'
+// Import only essential components immediately
 import GamificationHeader from '@/components/GamificationHeader'
 import AppFooter from '@/components/AppFooter'
 
-// Lazy load heavy components
+// Lazy load ALL heavy components 
+const RSVPReader = lazy(() => import('@/components/RSVPReader'))
+const OnboardingTest = lazy(() => import('@/components/OnboardingTest'))
 const StatsPanel = lazy(() => import('@/components/StatsPanel'))
 const SettingsPanel = lazy(() => import('@/components/SettingsPanel'))
 const SessionRunner = lazy(() => import('@/components/SessionRunner'))
@@ -58,10 +56,11 @@ const GameWrapper = lazy(() => import('@/components/games/GameWrapper'))
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState('onboarding')
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false) // Don't block initial render
   const [showOnboarding, setShowOnboarding] = useState(true)
   const [activeGame, setActiveGame] = useState(null)
   const [sessionTemplate, setSessionTemplate] = useState(null)
+  const [dbInitialized, setDbInitialized] = useState(false)
   
   // Get user profile from store
   const { userProfile, updateProfile } = useAppStore()
@@ -75,42 +74,46 @@ export default function HomePage() {
     updateSettings 
   } = useAppStore()
 
-  useEffect(() => {
-    const initializeApp = async () => {
-      try {
-        // Initialize database connection
-        await initializeDatabase()
-        
-        // Create anonymous session if none exists
-        if (!sessionId) {
-          const newSessionId = await createAnonymousSession()
-          setSessionId(newSessionId)
-        }
-        
-        // TEMPORARY BYPASS FOR PR A TESTING - Skip onboarding in development
-        if (process.env.NODE_ENV === 'development') {
-          setShowOnboarding(false)
-          setActiveTab('training')
-        } else {
-          // Check if user has completed onboarding
-          if (stats.totalSessions > 0) {
-            setShowOnboarding(false)
-            setActiveTab('training')
-          }
-        }
-        
-        setIsLoading(false)
-      } catch (error) {
-        console.error('Error initializing app:', error)
-        setIsLoading(false)
+  // Deferred database initialization
+  const initializeDatabase = async () => {
+    if (dbInitialized) return
+    
+    try {
+      setIsLoading(true)
+      // Dynamic import for database functions
+      const { initializeDatabase: initDb, createAnonymousSession } = await import('@/lib/supabase')
+      
+      // Initialize database connection
+      await initDb()
+      
+      // Create anonymous session if none exists
+      if (!sessionId) {
+        const newSessionId = await createAnonymousSession()
+        setSessionId(newSessionId)
       }
+      
+      setDbInitialized(true)
+      setIsLoading(false)
+    } catch (error) {
+      console.error('Error initializing database:', error)
+      setIsLoading(false)
     }
+  }
 
-    initializeApp()
-  }, [sessionId, stats.totalSessions, setSessionId])
+  useEffect(() => {
+    // Skip onboarding in development and when user has sessions
+    if (process.env.NODE_ENV === 'development' || stats.totalSessions > 0) {
+      setShowOnboarding(false)
+      setActiveTab('training')
+    }
+  }, [stats.totalSessions])
 
-  const handleOnboardingComplete = (results) => {
+  const handleOnboardingComplete = async (results) => {
     console.log('Onboarding results:', results)
+    
+    // Initialize database when user actually completes onboarding
+    await initializeDatabase()
+    
     setShowOnboarding(false)
     setActiveTab('training')
     
@@ -130,15 +133,21 @@ export default function HomePage() {
     setSessionTemplate(null)
   }
 
+  // Handle tab changes and initialize DB only when needed
+  const handleTabChange = async (newTab) => {
+    setActiveTab(newTab)
+    
+    // Initialize database only when accessing features that need it
+    if (['training', 'stats', 'sessions'].includes(newTab) && !dbInitialized) {
+      await initializeDatabase()
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"
-          />
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent mx-auto mb-4"></div>
           <p className="text-lg text-muted-foreground">Iniciando {APP_NAME}...</p>
         </div>
       </div>
@@ -148,7 +157,16 @@ export default function HomePage() {
   if (showOnboarding) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-        <OnboardingTest onComplete={handleOnboardingComplete} />
+        <Suspense fallback={
+          <div className="min-h-screen flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+              <p className="mt-4 text-gray-600">Cargando test inicial...</p>
+            </div>
+          </div>
+        }>
+          <OnboardingTest onComplete={handleOnboardingComplete} />
+        </Suspense>
       </div>
     )
   }
@@ -240,18 +258,14 @@ export default function HomePage() {
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-14 items-center justify-between">
           <div className="flex items-center space-x-2">
-            <motion.div
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className="flex items-center space-x-2"
-            >
+            <div className="flex items-center space-x-2 hover:scale-105 transition-transform">
               <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                 <Zap className="w-5 h-5 text-white" />
               </div>
               <span className="font-bold text-xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 {APP_NAME}
               </span>
-            </motion.div>
+            </div>
           </div>
           
           <div className="flex items-center space-x-4">
@@ -289,7 +303,7 @@ export default function HomePage() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <TabsList className="grid w-full grid-cols-5 mb-6">
             <TabsTrigger value="reader" className="flex items-center gap-2">
               <Book className="w-4 h-4" />
@@ -569,10 +583,7 @@ export default function HomePage() {
 // Game Card Component
 function GameCard({ title, description, icon, badges, features, onClick, gameKey }) {
   return (
-    <motion.div
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-    >
+    <div className="hover:scale-[1.02] active:scale-[0.98] transition-transform">
       <Card className="cursor-pointer hover:shadow-lg transition-shadow h-full" onClick={onClick} data-testid={`game-card-${gameKey}`}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -604,17 +615,14 @@ function GameCard({ title, description, icon, badges, features, onClick, gameKey
           </div>
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   )
 }
 
 // Session Card Component  
 function SessionCard({ title, duration, description, icon, blocks, onClick }) {
   return (
-    <motion.div
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-    >
+    <div className="hover:scale-[1.02] active:scale-[0.98] transition-transform">
       <Card className="cursor-pointer hover:shadow-lg transition-shadow h-full" onClick={onClick}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -644,7 +652,7 @@ function SessionCard({ title, duration, description, icon, blocks, onClick }) {
           </div>
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   )
 }
 
@@ -836,11 +844,9 @@ function AchievementsPanel() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {achievements.map((achievement) => (
-        <motion.div
+        <div
           key={achievement.id}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          whileHover={{ scale: 1.02 }}
+          className="opacity-0 translate-y-5 animate-in fade-in slide-in-from-bottom-5 duration-300 hover:scale-[1.02] transition-transform"
         >
           <Card className={`${achievement.unlocked ? 'border-green-200 bg-green-50' : 'border-gray-200'}`}>
             <CardContent className="p-4">
@@ -860,7 +866,7 @@ function AchievementsPanel() {
               )}
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
       ))}
     </div>
   )
