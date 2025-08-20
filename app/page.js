@@ -106,6 +106,15 @@ export default function HomePage() {
       setShowOnboarding(false)
       setActiveTab('training')
     }
+    
+    // PRODUCTION FIX: Add automatic bypass after 10 seconds if onboarding doesn't complete
+    const timeout = setTimeout(() => {
+      console.log('Auto-bypassing onboarding due to timeout')
+      setShowOnboarding(false)
+      setActiveTab('training')
+    }, 10000) // 10 seconds
+    
+    return () => clearTimeout(timeout)
   }, [stats.totalSessions])
 
   const handleOnboardingComplete = async (results) => {
@@ -157,11 +166,36 @@ export default function HomePage() {
   if (showOnboarding) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+        {/* Emergency skip button */}
+        <div className="absolute top-4 right-4 z-50">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => {
+              setShowOnboarding(false)
+              setActiveTab('training')
+            }}
+            className="bg-white/80 backdrop-blur-sm"
+          >
+            Saltar Intro →
+          </Button>
+        </div>
+        
         <Suspense fallback={
           <div className="min-h-screen flex items-center justify-center">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
               <p className="mt-4 text-gray-600">Cargando test inicial...</p>
+              <Button 
+                variant="outline" 
+                className="mt-4"
+                onClick={() => {
+                  setShowOnboarding(false)
+                  setActiveTab('training')
+                }}
+              >
+                Ir directamente a la app →
+              </Button>
             </div>
           </div>
         }>

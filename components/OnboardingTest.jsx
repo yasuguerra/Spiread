@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { motion } from 'framer-motion'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -113,11 +112,9 @@ Los beneficios incluyen mayor absorción de información, mejor concentración, 
           </div>
         </div>
 
-        <motion.div
+        <div
           key={step}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
+          className="opacity-0 translate-x-5 animate-in fade-in slide-in-from-right-5 duration-500"
         >
           <Card className="min-h-[500px]">
             <CardHeader>
@@ -345,7 +342,7 @@ Los beneficios incluyen mayor absorción de información, mejor concentración, 
               )}
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
       </div>
     </div>
   )
