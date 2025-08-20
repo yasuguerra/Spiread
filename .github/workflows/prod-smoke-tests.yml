@@ -16,7 +16,7 @@ on:
           - staging
 
 env:
-  NODE_VERSION: '18'
+  NODE_VERSION: '20'
   PROD_BASE_URL: 'https://app.spiread.com'
   SMOKE_TEST_EMAIL: ${{ secrets.SMOKE_TEST_EMAIL }}
   SMOKE_TEST_PASSWORD: ${{ secrets.SMOKE_TEST_PASSWORD }}
