@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import openai from '@/lib/openai';
+import getOpenAI from '@/lib/openai';
 import { 
   checkAndUpdateQuota, 
   checkCache, 
@@ -70,6 +70,7 @@ export async function POST(request) {
     const textToProcess = chunks[0]; // For MVP, process first chunk
     
     // Call OpenAI API
+    const openai = getOpenAI();
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [

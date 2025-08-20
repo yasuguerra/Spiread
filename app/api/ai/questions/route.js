@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import crypto from 'crypto';
-import openai from '@/lib/openai';
+import getOpenAI from '@/lib/openai';
 import { supabase } from '@/lib/supabase';
 import { toDbFormat, fromDbFormat } from '@/lib/dbCase';
 
@@ -178,6 +178,7 @@ For each question:
 Respond ONLY with the requested JSON, no additional text.`;
 
     try {
+      const openai = getOpenAI();
       const completion = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
