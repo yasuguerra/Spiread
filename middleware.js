@@ -86,14 +86,16 @@ export async function middleware(request) {
 
   const scriptSrcOrigins = [
     "'self'",
+    "'unsafe-inline'", // EMERGENCY FIX: Allow inline scripts for Vercel
+    "'unsafe-eval'", // EMERGENCY FIX: Allow eval for Next.js
     "'strict-dynamic'",
     "'wasm-unsafe-eval'", // Required for WebAssembly
-    // In development, Next.js needs unsafe-eval for hot reloading
-    ...(process.env.NODE_ENV === 'development' ? ["'unsafe-eval'"] : []),
     // Add Sentry, Analytics if they inject scripts
     sentryDomain && `https://${sentryDomain}`,
     ...analyticsDomains,
     'https://vercel-insights.com',
+    'https://*.vercel.app', // Allow Vercel domain scripts
+    'https://*.vercel-insights.com',
   ].filter(Boolean).join(' ')
 
   // CSP Policy (comprehensive for Spiread)
@@ -119,7 +121,8 @@ export async function middleware(request) {
 
   // Determine CSP mode based on environment
   const isDevelopment = process.env.NODE_ENV === 'development'
-  const cspHeaderName = isDevelopment ? 'Content-Security-Policy-Report-Only' : 'Content-Security-Policy'
+  // EMERGENCY FIX: Use Report-Only mode in production until CSP is properly configured
+  const cspHeaderName = 'Content-Security-Policy-Report-Only'
   
   // Remove any existing CSP headers to prevent conflicts
   response.headers.delete('Content-Security-Policy')

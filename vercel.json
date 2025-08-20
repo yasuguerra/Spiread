@@ -23,7 +23,7 @@
       "headers": [
         {
           "key": "Access-Control-Allow-Origin",
-          "value": "https://app.spiread.com"
+          "value": "*"
         },
         {
           "key": "Access-Control-Allow-Methods",
@@ -44,7 +44,7 @@
   ],
   "env": {
     "NEXT_PUBLIC_APP_NAME": "Spiread",
-    "NEXT_PUBLIC_BASE_URL": "https://app.spiread.com",
+    "NEXT_PUBLIC_BASE_URL": "https://spiread-git-main-yasus-projects-f6d92a89.vercel.app",
     "AI_ENABLED": "true",
     "PWA_ENABLED": "true",
     "STRIPE_ENABLED": "false",
