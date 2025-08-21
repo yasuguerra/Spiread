@@ -22,11 +22,15 @@ export default function TwinWordsGridPRC({ onExit, onBackToGames, onViewStats })
   const [correctPairs, setCorrectPairs] = useState(0)
   const [totalAttempts, setTotalAttempts] = useState(0)
   const [currentLevel, setCurrentLevel] = useState(1)
+  const [roundsCompleted, setRoundsCompleted] = useState(0)
+  const [allCards, setAllCards] = useState([]) // All cards for current round
+  const [matchedPairs, setMatchedPairs] = useState(new Set()) // Track which pairs are matched
   
   // Performance tracking for adaptive difficulty 
-  const [recentPerformance, setRecentPerformance] = useState([]) // Last 10s window
+  const [recentPerformance, setRecentPerformance] = useState([])
   const [avgSolveTime, setAvgSolveTime] = useState(0)
-  const [pairStartTimes, setPairStartTimes] = useState({}) // Track when each pair appeared
+  const [roundStartTime, setRoundStartTime] = useState(Date.now())
+  const [gameStartTime, setGameStartTime] = useState(0)
   
   // Game context reference
   const gameContextRef = useRef(null)
@@ -133,38 +137,79 @@ export default function TwinWordsGridPRC({ onExit, onBackToGames, onViewStats })
     return { pairs: selectedPairs, cards: shuffledCards }
   }
 
-  // PR C: Initialize game with current level
+  // PR C: Initialize game with current level - CLASSIC MEMORY GAME STYLE
   const initializeRound = (level = 1) => {
     const pairsCount = calculatePairsCount(level)
     setCurrentPairsCount(pairsCount)
+    setRoundStartTime(Date.now())
+    setMatchedPairs(new Set())
+    setSelectedCards([])
     
+    // Generate word pairs for this round
     const { pairs: newPairs, cards } = generatePairs(pairsCount)
     setPairs(newPairs)
+    setAllCards(cards) // Set all cards that will remain stable during this round
     
-    // Set start times for performance tracking
-    const startTimes = {}
-    newPairs.forEach(pair => {
-      startTimes[pair.id] = Date.now()
-    })
-    setPairStartTimes(startTimes)
-    
-    setSelectedCards([])
+    console.log(`🎮 New Round: Level ${level}, ${pairsCount} pairs, ${cards.length} total cards`)
   }
 
   useEffect(() => {
-    initializeRound()
-  }, [])
+    initializeRound(currentLevel)
+  }, []) // Only run once on mount
 
-  // PR C: Handle card selection
+  // Check if round is complete (all pairs matched)
+  useEffect(() => {
+    if (matchedPairs.size === currentPairsCount && currentPairsCount > 0) {
+      // Round completed! Start new round after brief delay
+      const roundTime = Date.now() - roundStartTime
+      console.log(`🎉 Round completed in ${roundTime}ms`)
+      
+      setTimeout(() => {
+        setRoundsCompleted(prev => prev + 1)
+        initializeRound(currentLevel)
+      }, 1500)
+    }
+  }, [matchedPairs.size, currentPairsCount, currentLevel, roundStartTime])
+
+
+  // PR C: Handle level progression monitoring (every 10 seconds to avoid interrupting gameplay)
+  useEffect(() => {
+    if (!gameContextRef.current || gameContextRef.current.gameState !== 'playing') return
+    if (gameStartTime === 0) return // Wait until game has actually started
+    
+    const levelCheck = setInterval(() => {
+      if (totalAttempts > 0) {
+        const levelData = calculateLevelProgression({
+          correctAnswers: correctPairs,
+          totalAttempts: totalAttempts,
+          accuracy: accuracy,
+          currentLevel: currentLevel,
+          gameType: 'twin-words',
+          timeSpent: Date.now() - gameStartTime
+        })
+        
+        if (levelData.level !== currentLevel) {
+          console.log(`🎉 Level progression: ${currentLevel} → ${levelData.level}`)
+          setCurrentLevel(levelData.level)
+          // Note: Level change is automatically tracked by the level state change
+        }
+      }
+    }, 10000) // Check every 10 seconds (reduced from 1 second to avoid interrupting gameplay)
+    
+    return () => clearInterval(levelCheck)
+  }, [correctPairs, totalAttempts, accuracy, currentLevel, gameStartTime])
+
+  // PR C: Handle card selection - CLASSIC MEMORY GAME LOGIC
   const handleCardClick = (card) => {
     if (!gameContextRef.current || gameContextRef.current.gameState !== 'playing') return
-    if (card.isMatched) return // Already matched
+    if (matchedPairs.has(card.pairId)) return // Already matched
     if (selectedCards.some(c => c.id === card.id)) return // Already selected
+    if (selectedCards.length >= 2) return // Can only select 2 cards at a time
 
     const newSelected = [...selectedCards, card]
     setSelectedCards(newSelected)
 
-    // Check if we have a pair
+    // Check if we have a pair selected
     if (newSelected.length === 2) {
       const [card1, card2] = newSelected
       const currentTime = Date.now()
@@ -172,45 +217,40 @@ export default function TwinWordsGridPRC({ onExit, onBackToGames, onViewStats })
       setTotalAttempts(totalAttempts + 1)
       
       if (card1.pairId === card2.pairId) {
-        // Correct pair!
-        const pairStartTime = pairStartTimes[card1.pairId] || currentTime
-        const solveTime = currentTime - pairStartTime
+        // ✅ CORRECT PAIR!
+        const solveTime = currentTime - roundStartTime
         
-        // PR C: Scoring - +1 base, +2 if solved ≤2s
-        let points = 1
-        if (solveTime <= 2000) {
-          points += 2 // +2 extra for fast solve
+        // Scoring: +10 base points, +5 bonus if quick (< 3s)
+        let points = 10
+        if (solveTime <= 3000) {
+          points += 5 // Quick solve bonus
         }
         
         setScore(score + points)
         setCorrectPairs(correctPairs + 1)
         
-        // Mark cards as matched
-        setPairs(prevPairs => 
-          prevPairs.map(pair => 
-            pair.id === card1.pairId ? { ...pair, solved: true } : pair
-          )
-        )
+        // Mark this pair as matched
+        setMatchedPairs(prev => new Set([...prev, card1.pairId]))
         
-        // Track performance for adaptive difficulty
-        trackPerformance(true, solveTime)
+        console.log(`✅ Pair matched! PairId: ${card1.pairId}, Score: +${points}`)
         
-        // Generate new pair immediately to maintain pairsCount
+        // Clear selection after brief delay
         setTimeout(() => {
-          regeneratePair(card1.pairId)
+          setSelectedCards([])
         }, 500)
         
       } else {
-        // Wrong pair - penalty
-        setScore(Math.max(0, score - 1)) // -1 point, minimum 0
+        // ❌ WRONG PAIR
+        setScore(Math.max(0, score - 2)) // -2 points penalty
         setMistakes(mistakes + 1)
-        trackPerformance(false, 0)
+        
+        console.log(`❌ Wrong pair: ${card1.word} ≠ ${card2.word}`)
+        
+        // Clear selection after showing mistake
+        setTimeout(() => {
+          setSelectedCards([])
+        }, 1000)
       }
-      
-      // Clear selection after brief delay
-      setTimeout(() => {
-        setSelectedCards([])
-      }, 800)
       
       // Update accuracy
       const newAccuracy = totalAttempts > 0 ? (correctPairs / (totalAttempts + 1)) * 100 : 100
@@ -244,8 +284,8 @@ export default function TwinWordsGridPRC({ onExit, onBackToGames, onViewStats })
       setAvgSolveTime(avgTime)
     }
     
-    // Check for level adjustment (every 1 second minimum)
-    if (now - lastLevelUpdateRef.current >= 1000) {
+    // Check for level adjustment (every 10 seconds minimum for stability)
+    if (now - lastLevelUpdateRef.current >= 10000) {
       checkLevelAdjustment()
       lastLevelUpdateRef.current = now
     }
@@ -278,10 +318,14 @@ export default function TwinWordsGridPRC({ onExit, onBackToGames, onViewStats })
       setLastLevel('twinwords', newLevel)
       
       const newPairsCount = calculatePairsCount(newLevel)
-      if (newPairsCount !== currentPairsCount) {
-        setCurrentPairsCount(newPairsCount)
-        setTimeout(() => initializeRound(newLevel), 100)
-      }
+      setCurrentPairsCount(newPairsCount)
+      
+      // STABLE DISPLAY FIX: Don't reinitialize the round when level changes
+      // This prevents the constant word changing that was disrupting gameplay
+      // The current pairs will remain stable until naturally completed
+      // New pair count will take effect in the next natural game cycle
+      
+      // REMOVED: setTimeout(() => initializeRound(newLevel), 100)
       
       // Clear performance window after level change
       performanceWindowRef.current = []
@@ -290,8 +334,14 @@ export default function TwinWordsGridPRC({ onExit, onBackToGames, onViewStats })
   }
 
   // PR C: Regenerate single pair to maintain pairs count
+  // NOTE: Currently disabled for traditional stable display experience
+  // This function is preserved for future "Continuous Flow Mode" at higher levels
   const regeneratePair = (solvedPairId) => {
     if (!gameContextRef.current || gameContextRef.current.gameState !== 'playing') return
+    
+    // FUTURE FEATURE: Advanced Continuous Flow Mode
+    // This regeneration logic could be activated at higher levels (8+) to create
+    // a more challenging, continuously evolving word grid experience
     
     // Generate one new pair to replace the solved one
     const availablePairs = WORD_PAIRS.filter(wordPair => {
@@ -325,28 +375,13 @@ export default function TwinWordsGridPRC({ onExit, onBackToGames, onViewStats })
     }
   }
 
-  // Get all cards for display
+  // Get all cards for display (from the stable allCards array)
   const getAllCards = () => {
-    const allCards = []
-    pairs.forEach((pair, pairIndex) => {
-      if (!pair.solved) {
-        allCards.push({ 
-          id: `${pair.id}-1`, 
-          word: pair.word1, 
-          pairId: pair.id,
-          pairIndex,
-          isMatched: false 
-        })
-        allCards.push({ 
-          id: `${pair.id}-2`, 
-          word: pair.word2, 
-          pairId: pair.id,
-          pairIndex,
-          isMatched: false 
-        })
-      }
-    })
-    return allCards.sort(() => Math.random() - 0.5)
+    return allCards.map(card => ({
+      ...card,
+      isMatched: matchedPairs.has(card.pairId),
+      isSelected: selectedCards.some(c => c.id === card.id)
+    }))
   }
 
   return (
@@ -364,6 +399,12 @@ export default function TwinWordsGridPRC({ onExit, onBackToGames, onViewStats })
       {(gameContext) => {
         gameContextRef.current = gameContext
         const { gameState, timeElapsed } = gameContext
+        
+        // Initialize gameStartTime when game starts playing
+        if (gameState === 'playing' && gameStartTime === 0) {
+          setGameStartTime(Date.now())
+        }
+        
         const allCards = getAllCards()
 
         return (
