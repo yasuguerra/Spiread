@@ -15,6 +15,8 @@ import {
   calculateXpGain,
   calculateLevel 
 } from '@/lib/gamification'
+import { getLastLevel, setLastLevel } from '@/lib/progress-tracking'
+import { calculateLevelProgression } from '@/lib/level-progression'
 
 const DURATION_MS = 60000 // 60 seconds
 
@@ -62,6 +64,14 @@ export default function GameWrapper({
       if (!userProfile?.id) return
 
       try {
+        // Use new level progression system first
+        const savedLevel = getLastLevel(gameConfig.name)
+        if (savedLevel > 0) {
+          setLevel(savedLevel)
+          return
+        }
+
+        // Fallback to database for backward compatibility
         const { data, error } = await supabase
           .from('settings')
           .select('progress')
@@ -70,7 +80,10 @@ export default function GameWrapper({
 
         if (data?.progress?.[gameConfig.name]) {
           const gameProgress = data.progress[gameConfig.name]
-          setLevel(gameProgress.lastLevel || 1)
+          const level = gameProgress.lastLevel || 1
+          setLevel(level)
+          // Migrate to new system
+          setLastLevel(gameConfig.name, level)
         }
       } catch (error) {
         console.error('Error loading game progress:', error)
@@ -232,7 +245,32 @@ export default function GameWrapper({
     if (!userProfile?.id) return
 
     try {
-      // Get current settings
+      // Check for level progression using the new system
+      const accuracy = metrics.accuracy || (finalScore > 0 ? 0.8 : 0.5) // Fallback estimation
+      const averageTime = metrics.averageTime || metrics.rt_ms || 2000 // Fallback estimation
+      
+      const performance = {
+        accuracy,
+        time: averageTime,
+        score: finalScore,
+        isCorrect: accuracy >= 0.75,
+        consecutiveCorrect: metrics.consecutiveCorrect || 0,
+        sessionComplete: true
+      }
+      
+      const levelResult = calculateLevelProgression(gameConfig.name, level, performance)
+      
+      const newLevel = levelResult.newLevel
+      
+      // Update local level state if changed
+      if (levelResult.levelChanged) {
+        setLevel(newLevel)
+      }
+      
+      // Save to new level progression system
+      setLastLevel(gameConfig.name, newLevel)
+
+      // Get current settings for database compatibility
       const { data: currentSettings, error: fetchError } = await supabase
         .from('settings')
         .select('progress')
@@ -247,14 +285,15 @@ export default function GameWrapper({
       const currentProgress = currentSettings?.progress || {}
       const gameProgress = currentProgress[gameConfig.name] || { lastLevel: 1, lastBestScore: 0 }
 
-      // Update progress
+      // Update progress with new level
       const updatedProgress = {
         ...currentProgress,
         [gameConfig.name]: {
-          lastLevel: level,
+          lastLevel: newLevel,
           lastBestScore: Math.max(gameProgress.lastBestScore || 0, finalScore),
           lastPlayed: new Date().toISOString(),
-          totalRounds: (gameProgress.totalRounds || 0) + 1
+          totalRounds: (gameProgress.totalRounds || 0) + 1,
+          levelProgression: levelResult.levelChanged ? (levelResult.newLevel > level ? 'up' : 'down') : 'none'
         }
       }
 
@@ -273,7 +312,7 @@ export default function GameWrapper({
 
       // Update XP and streaks
       if (isValidGameRun(finalScore, DURATION_MS, metrics)) {
-        const xpGain = calculateXpGain(gameConfig.name, finalScore, level)
+        const xpGain = calculateXpGain(gameConfig.name, finalScore, newLevel)
         await updateUserProfile(userProfile.id, { xp: userProfile.xp + xpGain })
         await updateStreak(userProfile.id)
         await checkAchievements(userProfile.id, gameConfig.name, finalScore)

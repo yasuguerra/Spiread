@@ -9,7 +9,8 @@ import { Progress } from '@/components/ui/progress'
 import { Brain, Clock, Target, Zap } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { EnhancedAdaptiveDifficulty } from '@/lib/enhanced-difficulty'
-import { loadGameProgress, saveGameProgress, generateRandomNumber } from '@/lib/progress-tracking'
+import { loadGameProgress, saveGameProgress, generateRandomNumber, getLastLevel, setLastLevel, getLastBestScore, updateBestScore } from '@/lib/progress-tracking'
+import { GAME_LEVEL_CONFIGS, calculateLevelProgression } from '@/lib/level-progression'
 
 const GAME_STATES = {
   READY: 'ready',
@@ -29,6 +30,8 @@ export default function MemoryDigits({ userId = 'anonymous', onFinish, onExit, t
   const [adaptiveDifficulty, setAdaptiveDifficulty] = useState(null)
   const [timeRemaining, setTimeRemaining] = useState(timeLimit)
   const [gameStarted, setGameStarted] = useState(false)
+  const [currentLevel, setCurrentLevel] = useState(1)
+  const [accuracy, setAccuracy] = useState(100)
   
   // Refs for precise timing
   const showStartTime = useRef(null)
@@ -46,14 +49,26 @@ export default function MemoryDigits({ userId = 'anonymous', onFinish, onExit, t
     }
   }, [])
 
+  // Load saved level
+  useEffect(() => {
+    const savedLevel = getLastLevel('memorydigits')
+    if (savedLevel > 0) {
+      setCurrentLevel(savedLevel)
+    }
+  }, [])
+
   const initializeGame = async () => {
     try {
+      const savedLevel = getLastLevel('memorydigits')
+      const startLevel = savedLevel > 0 ? savedLevel : 1
+      setCurrentLevel(startLevel)
+      
       const progress = await loadGameProgress(userId, 'memory_digits')
-      const difficulty = new EnhancedAdaptiveDifficulty('memory_digits', progress.last_level)
+      const difficulty = new EnhancedAdaptiveDifficulty('memory_digits', startLevel)
       setAdaptiveDifficulty(difficulty)
     } catch (error) {
       console.error('Error initializing game:', error)
-      const difficulty = new EnhancedAdaptiveDifficulty('memory_digits', 1)
+      const difficulty = new EnhancedAdaptiveDifficulty('memory_digits', currentLevel)
       setAdaptiveDifficulty(difficulty)
     }
   }

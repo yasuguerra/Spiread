@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { Eye, Timer, Trophy, Target, TrendingUp, AlertCircle } from 'lucide-react'
+import { getLastLevel, setLastLevel, getLastBestScore, updateBestScore } from '@/lib/progress-tracking'
+import { GAME_LEVEL_CONFIGS, calculateLevelProgression } from '@/lib/level-progression'
 
 // PR C - TwinWords with 60s gameplay and adaptive difficulty
 export default function TwinWordsGridPRC({ onExit, onBackToGames, onViewStats }) {
@@ -19,6 +21,7 @@ export default function TwinWordsGridPRC({ onExit, onBackToGames, onViewStats })
   const [currentPairsCount, setCurrentPairsCount] = useState(4)
   const [correctPairs, setCorrectPairs] = useState(0)
   const [totalAttempts, setTotalAttempts] = useState(0)
+  const [currentLevel, setCurrentLevel] = useState(1)
   
   // Performance tracking for adaptive difficulty 
   const [recentPerformance, setRecentPerformance] = useState([]) // Last 10s window
@@ -29,6 +32,35 @@ export default function TwinWordsGridPRC({ onExit, onBackToGames, onViewStats })
   const gameContextRef = useRef(null)
   const performanceWindowRef = useRef([])
   const lastLevelUpdateRef = useRef(Date.now())
+
+  // Initialize level from localStorage
+  useEffect(() => {
+    const savedLevel = getLastLevel('twinwords')
+    if (savedLevel > 0) {
+      setCurrentLevel(savedLevel)
+    }
+  }, [])
+
+  // Update pairs count when level changes
+  useEffect(() => {
+    const pairsCount = calculatePairsCount(currentLevel)
+    setCurrentPairsCount(pairsCount)
+  }, [currentLevel])
+
+  // Handle game completion
+  const handleGameEnd = (gameResult) => {
+    // Save final level and best score
+    setLastLevel('twinwords', currentLevel)
+    const previousBest = getLastBestScore('twinwords')
+    if (score > previousBest) {
+      updateBestScore('twinwords', score)
+    }
+
+    // Call parent completion handler if provided
+    if (onExit) {
+      onExit(gameResult)
+    }
+  }
 
   // PR C: Word pairs database
   const WORD_PAIRS = [
@@ -226,44 +258,26 @@ export default function TwinWordsGridPRC({ onExit, onBackToGames, onViewStats })
     const recentData = performanceWindowRef.current
     if (recentData.length < 3) return // Need minimum data
     
-    const { currentLevel } = gameContextRef.current
     const recentSuccesses = recentData.filter(p => p.success).length
     const recentAccuracy = (recentSuccesses / recentData.length) * 100
     const recentErrors = recentData.filter(p => !p.success).length
     
-    let shouldLevelUp = false
-    let shouldLevelDown = false
-    
-    // PR C: Level up conditions - accuracy ≥85% AND avgSolveTime ≤2.5s
-    if (recentAccuracy >= 85 && avgSolveTime <= 2500 && recentSuccesses >= 3) {
-      shouldLevelUp = true
+    // Use our new level progression system
+    const performance = {
+      accuracy: recentAccuracy / 100, // Convert to 0-1 range
+      averageTime: avgSolveTime,
+      score: score,
+      mistakes: mistakes
     }
     
-    // PR C: Level down conditions - 3 errors in 10s OR accuracy <60%
-    if (recentErrors >= 3 || recentAccuracy < 60) {
-      shouldLevelDown = true
-    }
+    const levelProgression = calculateLevelProgression('twinwords', currentLevel, performance)
     
-    if (shouldLevelUp && currentLevel < 20) {
-      // Increase level and pairs count
-      const newLevel = currentLevel + 1
+    if (levelProgression.levelChanged) {
+      const newLevel = levelProgression.newLevel
+      setCurrentLevel(newLevel)
+      setLastLevel('twinwords', newLevel)
+      
       const newPairsCount = calculatePairsCount(newLevel)
-      
-      if (newPairsCount !== currentPairsCount) {
-        setCurrentPairsCount(newPairsCount)
-        // Reinitialize with new difficulty
-        setTimeout(() => initializeRound(newLevel), 100)
-      }
-      
-      // Clear performance window after level change
-      performanceWindowRef.current = []
-      setRecentPerformance([])
-      
-    } else if (shouldLevelDown && currentLevel > 1) {
-      // Decrease level and pairs count  
-      const newLevel = currentLevel - 1
-      const newPairsCount = calculatePairsCount(newLevel)
-      
       if (newPairsCount !== currentPairsCount) {
         setCurrentPairsCount(newPairsCount)
         setTimeout(() => initializeRound(newLevel), 100)
@@ -311,25 +325,6 @@ export default function TwinWordsGridPRC({ onExit, onBackToGames, onViewStats })
     }
   }
 
-  // PR C: Handle game end
-  const handleGameEnd = (gameContext) => {
-    const finalScore = score
-    const level = gameContext.currentLevel || 1
-    
-    return {
-      score: finalScore,
-      level: level,
-      mistakes: mistakes,
-      correctPairs: correctPairs,
-      gameSpecificData: {
-        accuracy: accuracy,
-        avgSolveTime: avgSolveTime,
-        pairsPerMinute: correctPairs,
-        maxPairsCount: currentPairsCount
-      }
-    }
-  }
-
   // Get all cards for display
   const getAllCards = () => {
     const allCards = []
@@ -360,6 +355,7 @@ export default function TwinWordsGridPRC({ onExit, onBackToGames, onViewStats })
       gameName="Palabras Gemelas"           // PR A integration
       gameKey="twinwords"                   // PR A integration
       durationMs={60000}                    // PR C: 60 seconds fixed duration
+      initialLevel={currentLevel}           // Use our saved level
       onFinish={handleGameEnd}
       onExit={onExit}
       onBackToGames={onBackToGames}         // PR A integration
@@ -367,7 +363,7 @@ export default function TwinWordsGridPRC({ onExit, onBackToGames, onViewStats })
     >
       {(gameContext) => {
         gameContextRef.current = gameContext
-        const { gameState, timeElapsed, currentLevel } = gameContext
+        const { gameState, timeElapsed } = gameContext
         const allCards = getAllCards()
 
         return (

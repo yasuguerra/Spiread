@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { Grid3x3, Timer, Trophy, Target } from 'lucide-react'
+import { setLastLevel } from '@/lib/progress-tracking'
+import { calculateLevelProgression, getEyeGuideConfig, getLevelDisplayInfo, GAME_LEVEL_CONFIGS } from '@/lib/level-progression'
 
 // PR B - SchulteTable with UX polish, responsive mobile, EndScreen integration
 export default function SchulteTablePRB({ onExit, onBackToGames, onViewStats }) {
@@ -33,9 +35,29 @@ export default function SchulteTablePRB({ onExit, onBackToGames, onViewStats }) 
     setCurrentNumber(1)
     setStartTime(Date.now())
     
-    // PR B: Hide guide visual from level ≥3
-    setShowGuide(level < 3)
+    // PR B: Eye guide rules - more sophisticated
+    // Level 1-2: Full eye guide with tips
+    // Level 3-4: Minimal eye guide (just target number highlight)
+    // Level 5+: No eye guide at all (pure training)
+    const eyeGuideLevel = getEyeGuideLevel(level)
+    setShowGuide(eyeGuideLevel > 0)
   }
+
+  // Helper function to determine eye guide level
+  const getEyeGuideLevel = (level) => {
+    const config = getEyeGuideConfig('schulte', level)
+    return config.enabled ? (config.type === 'full' ? 2 : 1) : 0
+  }
+
+  // Get current eye guide level for display
+  const currentEyeGuideLevel = gameContextRef.current 
+    ? getEyeGuideLevel(gameContextRef.current.currentLevel) 
+    : 2
+
+  // Get level display info
+  const levelInfo = gameContextRef.current 
+    ? getLevelDisplayInfo('schulte', gameContextRef.current.currentLevel)
+    : { description: 'Nivel 1 (Guía Completa)' }
 
   useEffect(() => {
     initializeTable()
@@ -80,16 +102,37 @@ export default function SchulteTablePRB({ onExit, onBackToGames, onViewStats }) 
   // PR B: Handle game end
   const handleGameEnd = (gameContext) => {
     const finalScore = score
-    const level = Math.floor(tablesCompleted / 2) + 1 // Level based on tables completed
+    const completionRate = (currentNumber - 1) / 25
+    const accuracy = mistakes > 0 ? ((currentNumber - 1 - mistakes) / Math.max(currentNumber - 1, 1)) : 1
+    
+    // Use the new level progression system
+    const currentLevel = gameContext.currentLevel
+    const performance = {
+      accuracy,
+      completionRate,
+      tablesCompleted,
+      score: finalScore
+    }
+    
+    const progression = calculateLevelProgression('schulte', currentLevel, performance)
     
     return {
       score: finalScore,
-      level: level,
+      level: progression.newLevel,
+      levelChanged: progression.levelChanged,
+      levelDirection: progression.direction,
+      previousLevel: progression.previousLevel,
       mistakes: mistakes,
       tablesCompleted: tablesCompleted,
+      completionRate: completionRate,
+      accuracy: accuracy,
       gameSpecificData: {
         avgResponseTime: tablesCompleted > 0 ? (60000 / Math.max(currentNumber - 1, 1)) : 0,
-        accuracy: mistakes > 0 ? ((currentNumber - 1 - mistakes) / Math.max(currentNumber - 1, 1) * 100) : 100
+        accuracy: accuracy * 100,
+        eyeGuideEnabled: currentEyeGuideLevel > 0,
+        eyeGuideType: currentEyeGuideLevel === 2 ? 'full' : currentEyeGuideLevel === 1 ? 'minimal' : 'none',
+        numbersFound: currentNumber - 1,
+        levelProgression: progression
       }
     }
   }
@@ -140,7 +183,7 @@ export default function SchulteTablePRB({ onExit, onBackToGames, onViewStats }) 
                   </Badge>
                   <Badge variant="secondary" className="px-3 py-1">
                     <Trophy className="w-4 h-4 mr-1" />
-                    Nivel {currentLevel}
+                    {levelInfo.description}
                   </Badge>
                   <Badge variant="secondary" className="px-3 py-1">
                     <Target className="w-4 h-4 mr-1" />
@@ -187,18 +230,31 @@ export default function SchulteTablePRB({ onExit, onBackToGames, onViewStats }) 
                   )}
                 </div>
 
-                {/* PR B: Guide visual (hidden at level ≥3) */}
-                {showGuide && currentLevel < 3 && (
+                {/* PR B: Dynamic guide visual based on level */}
+                {showGuide && currentEyeGuideLevel > 0 && (
                   <motion.div 
                     className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800"
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
                   >
-                    <p className="text-sm text-blue-700 dark:text-blue-300">
-                      💡 <strong>Tip:</strong> Busca el número {currentNumber} en la tabla. 
-                      {currentNumber <= 5 && " ¡Empieza por las esquinas!"}
-                    </p>
+                    {currentEyeGuideLevel === 2 ? (
+                      <p className="text-sm text-blue-700 dark:text-blue-300">
+                        💡 <strong>Nivel {currentLevel} - Guía Completa:</strong> Busca el número <span className="font-bold text-lg">{currentNumber}</span> en la tabla. 
+                        {currentNumber <= 5 && " ¡Empieza por las esquinas!"}
+                        {currentNumber > 5 && currentNumber <= 13 && " Busca en los bordes primero."}
+                        {currentNumber > 13 && " Revisa el centro de la tabla."}
+                      </p>
+                    ) : (
+                      <p className="text-sm text-blue-700 dark:text-blue-300">
+                        🎯 <strong>Nivel {currentLevel} - Guía Mínima:</strong> Encuentra el número <span className="font-bold text-lg">{currentNumber}</span>
+                      </p>
+                    )}
+                    <div className="mt-2 text-xs text-blue-600 dark:text-blue-400">
+                      {levelInfo.eyeGuideStatus === 'enabled' 
+                        ? `Guía se desactiva en nivel ${GAME_LEVEL_CONFIGS.schulte?.eyeGuideDisableLevel || 5}` 
+                        : 'Modo experto activado - Sin guía visual'}
+                    </div>
                   </motion.div>
                 )}
 

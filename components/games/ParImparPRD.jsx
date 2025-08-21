@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Calculator, CheckCircle, XCircle } from 'lucide-react'
 import GameShell from '@/components/GameShell'
 import { getLastLevel, setLastLevel } from '@/lib/progress-tracking'
+import { calculateLevelProgression, GAME_LEVEL_CONFIGS } from '@/lib/level-progression'
 
 const GAME_STATES = {
   READY: 'ready',
@@ -171,17 +172,20 @@ export default function ParImparPRD({
     setRounds(prev => [...prev, roundData])
     setTotalScore(prev => prev + roundScore)
     
-    // Adaptive difficulty: level up if accuracy >= 85% and time < 3s, level down if accuracy < 60%
-    let newLevel = level
-    if (accuracy >= 0.85 && selectionTime < 3000) {
-      newLevel = Math.min(level + 1, 20) // Max level 20
-    } else if (accuracy < 0.6) {
-      newLevel = Math.max(level - 1, 1) // Min level 1
+    // Check for level progression using unified system
+    const performance = {
+      accuracy,
+      time: selectionTime,
+      score: roundScore,
+      isCorrect: accuracy >= 0.8,
+      consecutiveCorrect: rounds.filter(r => r.accuracy >= 0.8).length
     }
     
-    if (newLevel !== level) {
-      setLevel(newLevel)
-      setLastLevel(gameKey, newLevel)
+    const levelResult = calculateLevelProgression(gameKey, level, performance)
+    
+    if (levelResult.levelChanged) {
+      setLevel(levelResult.newLevel)
+      setLastLevel(gameKey, levelResult.newLevel)
     }
     
     // Continue to next round after brief feedback
@@ -200,26 +204,40 @@ export default function ParImparPRD({
   }
 
   const handleGameEnd = (gameData) => {
-    // Save final level
-    setLastLevel(gameKey, level)
-    
-    // Calculate final metrics
+    // Check for final level progression based on overall performance
     const avgAccuracy = rounds.length > 0 ? rounds.reduce((sum, r) => sum + r.accuracy, 0) / rounds.length : 0
     const avgTime = rounds.length > 0 ? rounds.reduce((sum, r) => sum + r.time, 0) / rounds.length : 0
     const totalHits = rounds.reduce((sum, r) => sum + r.hits, 0)
     const totalFP = rounds.reduce((sum, r) => sum + r.falsePositives, 0)
+    
+    // Final level check based on overall session performance
+    const finalPerformance = {
+      accuracy: avgAccuracy,
+      time: avgTime,
+      score: totalScore,
+      isCorrect: avgAccuracy >= 0.75,
+      consecutiveCorrect: rounds.filter(r => r.accuracy >= 0.8).length,
+      sessionComplete: true
+    }
+    
+    const finalLevelResult = calculateLevelProgression(gameKey, level, finalPerformance)
+    
+    const finalLevel = finalLevelResult.newLevel
+    setLevel(finalLevel)
+    setLastLevel(gameKey, finalLevel)
     
     const finalGameData = {
       ...gameData,
       score: totalScore,
       metrics: {
         total_rounds: rounds.length,
-        final_level: level,
+        final_level: finalLevel,
         average_accuracy: avgAccuracy,
         average_time: avgTime,
         total_hits: totalHits,
         total_false_positives: totalFP,
-        best_round_score: rounds.length > 0 ? Math.max(...rounds.map(r => r.score)) : 0
+        best_round_score: rounds.length > 0 ? Math.max(...rounds.map(r => r.score)) : 0,
+        level_progression: finalLevelResult.levelChanged ? (finalLevelResult.newLevel > level ? 'up' : 'down') : 'none'
       }
     }
     
