@@ -77,7 +77,6 @@ export default function LettersGrid({
   const config = GAME_CONFIG.levels[Math.min(level, 20)]
   const lettersData = WORD_BANK.lettersGrid[locale] || WORD_BANK.lettersGrid.es
   const screenStartTime = useRef(null)
-  const gameStartTime = useRef(null)
 
   // Generate random letters with optional confusables
   const generateLetters = useCallback((count, useConfusables = false) => {
