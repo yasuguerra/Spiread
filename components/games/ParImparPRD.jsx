@@ -52,6 +52,7 @@ const generateNumbers = (count, level) => {
 export default function ParImparPRD({ 
   onBackToGames, 
   onViewStats,
+  onExit,
   gameName = "Par / Impar",
   gameKey = "parimpar"
 }) {
@@ -65,8 +66,12 @@ export default function ParImparPRD({
   const [showDuration, setShowDuration] = useState(3000) // Show numbers for 3s initially
   const [gameStarted, setGameStarted] = useState(false)
   const [roundStartTime, setRoundStartTime] = useState(null)
+  const [countdown, setCountdown] = useState(0) // For countdown timer
+  const [reactionTimes, setReactionTimes] = useState([]) // Track reaction times
   
   const roundTimer = useRef(null)
+  const countdownTimer = useRef(null)
+  const gameContextRef = useRef(null)
 
   // Initialize level from localStorage
   useEffect(() => {
@@ -77,7 +82,7 @@ export default function ParImparPRD({
   }, [gameKey])
 
   const startNewRound = () => {
-    if (!gameStarted) return
+    if (!gameContextRef.current || gameContextRef.current.gameState !== 'playing') return
     
     const gridConfig = getGridConfig(level)
     const numbers = generateNumbers(gridConfig.size, level)
@@ -91,24 +96,46 @@ export default function ParImparPRD({
     // Calculate show duration based on level (3000ms to 1500ms)
     const duration = Math.max(1500, 3000 - (level - 1) * 100)
     setShowDuration(duration)
+    setCountdown(Math.ceil(duration / 1000))
+    
+    // Start countdown
+    countdownTimer.current = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(countdownTimer.current)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
     
     // Show numbers then allow selection
     roundTimer.current = setTimeout(() => {
       setGameState(GAME_STATES.SELECTING)
       setRoundStartTime(Date.now())
+      setCountdown(0)
     }, duration)
   }
 
   const handleNumberClick = (numberId) => {
     if (gameState !== GAME_STATES.SELECTING) return
     
+    const clickTime = Date.now()
+    const reactionTime = clickTime - roundStartTime
+    
     setCurrentNumbers(prev => 
       prev.map(num => 
         num.id === numberId 
-          ? { ...num, selected: !num.selected }
+          ? { ...num, selected: !num.selected, clickTime: reactionTime }
           : num
       )
     )
+    
+    // Track reaction times for the first click on each number
+    const number = currentNumbers.find(n => n.id === numberId)
+    if (number && !number.selected) {
+      setReactionTimes(prev => [...prev, reactionTime])
+    }
   }
 
   const processRound = () => {
@@ -252,17 +279,26 @@ export default function ParImparPRD({
 
   return (
     <GameShell
-      gameName={gameName}
-      gameKey={gameKey}
+      gameId="par_impar"
+      gameName="Par / Impar"
+      gameKey="parimpar"
+      durationMs={60000} // 60 seconds
+      initialLevel={level}
+      onFinish={handleGameEnd}
+      onExit={onExit}
       onBackToGames={onBackToGames}
       onViewStats={onViewStats}
-      onGameStart={handleGameStart}
-      onGameEnd={handleGameEnd}
-      gameStarted={gameStarted}
-      currentScore={totalScore}
-      currentLevel={level}
     >
-      {(context) => (
+      {(gameContext) => {
+        gameContextRef.current = gameContext
+        const { gameState, timeElapsed } = gameContext
+
+        // Auto-start first round when game starts
+        if (gameState === 'playing' && !gameStarted) {
+          handleGameStart()
+        }
+
+        return (
         <div className="space-y-6">
         {/* Game Status */}
         <div className="text-center space-y-2">
@@ -317,6 +353,94 @@ export default function ParImparPRD({
         {/* Game Area */}
         <div className="min-h-[400px] flex items-center justify-center">
           <AnimatePresence mode="wait">
+            {gameState === 'idle' && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="text-center space-y-6"
+              >
+                <div className="space-y-3">
+                  <div className="w-16 h-16 bg-orange-100 dark:bg-orange-900 rounded-full flex items-center justify-center mx-auto">
+                    <Calculator className="w-8 h-8 text-orange-600" />
+                  </div>
+                  <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                    Par / Impar
+                  </h2>
+                  <p className="text-lg text-muted-foreground max-w-md mx-auto">
+                    Observa los números y luego selecciona solo los pares o impares según la regla
+                  </p>
+                </div>
+                
+                <div className="bg-muted/50 p-4 rounded-lg max-w-sm mx-auto">
+                  <div className="text-sm space-y-2 text-left">
+                    <div className="font-medium">Cómo jugar:</div>
+                    <ul className="space-y-1 text-xs">
+                      <li>• Los números aparecen brevemente</li>
+                      <li>• Selecciona PARES o IMPARES según la regla</li>
+                      <li>• Feedback inmediato: verde ✓, rojo ✗</li>
+                      <li>• Grids más grandes conforme avanzas</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <Button 
+                  onClick={gameContext.startGame} 
+                  size="lg"
+                  className="px-8 py-3 text-lg"
+                >
+                  Empezar Juego
+                </Button>
+              </motion.div>
+            )}
+
+            {gameState === 'playing' && gameStarted && (
+              <>
+                {/* Stats during game */}
+                {gameState !== GAME_STATES.READY && (
+                  <div className="grid grid-cols-4 gap-4 text-center max-w-md mx-auto">
+                    <div>
+                      <div className="text-2xl font-bold text-blue-600">{totalScore}</div>
+                      <div className="text-sm text-muted-foreground">Puntos</div>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-green-600">{level}</div>
+                      <div className="text-sm text-muted-foreground">Nivel</div>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-purple-600">{gridConfig.size}</div>
+                      <div className="text-sm text-muted-foreground">Números</div>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-orange-600">{Math.round(showDuration/1000)}s</div>
+                      <div className="text-sm text-muted-foreground">Tiempo</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Rule Display */}
+                {gameState !== GAME_STATES.READY && (
+                  <div className="text-center p-6 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border">
+                    <div className="space-y-2">
+                      <div className="text-lg font-medium text-muted-foreground">
+                        Selecciona todos los números:
+                      </div>
+                      <div className={`text-4xl font-bold ${
+                        currentRule === 'even' ? 'text-blue-600' : 'text-purple-600'
+                      }`}>
+                        {currentRule === 'even' ? 'PARES' : 'IMPARES'}
+                      </div>
+                      {gameState === GAME_STATES.SELECTING && (
+                        <div className="text-sm text-muted-foreground">
+                          Objetivos: {targetCount} | Seleccionados: {selectedCount}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+
             {gameState === GAME_STATES.READY && (
               <motion.div
                 initial={{ opacity: 0 }}
@@ -375,8 +499,15 @@ export default function ParImparPRD({
                     </motion.div>
                   ))}
                 </div>
-                <div className="text-center mt-4 text-muted-foreground">
-                  Memoriza los números... ({Math.ceil(showDuration/1000)}s)
+                <div className="text-center mt-4 space-y-2">
+                  <div className="text-muted-foreground">
+                    Memoriza los números...
+                  </div>
+                  {countdown > 0 && (
+                    <div className="text-3xl font-bold text-orange-600">
+                      {countdown}
+                    </div>
+                  )}
                 </div>
               </motion.div>
             )}
@@ -429,6 +560,18 @@ export default function ParImparPRD({
                   >
                     Confirmar Selección
                   </button>
+                  
+                  {/* Reaction time and accuracy info */}
+                  {reactionTimes.length > 0 && (
+                    <div className="text-xs text-muted-foreground space-y-1">
+                      <div>
+                        Tiempo de reacción promedio: {Math.round(reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length)}ms
+                      </div>
+                      <div>
+                        Objetivos: {targetCount} | Seleccionados: {selectedCount}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             )}
@@ -515,7 +658,8 @@ export default function ParImparPRD({
           </div>
         )}
         </div>
-      )}
+        )
+      }}
     </GameShell>
   )
 }

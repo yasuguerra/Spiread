@@ -31,8 +31,38 @@ export default function RSVPReader() {
   const [sessionStartTime, setSessionStartTime] = useState(null)
   const [startWpm, setStartWpm] = useState(250)
   
+  // New states for comprehension quiz
+  const [showQuiz, setShowQuiz] = useState(false)
+  const [quizQuestions, setQuizQuestions] = useState([])
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
+  const [userAnswers, setUserAnswers] = useState([])
+  const [quizCompleted, setQuizCompleted] = useState(false)
+  const [comprehensionScore, setComprehensionScore] = useState(0)
+  
   const intervalRef = useRef(null)
   const { sessionId } = useAppStore()
+  
+  // Load preferences from localStorage on mount
+  useEffect(() => {
+    const savedWpm = localStorage.getItem('rsvp_wpm')
+    const savedChunkSize = localStorage.getItem('rsvp_chunkSize')
+    
+    if (savedWpm) {
+      setWpm(parseInt(savedWpm))
+    }
+    if (savedChunkSize) {
+      setChunkSize(parseInt(savedChunkSize))
+    }
+  }, [setWpm, setChunkSize])
+  
+  // Save preferences to localStorage when they change
+  useEffect(() => {
+    localStorage.setItem('rsvp_wpm', wpm.toString())
+  }, [wpm])
+  
+  useEffect(() => {
+    localStorage.setItem('rsvp_chunkSize', chunkSize.toString())
+  }, [chunkSize])
   
   const {
     isActive,
@@ -52,28 +82,85 @@ export default function RSVPReader() {
     getProgress
   } = useRSVPStore()
 
-  // Sample texts for quick testing
+  // Sample texts for quick testing with comprehension questions
   const sampleTexts = {
-    'beginner': `La lectura rápida es una habilidad que puede desarrollarse con práctica constante. 
-    Muchas personas leen a una velocidad de 200-300 palabras por minuto, pero con entrenamiento 
-    adecuado es posible alcanzar velocidades de 500-800 palabras por minuto sin sacrificar 
-    la comprensión. Los ejercicios de RSVP ayudan a entrenar los ojos para procesar texto 
-    de manera más eficiente.`,
+    'beginner': {
+      text: `La lectura rápida es una habilidad que puede desarrollarse con práctica constante. 
+      Muchas personas leen a una velocidad de 200-300 palabras por minuto, pero con entrenamiento 
+      adecuado es posible alcanzar velocidades de 500-800 palabras por minuto sin sacrificar 
+      la comprensión. Los ejercicios de RSVP ayudan a entrenar los ojos para procesar texto 
+      de manera más eficiente.`,
+      questions: [
+        {
+          question: "¿Cuál es la velocidad de lectura típica de la mayoría de personas?",
+          options: ["100-200 PPM", "200-300 PPM", "500-800 PPM", "800-1000 PPM"],
+          correct: 1
+        },
+        {
+          question: "¿Qué velocidad es posible alcanzar con entrenamiento adecuado?",
+          options: ["200-300 PPM", "300-400 PPM", "500-800 PPM", "1000+ PPM"],
+          correct: 2
+        },
+        {
+          question: "¿Qué ayudan a entrenar los ejercicios de RSVP?",
+          options: ["La memoria", "Los ojos", "La concentración", "La velocidad"],
+          correct: 1
+        }
+      ]
+    },
     
-    'intermediate': `El método Campayo revoluciona el aprendizaje acelerado mediante técnicas específicas 
-    que potencian las capacidades mentales. La lectura fotográfica permite procesar información 
-    visual a velocidades extraordinarias, mientras que la reducción de la subvocalización 
-    elimina el cuello de botella que limita la velocidad de lectura tradicional. Los ejercicios 
-    de campo visual periférico expanden la capacidad de procesamiento simultáneo de múltiples 
-    palabras, creando lectores exponencialmente más eficientes.`,
+    'intermediate': {
+      text: `El método Campayo revoluciona el aprendizaje acelerado mediante técnicas específicas 
+      que potencian las capacidades mentales. La lectura fotográfica permite procesar información 
+      visual a velocidades extraordinarias, mientras que la reducción de la subvocalización 
+      elimina el cuello de botella que limita la velocidad de lectura tradicional. Los ejercicios 
+      de campo visual periférico expanden la capacidad de procesamiento simultáneo de múltiples 
+      palabras, creando lectores exponencialmente más eficientes.`,
+      questions: [
+        {
+          question: "¿Qué permite la lectura fotográfica?",
+          options: ["Memorizar mejor", "Procesar información visual rápidamente", "Leer en la oscuridad", "Tomar fotos mentales"],
+          correct: 1
+        },
+        {
+          question: "¿Qué elimina la reducción de la subvocalización?",
+          options: ["Los errores de lectura", "El cuello de botella", "La fatiga visual", "Los problemas de comprensión"],
+          correct: 1
+        },
+        {
+          question: "¿Qué expanden los ejercicios de campo visual periférico?",
+          options: ["La memoria", "El vocabulario", "La capacidad de procesamiento simultáneo", "La velocidad de escritura"],
+          correct: 2
+        }
+      ]
+    },
     
-    'advanced': `La neuronalplasticidad cerebral constituye el fundamento científico que sustenta 
-    las metodologías avanzadas de lectura rápida. Los estudios de neuroimagen demuestran que 
-    el entrenamiento sistemático modifica las conexiones sinápticas en las áreas corticales 
-    asociadas con el procesamiento visual y lingüístico. La sincronización hemisférica 
-    optimiza los recursos cognitivos disponibles, mientras que la supresión del diálogo 
-    interno libera ancho de banda mental para el análisis semántico paralelo de estructuras 
-    sintácticas complejas.`
+    'advanced': {
+      text: `La neuronalplasticidad cerebral constituye el fundamento científico que sustenta 
+      las metodologías avanzadas de lectura rápida. Los estudios de neuroimagen demuestran que 
+      el entrenamiento sistemático modifica las conexiones sinápticas en las áreas corticales 
+      asociadas con el procesamiento visual y lingüístico. La sincronización hemisférica 
+      optimiza los recursos cognitivos disponibles, mientras que la supresión del diálogo 
+      interno libera ancho de banda mental para el análisis semántico paralelo de estructuras 
+      sintácticas complejas.`,
+      questions: [
+        {
+          question: "¿Qué constituye el fundamento científico de la lectura rápida?",
+          options: ["La neuroplasticidad cerebral", "Los estudios de memoria", "La velocidad ocular", "La concentración mental"],
+          correct: 0
+        },
+        {
+          question: "¿Qué demuestran los estudios de neuroimagen?",
+          options: ["Que el cerebro no cambia", "Que el entrenamiento modifica conexiones sinápticas", "Que leer es peligroso", "Que la velocidad no importa"],
+          correct: 1
+        },
+        {
+          question: "¿Qué libera la supresión del diálogo interno?",
+          options: ["Energía física", "Ancho de banda mental", "Capacidad visual", "Memoria muscular"],
+          correct: 1
+        }
+      ]
+    }
   }
 
   // RSVP display logic
@@ -88,11 +175,79 @@ export default function RSVPReader() {
     
     intervalRef.current = setInterval(() => {
       if (!advance()) {
-        // Reading finished
+        // Reading finished - show comprehension quiz
         handleReadingComplete()
       }
     }, interval)
   }, [words.length, wpm, chunkSize, start, advance])
+
+  const handleReadingComplete = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
+    }
+    
+    // Check if we have quiz questions for this text
+    const currentTextData = Object.values(sampleTexts).find(textData => 
+      textData.text === inputText || textData.text.replace(/\s+/g, ' ').trim() === inputText.replace(/\s+/g, ' ').trim()
+    )
+    
+    if (currentTextData && currentTextData.questions) {
+      setQuizQuestions(currentTextData.questions)
+      setCurrentQuestionIndex(0)
+      setUserAnswers([])
+      setQuizCompleted(false)
+      setShowQuiz(true)
+    } else {
+      // No quiz available, just finish normally
+      finishSession(0)
+    }
+  }
+
+  const handleQuizAnswer = (answerIndex) => {
+    const newAnswers = [...userAnswers, answerIndex]
+    setUserAnswers(newAnswers)
+    
+    if (currentQuestionIndex < quizQuestions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1)
+    } else {
+      // Quiz completed - calculate score
+      const correctAnswers = quizQuestions.reduce((count, question, index) => {
+        return count + (newAnswers[index] === question.correct ? 1 : 0)
+      }, 0)
+      
+      const score = Math.round((correctAnswers / quizQuestions.length) * 100)
+      setComprehensionScore(score)
+      setQuizCompleted(true)
+      
+      setTimeout(() => {
+        setShowQuiz(false)
+        finishSession(score)
+      }, 3000) // Show results for 3 seconds
+    }
+  }
+
+  const finishSession = async (score) => {
+    if (!sessionStartTime || !sessionId) return
+    
+    const endTime = Date.now()
+    const durationSeconds = Math.floor((endTime - sessionStartTime) / 1000)
+    
+    try {
+      await saveReadingSession(sessionId, {
+        wpmStart: startWpm,
+        wpm_end: wpm,
+        comprehensionScore: score,
+        exerciseType: 'rsvp',
+        durationSeconds,
+        textLength: words.length
+      })
+    } catch (error) {
+      console.error('Error saving reading session:', error)
+    }
+    
+    setSessionStartTime(null)
+  }
 
   const pauseReading = useCallback(() => {
     pause()
@@ -110,31 +265,9 @@ export default function RSVPReader() {
     }
     
     if (sessionStartTime) {
-      handleReadingComplete()
+      finishSession(0) // No comprehension score if stopped early
     }
   }, [stop, sessionStartTime])
-
-  const handleReadingComplete = async () => {
-    if (!sessionStartTime || !sessionId) return
-    
-    const endTime = Date.now()
-    const durationSeconds = Math.floor((endTime - sessionStartTime) / 1000)
-    
-    try {
-      await saveReadingSession(sessionId, {
-        wpmStart: startWpm,
-        wpm_end: wpm,
-        comprehensionScore: 0, // TODO: Add comprehension test
-        exerciseType: 'rsvp',
-        durationSeconds,
-        textLength: words.length
-      })
-    } catch (error) {
-      console.error('Error saving reading session:', error)
-    }
-    
-    setSessionStartTime(null)
-  }
 
   // Cleanup on unmount
   useEffect(() => {
@@ -199,7 +332,8 @@ export default function RSVPReader() {
   }, [isActive, words.length, wpm, startReading, pauseReading, stopReading, setWpm, setChunkSize])
 
   const loadSampleText = (difficulty) => {
-    const text = sampleTexts[difficulty]
+    const textData = sampleTexts[difficulty]
+    const text = textData.text
     setInputText(text)
     loadText(text)
   }
@@ -254,7 +388,63 @@ export default function RSVPReader() {
           {/* Main Display */}
           <div className="flex items-center justify-center min-h-[200px] bg-muted/50 rounded-lg border-2 border-dashed">
             <AnimatePresence mode="wait">
-              {currentChunk ? (
+              {showQuiz ? (
+                // Comprehension Quiz
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="w-full max-w-md mx-auto p-6"
+                >
+                  {!quizCompleted ? (
+                    <div className="space-y-4">
+                      <div className="text-center">
+                        <h3 className="text-lg font-semibold mb-2">Test de Comprensión</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Pregunta {currentQuestionIndex + 1} de {quizQuestions.length}
+                        </p>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        <p className="text-center font-medium">
+                          {quizQuestions[currentQuestionIndex]?.question}
+                        </p>
+                        
+                        <div className="space-y-2">
+                          {quizQuestions[currentQuestionIndex]?.options.map((option, index) => (
+                            <Button
+                              key={index}
+                              variant="outline"
+                              className="w-full text-left justify-start"
+                              onClick={() => handleQuizAnswer(index)}
+                            >
+                              {String.fromCharCode(65 + index)}. {option}
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    // Quiz Results
+                    <div className="text-center space-y-4">
+                      <div className="text-4xl mb-4">
+                        {comprehensionScore >= 80 ? '🎉' : comprehensionScore >= 60 ? '👍' : '📚'}
+                      </div>
+                      <h3 className="text-lg font-semibold">¡Quiz Completado!</h3>
+                      <div className="space-y-2">
+                        <p className="text-2xl font-bold text-green-600">
+                          {comprehensionScore}%
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {comprehensionScore >= 80 ? 'Excelente comprensión' : 
+                           comprehensionScore >= 60 ? 'Buena comprensión' : 
+                           'Necesitas practicar más la comprensión'}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              ) : currentChunk ? (
                 <motion.div
                   key={currentIndex}
                   initial={{ opacity: 0, scale: 0.8 }}
@@ -285,7 +475,9 @@ export default function RSVPReader() {
                 <div className="text-center">
                   <div className="text-4xl mb-4">🎉</div>
                   <p className="text-lg font-medium">¡Lectura completada!</p>
-                  <p className="text-muted-foreground">Excelente trabajo</p>
+                  <p className="text-muted-foreground">
+                    {comprehensionScore > 0 ? `Comprensión: ${comprehensionScore}%` : 'Preparando test de comprensión...'}
+                  </p>
                 </div>
               )}
             </AnimatePresence>

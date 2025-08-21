@@ -20,8 +20,39 @@ export default function SchulteTablePRB({ onExit, onBackToGames, onViewStats }) 
   const [tablesCompleted, setTablesCompleted] = useState(0)
   const [showGuide, setShowGuide] = useState(true) // PR B: Hide guide at level ≥3
   
+  // New states for enhanced features
+  const [bestScore, setBestScore] = useState(0)
+  const [bestLevel, setBestLevel] = useState(1)
+  const [continuousMode, setContinuousMode] = useState(false)
+  const [sessionScore, setSessionScore] = useState(0) // Accumulated score in continuous mode
+  const [sessionTables, setSessionTables] = useState(0) // Tables completed in session
+  
   // Game context from GameShell
   const gameContextRef = useRef(null)
+
+  // Load saved data from localStorage
+  useEffect(() => {
+    const savedBestScore = localStorage.getItem('schulte_best_score')
+    const savedBestLevel = localStorage.getItem('schulte_best_level')
+    const savedContinuousMode = localStorage.getItem('schulte_continuous_mode')
+    
+    if (savedBestScore) setBestScore(parseInt(savedBestScore))
+    if (savedBestLevel) setBestLevel(parseInt(savedBestLevel))
+    if (savedContinuousMode) setContinuousMode(savedContinuousMode === 'true')
+  }, [])
+
+  // Save best score and level when they change
+  useEffect(() => {
+    localStorage.setItem('schulte_best_score', bestScore.toString())
+  }, [bestScore])
+
+  useEffect(() => {
+    localStorage.setItem('schulte_best_level', bestLevel.toString())
+  }, [bestLevel])
+
+  useEffect(() => {
+    localStorage.setItem('schulte_continuous_mode', continuousMode.toString())
+  }, [continuousMode])
 
   // PR B: Generate grid numbers
   const generateGrid = (size = 5) => {
@@ -34,6 +65,12 @@ export default function SchulteTablePRB({ onExit, onBackToGames, onViewStats }) 
     setNumbers(generateGrid(5))
     setCurrentNumber(1)
     setStartTime(Date.now())
+    
+    // Reset per-table stats but preserve session stats in continuous mode
+    if (!continuousMode) {
+      setSessionScore(0)
+      setSessionTables(0)
+    }
     
     // PR B: Eye guide rules - more sophisticated
     // Level 1-2: Full eye guide with tips
@@ -82,12 +119,35 @@ export default function SchulteTablePRB({ onExit, onBackToGames, onViewStats }) 
       const points = basePoints + speedBonus
       
       setScore(score + points)
+      setSessionScore(sessionScore + points) // Track session total
       setCurrentNumber(currentNumber + 1)
       
       // If table completed, generate new one
       if (currentNumber >= 25) {
-        setTablesCompleted(tablesCompleted + 1)
-        initializeTable(currentLevel)
+        const newTablesCompleted = tablesCompleted + 1
+        const newSessionTables = sessionTables + 1
+        
+        setTablesCompleted(newTablesCompleted)
+        setSessionTables(newSessionTables)
+        
+        // Update best score if current is better
+        const currentTotalScore = continuousMode ? sessionScore + points : score + points
+        if (currentTotalScore > bestScore) {
+          setBestScore(currentTotalScore)
+        }
+        
+        // Update best level if current is better
+        if (currentLevel > bestLevel) {
+          setBestLevel(currentLevel)
+        }
+        
+        if (continuousMode) {
+          // In continuous mode, immediately start new table
+          initializeTable(currentLevel)
+        } else {
+          // In normal mode, table completion ends the game
+          initializeTable(currentLevel)
+        }
       } else {
         setStartTime(timeNow) // Reset timer for next number
       }
@@ -96,6 +156,7 @@ export default function SchulteTablePRB({ onExit, onBackToGames, onViewStats }) 
       // Wrong number - penalty
       setMistakes(mistakes + 1)
       setScore(Math.max(0, score - 5)) // -5 points penalty, minimum 0
+      setSessionScore(Math.max(0, sessionScore - 5)) // Also apply to session score
     }
   }
 
@@ -191,6 +252,41 @@ export default function SchulteTablePRB({ onExit, onBackToGames, onViewStats }) 
                   </Badge>
                 </div>
 
+                {/* Best Score Display */}
+                {bestScore > 0 && (
+                  <div className="text-center space-y-2">
+                    <p className="text-sm text-muted-foreground">Mejor puntuación</p>
+                    <div className="flex justify-center space-x-4">
+                      <Badge variant="outline" className="px-3 py-1">
+                        <Trophy className="w-4 h-4 mr-1" />
+                        {bestScore} puntos
+                      </Badge>
+                      <Badge variant="outline" className="px-3 py-1">
+                        <Target className="w-4 h-4 mr-1" />
+                        Nivel {bestLevel}
+                      </Badge>
+                    </div>
+                  </div>
+                )}
+
+                {/* Continuous Mode Toggle */}
+                <div className="flex items-center justify-center space-x-3">
+                  <label className="text-sm font-medium">Modo Continuo</label>
+                  <Button
+                    variant={continuousMode ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setContinuousMode(!continuousMode)}
+                  >
+                    {continuousMode ? "Activado" : "Desactivado"}
+                  </Button>
+                </div>
+                
+                {continuousMode && (
+                  <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                    En modo continuo, las tablas se regeneran automáticamente y tu puntuación se acumula sin interrupciones.
+                  </p>
+                )}
+
                 <Button 
                   onClick={gameContext.startGame} 
                   size="lg"
@@ -219,9 +315,15 @@ export default function SchulteTablePRB({ onExit, onBackToGames, onViewStats }) 
                     <Trophy className="w-4 h-4 mr-2" />
                     Puntos: {score}
                   </Badge>
+                  {continuousMode && (
+                    <Badge variant="outline" className="px-3 py-2 bg-green-50 border-green-200">
+                      <Trophy className="w-4 h-4 mr-2 text-green-600" />
+                      Sesión: {sessionScore}
+                    </Badge>
+                  )}
                   <Badge variant="outline" className="px-3 py-2">
                     <Grid3x3 className="w-4 h-4 mr-2" />
-                    Tablas: {tablesCompleted}
+                    Tablas: {continuousMode ? sessionTables : tablesCompleted}
                   </Badge>
                   {mistakes > 0 && (
                     <Badge variant="destructive" className="px-3 py-2">
