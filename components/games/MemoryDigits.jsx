@@ -324,10 +324,20 @@ export default function MemoryDigits({ userId = 'anonymous', onFinish, onExit, t
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Brain className="w-5 h-5 text-purple-500" />
-            Ronda {currentRound}
-          </CardTitle>
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={onExit}
+              className="h-8 w-8"
+            >
+              ←
+            </Button>
+            <CardTitle className="flex items-center gap-2">
+              <Brain className="w-5 h-5 text-purple-500" />
+              Ronda {currentRound}
+            </CardTitle>
+          </div>
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4" />
             <span className="font-mono">{formatTime(timeRemaining)}</span>

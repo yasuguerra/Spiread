@@ -156,16 +156,19 @@ export default function Anagrams({
     anagramStartTime.current = Date.now()
     
     // Start countdown timer
+    if (anagramTimer.current) {
+      clearInterval(anagramTimer.current)
+    }
+    
     anagramTimer.current = setInterval(() => {
       setAnagramTimeLeft(prev => {
         if (prev <= 100) {
-          handleAnagramExpired()
-          return 0
+          return 0 // Don't call handleAnagramExpired here to avoid recursion
         }
         return prev - 100
       })
     }, 100)
-  }, [timeRemaining, getRandomWord, shuffleWord, config.timePerAnagram])
+  }, [getRandomWord, shuffleWord, config.timePerAnagram]) // Remove timeRemaining from deps
 
   // Handle anagram expired
   const handleAnagramExpired = useCallback(() => {
@@ -186,27 +189,38 @@ export default function Anagrams({
       correctStreak: 0,
       accuracy: prev.solvedAnagrams / (prev.totalAnagrams + 1)
     }))
-    
-    // Start next anagram or complete
-    setTimeout(() => {
-      if (timeRemaining > 1) {
-        startAnagram()
-      } else {
-        setGameState('complete')
-      }
-    }, 1000)
-  }, [timeRemaining, startAnagram])
+  }, []) // Remove startAnagram from dependencies
+  
+  // Watch for anagram timer expiration
+  useEffect(() => {
+    if (anagramTimeLeft <= 0 && gameState === 'playing') {
+      handleAnagramExpired()
+      
+      // Start next anagram or complete after short delay
+      setTimeout(() => {
+        if (timeRemaining > 1000) {
+          startAnagram()
+        } else {
+          setGameState('complete')
+        }
+      }, 1000)
+    }
+  }, [anagramTimeLeft, gameState, timeRemaining, handleAnagramExpired, startAnagram])
 
   // Handle input change
   const handleInputChange = useCallback((e) => {
-    const value = e.target.value.toLowerCase()
+    const value = e.target.value
     setUserInput(value)
     
+    // Normalize both input and target word for comparison
+    const normalizedInput = normalizeText(value)
+    const normalizedTarget = normalizeText(currentWord)
+    
     // Check if correct
-    if (value === currentWord) {
+    if (normalizedInput === normalizedTarget) {
       handleCorrectAnswer()
     }
-  }, [currentWord])
+  }, [currentWord, normalizeText])
 
   // Handle correct answer
   const handleCorrectAnswer = useCallback(() => {
@@ -239,22 +253,27 @@ export default function Anagrams({
       accuracy: (prev.solvedAnagrams + 1) / (prev.totalAnagrams + 1)
     }))
     
-    // Start next anagram or complete
+    // Start next anagram or complete after short delay
     setTimeout(() => {
-      if (timeRemaining > 1) {
+      if (timeRemaining > 1000) {
         startAnagram()
       } else {
         setGameState('complete')
       }
-    }, 1000)
+    }, 500)
   }, [streak, config, score, onScoreUpdate, timeRemaining, startAnagram])
 
   // Handle key press (Enter to submit)
   const handleKeyPress = useCallback((e) => {
-    if (e.key === 'Enter' && userInput === currentWord) {
-      handleCorrectAnswer()
+    if (e.key === 'Enter') {
+      const normalizedInput = normalizeText(userInput)
+      const normalizedTarget = normalizeText(currentWord)
+      
+      if (normalizedInput === normalizedTarget) {
+        handleCorrectAnswer()
+      }
     }
-  }, [userInput, currentWord, handleCorrectAnswer])
+  }, [userInput, currentWord, handleCorrectAnswer, normalizeText])
 
   // Auto-start first anagram
   useEffect(() => {

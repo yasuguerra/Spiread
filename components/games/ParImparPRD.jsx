@@ -56,7 +56,7 @@ export default function ParImparPRD({
   gameName = "Par / Impar",
   gameKey = "parimpar"
 }) {
-  const [gameState, setGameState] = useState(GAME_STATES.READY)
+  const [internalGameState, setInternalGameState] = useState(GAME_STATES.READY)
   const [currentNumbers, setCurrentNumbers] = useState([])
   const [currentRule, setCurrentRule] = useState('even') // 'even' or 'odd'
   const [currentRound, setCurrentRound] = useState(0)
@@ -91,7 +91,7 @@ export default function ParImparPRD({
     const newRule = currentRound % 2 === 0 ? 'even' : 'odd'
     setCurrentRule(newRule)
     setCurrentNumbers(numbers)
-    setGameState(GAME_STATES.SHOWING)
+    setInternalGameState(GAME_STATES.SHOWING)
     
     // Calculate show duration based on level (3000ms to 1500ms)
     const duration = Math.max(1500, 3000 - (level - 1) * 100)
@@ -111,14 +111,14 @@ export default function ParImparPRD({
     
     // Show numbers then allow selection
     roundTimer.current = setTimeout(() => {
-      setGameState(GAME_STATES.SELECTING)
+      setInternalGameState(GAME_STATES.SELECTING)
       setRoundStartTime(Date.now())
       setCountdown(0)
     }, duration)
   }
 
   const handleNumberClick = (numberId) => {
-    if (gameState !== GAME_STATES.SELECTING) return
+    if (internalGameState !== GAME_STATES.SELECTING) return
     
     const clickTime = Date.now()
     const reactionTime = clickTime - roundStartTime
@@ -139,7 +139,7 @@ export default function ParImparPRD({
   }
 
   const processRound = () => {
-    if (gameState !== GAME_STATES.SELECTING) return
+    if (internalGameState !== GAME_STATES.SELECTING) return
     
     const selectionTime = Date.now() - roundStartTime
     const targets = currentNumbers.filter(num => 
@@ -179,7 +179,7 @@ export default function ParImparPRD({
     }))
     
     setCurrentNumbers(numbersWithFeedback)
-    setGameState(GAME_STATES.FEEDBACK)
+    setInternalGameState(GAME_STATES.FEEDBACK)
     
     // Record round data
     const roundData = {
@@ -294,7 +294,7 @@ export default function ParImparPRD({
         const { gameState, timeElapsed } = gameContext
 
         // Auto-start first round when game starts
-        if (gameState === 'playing' && !gameStarted) {
+        if (gameContext.gameState === 'playing' && !gameStarted) {
           handleGameStart()
         }
 
@@ -307,7 +307,7 @@ export default function ParImparPRD({
             <h2 className="text-2xl font-bold">Ronda {currentRound + 1}</h2>
           </div>
           
-          {gameState !== GAME_STATES.READY && (
+          {internalGameState !== GAME_STATES.READY && (
             <div className="grid grid-cols-4 gap-4 text-center max-w-md mx-auto">
               <div>
                 <div className="text-2xl font-bold text-blue-600">{totalScore}</div>
@@ -330,7 +330,7 @@ export default function ParImparPRD({
         </div>
 
         {/* Rule Display */}
-        {gameState !== GAME_STATES.READY && (
+        {gameContext.gameState === 'playing' && (
           <div className="text-center p-6 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border">
             <div className="space-y-2">
               <div className="text-lg font-medium text-muted-foreground">
@@ -341,7 +341,7 @@ export default function ParImparPRD({
               }`}>
                 {currentRule === 'even' ? 'PARES' : 'IMPARES'}
               </div>
-              {gameState === GAME_STATES.SELECTING && (
+              {internalGameState === GAME_STATES.SELECTING && (
                 <div className="text-sm text-muted-foreground">
                   Objetivos: {targetCount} | Seleccionados: {selectedCount}
                 </div>
@@ -353,7 +353,7 @@ export default function ParImparPRD({
         {/* Game Area */}
         <div className="min-h-[400px] flex items-center justify-center">
           <AnimatePresence mode="wait">
-            {gameState === 'idle' && (
+            {gameContext.gameState === 'idle' && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -394,10 +394,10 @@ export default function ParImparPRD({
               </motion.div>
             )}
 
-            {gameState === 'playing' && gameStarted && (
+            {gameContext.gameState === 'playing' && gameStarted && (
               <>
                 {/* Stats during game */}
-                {gameState !== GAME_STATES.READY && (
+                {internalGameState !== GAME_STATES.READY && (
                   <div className="grid grid-cols-4 gap-4 text-center max-w-md mx-auto">
                     <div>
                       <div className="text-2xl font-bold text-blue-600">{totalScore}</div>
@@ -419,7 +419,7 @@ export default function ParImparPRD({
                 )}
 
                 {/* Rule Display */}
-                {gameState !== GAME_STATES.READY && (
+                {internalGameState !== GAME_STATES.READY && (
                   <div className="text-center p-6 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border">
                     <div className="space-y-2">
                       <div className="text-lg font-medium text-muted-foreground">
@@ -430,7 +430,7 @@ export default function ParImparPRD({
                       }`}>
                         {currentRule === 'even' ? 'PARES' : 'IMPARES'}
                       </div>
-                      {gameState === GAME_STATES.SELECTING && (
+                      {internalGameState === GAME_STATES.SELECTING && (
                         <div className="text-sm text-muted-foreground">
                           Objetivos: {targetCount} | Seleccionados: {selectedCount}
                         </div>
@@ -441,7 +441,7 @@ export default function ParImparPRD({
               </>
             )}
 
-            {gameState === GAME_STATES.READY && (
+            {internalGameState === GAME_STATES.READY && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -469,7 +469,7 @@ export default function ParImparPRD({
               </motion.div>
             )}
 
-            {gameState === GAME_STATES.SHOWING && (
+            {internalGameState === GAME_STATES.SHOWING && (
               <motion.div
                 key="showing"
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -512,7 +512,7 @@ export default function ParImparPRD({
               </motion.div>
             )}
 
-            {gameState === GAME_STATES.SELECTING && (
+            {internalGameState === GAME_STATES.SELECTING && (
               <motion.div
                 key="selecting"
                 initial={{ opacity: 0 }}
@@ -576,7 +576,7 @@ export default function ParImparPRD({
               </motion.div>
             )}
 
-            {gameState === GAME_STATES.FEEDBACK && (
+            {internalGameState === GAME_STATES.FEEDBACK && (
               <motion.div
                 key="feedback"
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -643,12 +643,12 @@ export default function ParImparPRD({
         </div>
 
         {/* Instructions */}
-        {gameState !== GAME_STATES.READY && (
+        {internalGameState !== GAME_STATES.READY && (
           <div className="text-center text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
             <div className="font-medium mb-1">
-              {gameState === GAME_STATES.SHOWING && "Observa y memoriza los números..."}
-              {gameState === GAME_STATES.SELECTING && `Selecciona todos los números ${currentRule === 'even' ? 'PARES' : 'IMPARES'}`}
-              {gameState === GAME_STATES.FEEDBACK && "Calculando resultados..."}
+              {internalGameState === GAME_STATES.SHOWING && "Observa y memoriza los números..."}
+              {internalGameState === GAME_STATES.SELECTING && `Selecciona todos los números ${currentRule === 'even' ? 'PARES' : 'IMPARES'}`}
+              {internalGameState === GAME_STATES.FEEDBACK && "Calculando resultados..."}
             </div>
             <div className="flex justify-center gap-4 text-xs">
               <span>🎯 {currentRule === 'even' ? 'Pares' : 'Impares'}</span>

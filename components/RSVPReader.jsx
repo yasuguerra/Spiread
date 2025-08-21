@@ -53,7 +53,7 @@ export default function RSVPReader() {
     if (savedChunkSize) {
       setChunkSize(parseInt(savedChunkSize))
     }
-  }, [setWpm, setChunkSize])
+  }, []) // Remove setWpm, setChunkSize from dependencies
   
   // Save preferences to localStorage when they change
   useEffect(() => {
