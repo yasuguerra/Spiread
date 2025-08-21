@@ -26,6 +26,12 @@ export default function TwinWordsGridPRC({ onExit, onBackToGames, onViewStats })
   const [allCards, setAllCards] = useState([]) // All cards for current round
   const [matchedPairs, setMatchedPairs] = useState(new Set()) // Track which pairs are matched
   
+  // Enhanced features for adaptive difficulty and streak tracking
+  const [currentStreak, setCurrentStreak] = useState(0)
+  const [bestStreak, setBestStreak] = useState(0)
+  const [difficultyLevel, setDifficultyLevel] = useState(1) // 1=basic, 2=accents, 3=font similarity, 4=extreme
+  const [adaptiveSimilarity, setAdaptiveSimilarity] = useState(false)
+  
   // Performance tracking for adaptive difficulty 
   const [recentPerformance, setRecentPerformance] = useState([])
   const [avgSolveTime, setAvgSolveTime] = useState(0)
@@ -36,6 +42,19 @@ export default function TwinWordsGridPRC({ onExit, onBackToGames, onViewStats })
   const gameContextRef = useRef(null)
   const performanceWindowRef = useRef([])
   const lastLevelUpdateRef = useRef(Date.now())
+
+  // Load best streak from localStorage
+  useEffect(() => {
+    const savedBestStreak = localStorage.getItem('twinwords_best_streak')
+    if (savedBestStreak) {
+      setBestStreak(parseInt(savedBestStreak))
+    }
+  }, [])
+
+  // Save best streak when it changes
+  useEffect(() => {
+    localStorage.setItem('twinwords_best_streak', bestStreak.toString())
+  }, [bestStreak])
 
   // Initialize level from localStorage
   useEffect(() => {
@@ -66,48 +85,105 @@ export default function TwinWordsGridPRC({ onExit, onBackToGames, onViewStats })
     }
   }
 
-  // PR C: Word pairs database
-  const WORD_PAIRS = [
-    // Similar words for difficulty
-    ['casa', 'caza'], ['peso', 'beso'], ['mano', 'mono'], ['gato', 'dato'],
-    ['mesa', 'meta'], ['piso', 'paso'], ['rama', 'dama'], ['cola', 'copa'],
-    ['amor', 'amos'], ['luna', 'lupa'], ['vida', 'vino'], ['agua', 'agus'],
-    ['papel', 'papul'], ['madre', 'madro'], ['padre', 'padru'], ['verde', 'varde'],
-    ['rojo', 'rojs'], ['azul', 'azol'], ['negro', 'negru'], ['blanco', 'blenco'],
-    // Accent differences  
-    ['médico', 'medico'], ['rápido', 'rapido'], ['fácil', 'facil'], ['difícil', 'dificil'],
-    ['música', 'musica'], ['público', 'publico'], ['único', 'unico'], ['práctico', 'practico'],
-    // Letter swaps
-    ['forma', 'froma'], ['tiempo', 'tiempi'], ['mundo', 'mundi'], ['grande', 'grende'],
-    ['pequeño', 'peqeño'], ['ciudad', 'ciduad'], ['persona', 'presona'], ['trabajo', 'trabojo']
-  ]
+  // PR C: Enhanced word pairs database with difficulty categorization
+  const WORD_PAIRS = {
+    basic: [
+      // High contrast pairs - very different
+      ['gato', 'mesa'], ['sol', 'agua'], ['casa', 'libro'], ['carro', 'flor'],
+      ['perro', 'luna'], ['niño', 'árbol'], ['mano', 'cielo'], ['fuego', 'hielo'],
+      ['día', 'noche'], ['amor', 'odio'], ['alto', 'bajo'], ['grande', 'pequeño'],
+      ['nuevo', 'viejo'], ['bueno', 'malo'], ['blanco', 'negro'], ['caliente', 'frío']
+    ],
+    accents: [
+      // Accent differences
+      ['médico', 'medico'], ['rápido', 'rapido'], ['fácil', 'facil'], ['difícil', 'dificil'],
+      ['música', 'musica'], ['público', 'publico'], ['único', 'unico'], ['práctico', 'practico'],
+      ['teléfono', 'telefono'], ['matemática', 'matematica'], ['automático', 'automatico'],
+      ['fantástico', 'fantastico'], ['histórico', 'historico'], ['económico', 'economico']
+    ],
+    fontSimilar: [
+      // Similar fonts/letters (m/n, b/d, p/q, etc.)
+      ['casa', 'caza'], ['peso', 'beso'], ['mano', 'nano'], ['gato', 'dato'],
+      ['mesa', 'meta'], ['piso', 'paso'], ['rama', 'dama'], ['cola', 'copa'],
+      ['amor', 'anor'], ['luna', 'lupa'], ['vida', 'vina'], ['agua', 'aqua'],
+      ['boca', 'poca'], ['dedo', 'bebo'], ['modo', 'nodo'], ['papel', 'lapel']
+    ],
+    extreme: [
+      // Very similar - letter swaps, minimal differences
+      ['forma', 'froma'], ['tiempo', 'tiempi'], ['mundo', 'mundi'], ['grande', 'grende'],
+      ['pequeño', 'peqeño'], ['ciudad', 'ciduad'], ['persona', 'presona'], ['trabajo', 'trabojo'],
+      ['ejemplo', 'ejempio'], ['momento', 'memento'], ['problema', 'problena'], ['sistema', 'sistena'],
+      ['gobierno', 'gobiermo'], ['elemento', 'elemanto'], ['proyecto', 'proyecti'], ['desarrollo', 'desarollo']
+    ]
+  }
+
+  // Get word pairs based on current difficulty level
+  const getWordPairsForDifficulty = (diffLevel) => {
+    switch(diffLevel) {
+      case 1: return WORD_PAIRS.basic
+      case 2: return [...WORD_PAIRS.basic, ...WORD_PAIRS.accents]
+      case 3: return [...WORD_PAIRS.accents, ...WORD_PAIRS.fontSimilar]
+      case 4: return [...WORD_PAIRS.fontSimilar, ...WORD_PAIRS.extreme]
+      default: return WORD_PAIRS.basic
+    }
+  }
+
+  // Adaptive difficulty adjustment based on performance
+  const adjustDifficulty = (recentSolveTime, accuracy) => {
+    const performanceWindow = performanceWindowRef.current
+    performanceWindow.push({ time: recentSolveTime, accuracy })
+    
+    // Keep only last 5 rounds for performance calculation
+    if (performanceWindow.length > 5) {
+      performanceWindow.shift()
+    }
+    
+    if (performanceWindow.length >= 3) {
+      const avgTime = performanceWindow.reduce((sum, p) => sum + p.time, 0) / performanceWindow.length
+      const avgAcc = performanceWindow.reduce((sum, p) => sum + p.accuracy, 0) / performanceWindow.length
+      
+      // Increase difficulty if performing well consistently
+      if (avgAcc >= 90 && avgTime < 3000 && difficultyLevel < 4) {
+        setDifficultyLevel(prev => Math.min(4, prev + 1))
+        setAdaptiveSimilarity(true)
+        performanceWindowRef.current = [] // Reset tracking
+      }
+      // Decrease difficulty if struggling
+      else if (avgAcc < 70 && difficultyLevel > 1) {
+        setDifficultyLevel(prev => Math.max(1, prev - 1))
+        performanceWindowRef.current = [] // Reset tracking
+      }
+    }
+  }
 
   // PR C: Calculate pairs count based on level
   const calculatePairsCount = (level) => {
     return Math.min(10, 4 + Math.floor(level / 2)) // 4 + floor(level/2), max 10
   }
 
-  // PR C: Generate random pairs for current difficulty
+  // PR C: Generate random pairs using adaptive difficulty
   const generatePairs = (pairsCount) => {
     const selectedPairs = []
     const usedWords = new Set()
+    const availablePairs = getWordPairsForDifficulty(difficultyLevel)
     
-    while (selectedPairs.length < pairsCount) {
-      const randomPair = WORD_PAIRS[Math.floor(Math.random() * WORD_PAIRS.length)]
-      const word = randomPair[Math.floor(Math.random() * 2)] // Pick one word from pair
+    while (selectedPairs.length < pairsCount && usedWords.size < availablePairs.length * 2) {
+      const randomPair = availablePairs[Math.floor(Math.random() * availablePairs.length)]
+      const word1 = randomPair[0]
+      const word2 = randomPair[1]
       
-      if (!usedWords.has(word)) {
-        // Add the word and its pair
+      if (!usedWords.has(word1) && !usedWords.has(word2)) {
+        // Add the word pair
         selectedPairs.push({
           id: `pair-${selectedPairs.length}`,
-          word1: randomPair[0],
-          word2: randomPair[1],
+          word1: word1,
+          word2: word2,
           positions: [],
           solved: false,
           startTime: Date.now()
         })
-        usedWords.add(randomPair[0])
-        usedWords.add(randomPair[1])
+        usedWords.add(word1)
+        usedWords.add(word2)
       }
     }
     
@@ -119,22 +195,28 @@ export default function TwinWordsGridPRC({ onExit, onBackToGames, onViewStats })
         id: `${pair.id}-1`, 
         word: pair.word1, 
         pairId: pair.id,
-        pairIndex,
-        isMatched: false 
+        matched: false
       })
       allCards.push({ 
         id: `${pair.id}-2`, 
         word: pair.word2, 
         pairId: pair.id,
-        pairIndex,
-        isMatched: false 
+        matched: false
       })
     })
     
-    // Shuffle positions
-    const shuffledCards = allCards.sort(() => Math.random() - 0.5)
+    // Shuffle all cards for random positioning
+    for (let i = allCards.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [allCards[i], allCards[j]] = [allCards[j], allCards[i]]
+    }
     
-    return { pairs: selectedPairs, cards: shuffledCards }
+    setAllCards(allCards)
+    setMatchedPairs(new Set())
+    setRoundStartTime(Date.now())
+    
+    return selectedPairs
+  }
   }
 
   // PR C: Initialize game with current level - CLASSIC MEMORY GAME STYLE
@@ -226,13 +308,31 @@ export default function TwinWordsGridPRC({ onExit, onBackToGames, onViewStats })
           points += 5 // Quick solve bonus
         }
         
+        // Streak tracking - consecutive correct matches
+        const newStreak = currentStreak + 1
+        setCurrentStreak(newStreak)
+        
+        // Update best streak if needed
+        if (newStreak > bestStreak) {
+          setBestStreak(newStreak)
+        }
+        
+        // Streak bonus scoring
+        if (newStreak >= 5) {
+          points += Math.floor(newStreak / 5) * 2 // +2 points every 5 streaks
+        }
+        
         setScore(score + points)
         setCorrectPairs(correctPairs + 1)
         
         // Mark this pair as matched
         setMatchedPairs(prev => new Set([...prev, card1.pairId]))
         
-        console.log(`✅ Pair matched! PairId: ${card1.pairId}, Score: +${points}`)
+        // Track performance for adaptive difficulty
+        const roundTime = currentTime - roundStartTime
+        adjustDifficulty(roundTime, 100) // 100% accuracy for correct match
+        
+        console.log(`✅ Pair matched! PairId: ${card1.pairId}, Score: +${points}, Streak: ${newStreak}`)
         
         // Clear selection after brief delay
         setTimeout(() => {
@@ -240,11 +340,16 @@ export default function TwinWordsGridPRC({ onExit, onBackToGames, onViewStats })
         }, 500)
         
       } else {
-        // ❌ WRONG PAIR
+        // ❌ WRONG PAIR - reset streak
+        setCurrentStreak(0)
         setScore(Math.max(0, score - 2)) // -2 points penalty
         setMistakes(mistakes + 1)
         
-        console.log(`❌ Wrong pair: ${card1.word} ≠ ${card2.word}`)
+        // Track performance for adaptive difficulty
+        const roundTime = currentTime - roundStartTime
+        adjustDifficulty(roundTime, 0) // 0% accuracy for wrong match
+        
+        console.log(`❌ Wrong pair: ${card1.word} ≠ ${card2.word}, Streak reset`)
         
         // Clear selection after showing mistake
         setTimeout(() => {
@@ -481,6 +586,17 @@ export default function TwinWordsGridPRC({ onExit, onBackToGames, onViewStats })
                     <Eye className="w-4 h-4 mr-2" />
                     {currentPairsCount} pares
                   </Badge>
+                  {currentStreak > 0 && (
+                    <Badge variant="default" className="px-3 py-2 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
+                      🔥 Racha: {currentStreak}
+                    </Badge>
+                  )}
+                  {difficultyLevel > 1 && (
+                    <Badge variant="secondary" className="px-3 py-2">
+                      <TrendingUp className="w-4 h-4 mr-2" />
+                      Dificultad: {difficultyLevel}
+                    </Badge>
+                  )}
                   {accuracy < 100 && (
                     <Badge 
                       variant={accuracy >= 80 ? "secondary" : "destructive"}

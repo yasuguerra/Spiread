@@ -1,10 +1,15 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import GameShell from '../GameShell'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
+import { Timer, Trophy, Target, TrendingUp, Clock, Zap } from 'lucide-react'
 import { WORD_BANK } from '@/lib/word-bank'
+import { getLastLevel, setLastLevel, getLastBestScore, updateBestScore } from '@/lib/progress-tracking'
 
 const GAME_CONFIG = {
   name: 'running_words',
@@ -38,8 +43,11 @@ export default function RunningWords({
   level = 1, 
   onComplete,
   onScoreUpdate,
-  timeRemaining,
-  locale = 'es'
+  timeRemaining, // This will be managed by GameShell
+  locale = 'es',
+  onExit,
+  onBackToGames,
+  onViewStats
 }) {
   const [gameState, setGameState] = useState('idle') // idle, showing, question, complete
   const [currentBlock, setCurrentBlock] = useState(0)
@@ -53,8 +61,17 @@ export default function RunningWords({
     totalRounds: 0,
     correctAnswers: 0,
     responseTs: [],
-    accuracy: 0
+    accuracy: 0,
+    avgResponseTime: 0,
+    bestResponseTime: Infinity,
+    wordsProcessed: 0
   })
+
+  // Timer and session tracking
+  const [gameStartTime, setGameStartTime] = useState(0)
+  const [roundStartTime, setRoundStartTime] = useState(0)
+  const [currentRound, setCurrentRound] = useState(1)
+  const gameContextRef = useRef(null)
 
   const config = GAME_CONFIG.levels[Math.min(level, 20)]
   const words = WORD_BANK.runningWords[locale] || WORD_BANK.runningWords.es
@@ -148,39 +165,60 @@ export default function RunningWords({
   // Handle answer selection
   const handleAnswerSelect = useCallback((choiceIndex) => {
     if (selectedAnswer !== null) return
-
+    
     const rt = Date.now() - questionStartTime.current
     const isCorrect = choiceIndex === questionData.correctIndex
     
     setSelectedAnswer(choiceIndex)
     
-    // Calculate score
+    // Calculate score with enhanced bonuses
     const baseScore = config.wordsPerLine
     const speedBonus = isCorrect ? Math.ceil(Math.max(0, (config.goalRT - rt) / config.goalRT * config.wordsPerLine)) : 0
-    const roundScore = baseScore + speedBonus
+    let streakBonus = 0
     
+    // Calculate streak bonus for consecutive correct answers
+    if (isCorrect && sessionData.totalRounds > 0) {
+      const recentAnswers = sessionData.responseTs.slice(-4) // Last 4 answers
+      const recentCorrect = recentAnswers.length > 0 ? recentAnswers.filter((_, i) => {
+        const roundIndex = sessionData.totalRounds - recentAnswers.length + i
+        return roundIndex >= 0 && sessionData.correctAnswers > 0
+      }).length : 0
+      
+      if (recentCorrect >= 3) streakBonus = Math.floor(recentCorrect / 3) * 2
+    }
+    
+    const roundScore = baseScore + speedBonus + streakBonus
     setScore(prev => prev + roundScore)
-    onScoreUpdate?.(score + roundScore)
 
-    // Update session data
+    // Enhanced session tracking
+    const newResponseTs = [...sessionData.responseTs, rt]
+    const newCorrectAnswers = sessionData.correctAnswers + (isCorrect ? 1 : 0)
+    const newTotalRounds = sessionData.totalRounds + 1
+    const newWordsProcessed = sessionData.wordsProcessed + (config.wordsPerLine * 5) // 5 lines per round
+    const avgResponseTime = newResponseTs.length > 0 ? newResponseTs.reduce((a, b) => a + b) / newResponseTs.length : 0
+    const bestResponseTime = Math.min(sessionData.bestResponseTime, rt)
+
     setSessionData(prev => ({
-      totalRounds: prev.totalRounds + 1,
-      correctAnswers: prev.correctAnswers + (isCorrect ? 1 : 0),
-      responseTs: [...prev.responseTs, rt],
-      accuracy: (prev.correctAnswers + (isCorrect ? 1 : 0)) / (prev.totalRounds + 1)
+      totalRounds: newTotalRounds,
+      correctAnswers: newCorrectAnswers,
+      responseTs: newResponseTs,
+      accuracy: (newCorrectAnswers / newTotalRounds) * 100,
+      avgResponseTime,
+      bestResponseTime: bestResponseTime === Infinity ? rt : bestResponseTime,
+      wordsProcessed: newWordsProcessed
     }))
 
-    // Continue or complete
+    setCurrentRound(prev => prev + 1)
+
+    // Continue or complete based on game context
     setTimeout(() => {
-      if (timeRemaining > 2) {
+      if (gameContextRef.current && gameContextRef.current.gameState === 'playing') {
         startRound()
       } else {
         setGameState('complete')
       }
     }, 1500)
-  }, [selectedAnswer, questionData, config, score, onScoreUpdate, timeRemaining, startRound])
-
-  // Auto-start first round
+  }, [selectedAnswer, questionData, config, sessionData, startRound])  // Auto-start first round
   useEffect(() => {
     if (timeRemaining > 0 && gameState === 'idle') {
       startRound()
