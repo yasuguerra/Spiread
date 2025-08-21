@@ -1,11 +1,17 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import GameShell from '../GameShell'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
+import { Switch } from '@/components/ui/switch'
+import { Timer, Trophy, Target, TrendingUp, Lightbulb, CheckCircle, Shuffle, Flame } from 'lucide-react'
 import { WORD_BANK } from '@/lib/word-bank'
+import { getLastLevel, setLastLevel, getLastBestScore, updateBestScore } from '@/lib/progress-tracking'
 
 const GAME_CONFIG = {
   name: 'anagrams',
@@ -39,8 +45,11 @@ export default function Anagrams({
   level = 1, 
   onComplete,
   onScoreUpdate,
-  timeRemaining,
-  locale = 'es'
+  timeRemaining, // Managed by GameShell
+  locale = 'es',
+  onExit,
+  onBackToGames,
+  onViewStats
 }) {
   const [gameState, setGameState] = useState('idle') // idle, playing, complete
   const [currentWord, setCurrentWord] = useState('')
@@ -56,13 +65,46 @@ export default function Anagrams({
     responseTimes: [],
     accuracy: 0,
     correctStreak: 0,
-    bestStreak: 0
+    bestStreak: 0,
+    avgResponseTime: 0,
+    perfectSolves: 0 // Solved within goal time
   })
+
+  // Enhanced state for new features
+  const [currentStreak, setCurrentStreak] = useState(0)
+  const [bestStreak, setBestStreak] = useState(0)
+  const [trainingMode, setTrainingMode] = useState(false)
+  const [showHint, setShowHint] = useState(false)
+  const [gameStartTime, setGameStartTime] = useState(0)
+  const [normalizedInput, setNormalizedInput] = useState('')
+  const gameContextRef = useRef(null)
 
   const config = GAME_CONFIG.levels[Math.min(level, 20)]
   const wordsData = WORD_BANK.anagrams[locale] || WORD_BANK.anagrams.es
   const anagramStartTime = useRef(null)
   const anagramTimer = useRef(null)
+
+  // Load best streak from localStorage
+  useEffect(() => {
+    const savedBestStreak = localStorage.getItem('anagrams_best_streak')
+    if (savedBestStreak) {
+      setBestStreak(parseInt(savedBestStreak))
+    }
+  }, [])
+
+  // Save best streak when it changes
+  useEffect(() => {
+    localStorage.setItem('anagrams_best_streak', bestStreak.toString())
+  }, [bestStreak])
+
+  // Normalize input function - remove accents, convert to lowercase
+  const normalizeText = useCallback((text) => {
+    return text
+      .toLowerCase()
+      .normalize('NFD') // Decompose accented characters
+      .replace(/[\u0300-\u036f]/g, '') // Remove accent marks
+      .trim()
+  }, [])
 
   // Get random word for current length
   const getRandomWord = useCallback(() => {

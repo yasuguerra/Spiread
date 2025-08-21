@@ -1,10 +1,15 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import GameShell from '../GameShell'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Progress } from '@/components/ui/progress'
+import { Timer, Trophy, Target, TrendingUp, Search, CheckCircle, Compass } from 'lucide-react'
 import { WORD_BANK } from '@/lib/word-bank'
+import { getLastLevel, setLastLevel, getLastBestScore, updateBestScore } from '@/lib/progress-tracking'
 
 const GAME_CONFIG = {
   name: 'word_search',
@@ -45,8 +50,11 @@ export default function WordSearch({
   level = 1, 
   onComplete,
   onScoreUpdate,
-  timeRemaining,
-  locale = 'es'
+  timeRemaining, // Managed by GameShell
+  locale = 'es',
+  onExit,
+  onBackToGames,
+  onViewStats
 }) {
   const [gameState, setGameState] = useState('idle') // idle, playing, complete
   const [grid, setGrid] = useState([])
@@ -62,8 +70,18 @@ export default function WordSearch({
     totalWordsFound: 0,
     invalidSelections: 0,
     wordFindTimes: [],
-    accuracy: 0
+    accuracy: 0,
+    avgFindTime: 0,
+    bestFindTime: Infinity,
+    roundsCompleted: 0
   })
+
+  // Enhanced state for GameShell integration and improvements
+  const [gameStartTime, setGameStartTime] = useState(0)
+  const [currentRound, setCurrentRound] = useState(1)
+  const [countdown, setCountdown] = useState(0) // Screen countdown for each round
+  const [wordHighlights, setWordHighlights] = useState(new Map()) // Visual feedback
+  const gameContextRef = useRef(null)
 
   const gridRef = useRef(null) // Ref for the grid container
   const config = GAME_CONFIG.levels[Math.min(level, 20)]

@@ -1,10 +1,15 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import GameShell from '../GameShell'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Progress } from '@/components/ui/progress'
+import { Timer, Trophy, Target, TrendingUp, Eye, Grid3X3, AlertCircle } from 'lucide-react'
 import { WORD_BANK } from '@/lib/word-bank'
+import { getLastLevel, setLastLevel, getLastBestScore, updateBestScore } from '@/lib/progress-tracking'
 
 const GAME_CONFIG = {
   name: 'letters_grid',
@@ -38,8 +43,11 @@ export default function LettersGrid({
   level = 1, 
   onComplete,
   onScoreUpdate,
-  timeRemaining,
-  locale = 'es'
+  timeRemaining, // Managed by GameShell now
+  locale = 'es',
+  onExit,
+  onBackToGames,
+  onViewStats
 }) {
   const [gameState, setGameState] = useState('idle') // idle, showing, complete
   const [grid, setGrid] = useState([])
@@ -52,8 +60,19 @@ export default function LettersGrid({
     totalFalsePositives: 0,
     totalMisses: 0,
     responseTimes: [],
-    accuracy: 0
+    accuracy: 0,
+    avgResponseTime: 0,
+    currentScreenIndex: 0,
+    perfectScreens: 0
   })
+
+  // Enhanced state for fixes and progressive difficulty
+  const [gameStartTime, setGameStartTime] = useState(0)
+  const [currentScreenStartTime, setCurrentScreenStartTime] = useState(0)
+  const [screenTimeRemaining, setScreenTimeRemaining] = useState(0)
+  const [difficultyModifier, setDifficultyModifier] = useState(1) // Progressive difficulty
+  const [visualDistractors, setVisualDistractors] = useState([])
+  const gameContextRef = useRef(null)
 
   const config = GAME_CONFIG.levels[Math.min(level, 20)]
   const lettersData = WORD_BANK.lettersGrid[locale] || WORD_BANK.lettersGrid.es
@@ -153,26 +172,47 @@ export default function LettersGrid({
     return { grid: newGrid, targets: uniqueTargets, targetPositions }
   }, [config, generateLetters, lettersData])
 
-  // Start new screen
+  // Enhanced screen timing with visual countdown
   const startScreen = useCallback(() => {
-    if (timeRemaining <= 0) return
+    if (!gameContextRef.current || gameContextRef.current.gameState !== 'playing') return
+
+    // Apply progressive difficulty modifier
+    const adjustedConfig = {
+      ...config,
+      exposureTotal: Math.max(2000, config.exposureTotal - (sessionData.totalScreens * 200 * difficultyModifier))
+    }
 
     const { grid: newGrid, targets, targetPositions } = generateGrid()
     setGrid(newGrid)
     setTargetLetters(targets)
     setSelectedCells(new Set())
     setGameState('showing')
-    screenStartTime.current = Date.now()
     
-    if (!gameStartTime.current) {
-      gameStartTime.current = Date.now()
+    const screenStart = Date.now()
+    setCurrentScreenStartTime(screenStart)
+    setScreenTimeRemaining(adjustedConfig.exposureTotal)
+    
+    if (gameStartTime === 0) {
+      setGameStartTime(screenStart)
     }
 
-    // Auto-complete screen after exposure time
-    setTimeout(() => {
-      completeScreen(newGrid, targets, targetPositions)
-    }, config.exposureTotal)
-  }, [timeRemaining, generateGrid, config.exposureTotal])
+    // Visual countdown timer for screen
+    const countdownInterval = setInterval(() => {
+      const elapsed = Date.now() - screenStart
+      const remaining = Math.max(0, adjustedConfig.exposureTotal - elapsed)
+      setScreenTimeRemaining(remaining)
+      
+      if (remaining <= 0) {
+        clearInterval(countdownInterval)
+        completeScreen(newGrid, targets, targetPositions)
+      }
+    }, 50) // Update every 50ms for smooth countdown
+
+    // Store interval ref for cleanup
+    screenStartTime.current = screenStart
+    
+    return () => clearInterval(countdownInterval)
+  }, [config, generateGrid, sessionData.totalScreens, difficultyModifier, gameStartTime])
 
   // Handle cell click
   const handleCellClick = useCallback((row, col) => {
@@ -190,9 +230,9 @@ export default function LettersGrid({
     setSelectedCells(newSelected)
   }, [gameState, selectedCells])
 
-  // Complete current screen
+  // Enhanced screen completion with better scoring
   const completeScreen = useCallback((currentGrid, targets, targetPositions) => {
-    const rt = Date.now() - screenStartTime.current
+    const rt = Date.now() - currentScreenStartTime
     
     // Calculate hits, misses, false positives
     let hits = 0
@@ -216,34 +256,72 @@ export default function LettersGrid({
     })
 
     const misses = targetCells.size - hits
+    const isPerfectScreen = hits > 0 && falsePositives === 0 && misses === 0
     
-    // Calculate score
-    const cellScore = hits - falsePositives
-    const comboBonus = hits > 0 && falsePositives === 0 && misses === 0 ? hits : 0
-    const screenScore = Math.max(0, cellScore + comboBonus)
+    // Enhanced scoring system
+    let screenScore = 0
     
+    // Base score: +2 per hit, -1 per false positive
+    screenScore += hits * 2
+    screenScore -= falsePositives * 1
+    
+    // Perfect screen bonus
+    if (isPerfectScreen) {
+      screenScore += Math.floor(hits * 1.5) // 1.5x bonus for perfect
+    }
+    
+    // Speed bonus for quick completion
+    const speedThreshold = config.goalRT
+    if (rt < speedThreshold) {
+      const speedBonus = Math.floor((speedThreshold - rt) / 200) // +1 per 200ms faster
+      screenScore += speedBonus
+    }
+    
+    // Difficulty progression bonus
+    if (sessionData.totalScreens >= 5) {
+      screenScore += Math.floor(sessionData.totalScreens / 5) // Progressive difficulty bonus
+    }
+    
+    screenScore = Math.max(0, screenScore)
     setScore(prev => prev + screenScore)
-    onScoreUpdate?.(score + screenScore)
 
-    // Update session data
+    // Enhanced session tracking
+    const newResponseTimes = [...sessionData.responseTimes, rt]
+    const avgResponseTime = newResponseTimes.reduce((a, b) => a + b, 0) / newResponseTimes.length
+    const totalAttempts = sessionData.totalHits + sessionData.totalFalsePositives + sessionData.totalMisses + hits + falsePositives + misses
+    const accuracy = totalAttempts > 0 ? (sessionData.totalHits + hits) / totalAttempts : 0
+
     setSessionData(prev => ({
       totalScreens: prev.totalScreens + 1,
       totalHits: prev.totalHits + hits,
       totalFalsePositives: prev.totalFalsePositives + falsePositives,
       totalMisses: prev.totalMisses + misses,
-      responseTimes: [...prev.responseTimes, rt],
-      accuracy: (prev.totalHits + hits) / (prev.totalHits + hits + prev.totalFalsePositives + falsePositives + prev.totalMisses + misses)
+      responseTimes: newResponseTimes,
+      accuracy,
+      avgResponseTime,
+      currentScreenIndex: prev.currentScreenIndex + 1,
+      perfectScreens: prev.perfectScreens + (isPerfectScreen ? 1 : 0)
     }))
 
-    // Continue or complete
+    // Adjust difficulty based on performance
+    if (sessionData.totalScreens > 0 && sessionData.totalScreens % 3 === 0) {
+      const recentAccuracy = accuracy
+      if (recentAccuracy > 0.8) {
+        setDifficultyModifier(prev => Math.min(2, prev + 0.2)) // Increase difficulty
+      } else if (recentAccuracy < 0.5) {
+        setDifficultyModifier(prev => Math.max(0.5, prev - 0.1)) // Decrease difficulty
+      }
+    }
+
+    // Continue with next screen or complete
     setTimeout(() => {
-      if (timeRemaining > 1) {
+      if (gameContextRef.current && gameContextRef.current.gameState === 'playing') {
         startScreen()
       } else {
         setGameState('complete')
       }
-    }, 1000)
-  }, [selectedCells, score, onScoreUpdate, timeRemaining, startScreen])
+    }, 1500) // Brief pause to show results
+  }, [selectedCells, currentScreenStartTime, config, sessionData, startScreen])
 
   // Auto-start first screen
   useEffect(() => {
