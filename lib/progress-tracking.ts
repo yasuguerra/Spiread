@@ -235,6 +235,96 @@ export const GAME_IDS = {
   ANAGRAMS: 'anagrams'
 } as const;
 
+/**
+ * Utility functions for game logic
+ */
+
+// Number generation utilities
+export function generateRandomNumber(digitsLen: number): string {
+  const min = Math.pow(10, digitsLen - 1);
+  const max = Math.pow(10, digitsLen) - 1;
+  return Math.floor(Math.random() * (max - min + 1) + min).toString();
+}
+
+export function generateNumberGrid(k: number, digitsLen: number, hasDistractors: boolean = false): number[] {
+  const numbers: number[] = [];
+  const min = Math.pow(10, digitsLen - 1);
+  const max = Math.pow(10, digitsLen) - 1;
+  
+  for (let i = 0; i < k; i++) {
+    const num = Math.floor(Math.random() * (max - min + 1) + min);
+    numbers.push(num);
+  }
+  
+  return numbers;
+}
+
+export function generateSchulteNumbers(size: number): number[] {
+  const numbers = Array.from({ length: size * size }, (_, i) => i + 1);
+  
+  // Fisher-Yates shuffle
+  for (let i = numbers.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+  }
+  
+  return numbers;
+}
+
+export function calculateAccuracy(userSelections: number[], correctTargets: number[], rule: 'odd' | 'even'): number {
+  if (userSelections.length === 0) return 0;
+  
+  const correctSelections = userSelections.filter(num => {
+    const isCorrectTarget = correctTargets.includes(num);
+    const meetsRule = rule === 'odd' ? num % 2 === 1 : num % 2 === 0;
+    return isCorrectTarget && meetsRule;
+  });
+  
+  return correctSelections.length / Math.max(userSelections.length, correctTargets.length);
+}
+
+/**
+ * Legacy/compatibility functions
+ */
+
+// For backward compatibility with older game implementations
+export async function loadGameProgress(userId: string | null, gameId: string): Promise<GameProgress> {
+  // For now, ignore userId and use localStorage
+  return getGameProgress(gameId);
+}
+
+export async function saveGameProgress(userId: string | null, gameId: string, sessionData: any): Promise<void> {
+  // Convert old session data format to new SessionSummary format
+  const sessionSummary: SessionSummary = {
+    gameId,
+    score: sessionData.score || 0,
+    level: sessionData.level || 1,
+    streak: sessionData.streak || 0,
+    accuracy: sessionData.accuracy || 0,
+    durationSec: sessionData.timeElapsed || sessionData.durationSec || 0,
+    timestamp: Date.now(),
+    extras: sessionData
+  };
+  
+  updateGameProgress(gameId, sessionSummary);
+}
+
+export function getAllGameProgress(): Record<string, GameProgress> {
+  return getAllGamesProgress();
+}
+
+export function getGameHistoricalData(gameKey: string, days: number = 7): Promise<any[]> {
+  const progress = getGameProgress(gameKey);
+  // Return recent sessions for historical data
+  return Promise.resolve(progress.recentSessions.slice(-days));
+}
+
+export function shouldShowGameIntro(gameKey: string): boolean {
+  const progress = getGameProgress(gameKey);
+  // Show intro if this is the first time playing (no sessions)
+  return progress.totalSessions === 0;
+}
+
 // TODO: Add hooks for Supabase sync
 export async function syncToCloud(userId?: string): Promise<void> {
   // Future implementation for Supabase sync

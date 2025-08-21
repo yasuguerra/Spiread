@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import GameShell from '../GameShell'
+import SessionManager from './common/SessionManager'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -43,7 +43,7 @@ export default function RunningWords({
   level = 1, 
   onComplete,
   onScoreUpdate,
-  timeRemaining, // This will be managed by GameShell
+  durationSec = 120, // Default 2 minutes
   locale = 'es',
   onExit,
   onBackToGames,
@@ -57,6 +57,7 @@ export default function RunningWords({
   const [questionData, setQuestionData] = useState(null)
   const [selectedAnswer, setSelectedAnswer] = useState(null)
   const [score, setScore] = useState(0)
+  const [gameStarted, setGameStarted] = useState(false)
   const [sessionData, setSessionData] = useState({
     totalRounds: 0,
     correctAnswers: 0,
@@ -64,7 +65,8 @@ export default function RunningWords({
     accuracy: 0,
     avgResponseTime: 0,
     bestResponseTime: Infinity,
-    wordsProcessed: 0
+    wordsProcessed: 0,
+    streakBest: 0
   })
 
   // Timer and session tracking
@@ -125,7 +127,7 @@ export default function RunningWords({
 
   // Start a new round
   const startRound = useCallback(() => {
-    if (timeRemaining <= 0) return
+    if (!gameStarted) return
 
     const blockLines = generateBlock()
     setLines(blockLines)
@@ -134,7 +136,7 @@ export default function RunningWords({
     setCurrentWordIndex(0)
     setGameState('showing')
     setSelectedAnswer(null)
-  }, [generateBlock, timeRemaining])
+  }, [generateBlock, gameStarted])
 
   // Handle word display sequence
   useEffect(() => {
@@ -218,57 +220,50 @@ export default function RunningWords({
         setGameState('complete')
       }
     }, 1500)
-  }, [selectedAnswer, questionData, config, sessionData, startRound])  // Auto-start first round
+  }, [selectedAnswer, questionData, config, sessionData, startRound])
+
+  // Auto-start first round when game starts
   useEffect(() => {
-    if (timeRemaining > 0 && gameState === 'idle') {
+    if (gameStarted && gameState === 'idle') {
       startRound()
     }
-  }, [timeRemaining, gameState, startRound])
+  }, [gameStarted, gameState, startRound])
 
-  // Handle game completion
-  useEffect(() => {
-    if (timeRemaining <= 0 && gameState !== 'complete') {
-      setGameState('complete')
-      
-      const meanRT = sessionData.responseTs.length > 0 
-        ? sessionData.responseTs.reduce((a, b) => a + b, 0) / sessionData.responseTs.length 
-        : 0
+  // Handle session end
+  const handleSessionEnd = useCallback((summary) => {
+    setGameState('complete')
+    
+    const meanRT = sessionData.responseTs.length > 0 
+      ? sessionData.responseTs.reduce((a, b) => a + b, 0) / sessionData.responseTs.length 
+      : 0
 
-      const metrics = {
+    const finalSummary = {
+      ...summary,
+      gameId: GAME_IDS.RUNNING_WORDS,
+      score: score,
+      level: level,
+      accuracy: sessionData.accuracy,
+      extras: {
         wordsPerLine: config.wordsPerLine,
         wordExposureMs: config.wordExposureMs,
-        askedLine: questionData?.askedLine || 0,
-        correct: selectedAnswer === questionData?.correctIndex,
-        rt_ms: questionStartTime.current ? Date.now() - questionStartTime.current : 0,
         totalRounds: sessionData.totalRounds,
-        accuracy: sessionData.accuracy,
-        meanRT
+        meanRT: meanRT,
+        responseTs: sessionData.responseTs,
+        streakBest: sessionData.streakBest
       }
-
-      // Update progress tracking with new system
-      const sessionSummary = {
-        gameId: GAME_IDS.RUNNING_WORDS,
-        score: score,
-        level: level,
-        accuracy: sessionData.accuracy,
-        durationSec: (120000 - timeRemaining) / 1000, // Assuming 2 minute timer
-        timestamp: Date.now(),
-        extras: {
-          wordsPerLine: config.wordsPerLine,
-          wordExposureMs: config.wordExposureMs,
-          totalRounds: sessionData.totalRounds,
-          meanRT: meanRT,
-          responseTs: sessionData.responseTs,
-          streakBest: sessionData.streakBest
-        }
-      }
-
-      // Persist the progress
-      updateGameProgress(GAME_IDS.RUNNING_WORDS, sessionSummary)
-
-      onComplete?.(score, metrics)
     }
-  }, [timeRemaining, gameState, score, sessionData, config, questionData, selectedAnswer, onComplete, level])
+
+    // Persist the progress
+    updateGameProgress(GAME_IDS.RUNNING_WORDS, finalSummary)
+
+    onComplete?.(score, {
+      wordsPerLine: config.wordsPerLine,
+      wordExposureMs: config.wordExposureMs,
+      totalRounds: sessionData.totalRounds,
+      accuracy: sessionData.accuracy,
+      meanRT
+    })
+  }, [score, sessionData, config, level, onComplete])
 
   // Render current display
   const renderContent = () => {
@@ -374,27 +369,51 @@ export default function RunningWords({
     )
   }
 
+  // Handle session start
+  const handleSessionStart = useCallback(() => {
+    setGameStarted(true)
+    setGameState('idle')
+  }, [])
+
   return (
-    <Card className="w-full max-w-4xl mx-auto">
-      <CardContent className="p-8">
-        <div className="space-y-6">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold mb-2">{GAME_CONFIG.displayName}</h2>
-            <p className="text-sm text-muted-foreground mb-4">{GAME_CONFIG.description}</p>
-            <p className="text-xs text-muted-foreground">
-              Nivel {level} • {config.wordsPerLine} palabras/línea • {config.wordExposureMs}ms
-            </p>
+    <SessionManager
+      gameTitle={GAME_CONFIG.displayName}
+      durationSec={durationSec}
+      currentScore={score}
+      currentLevel={level}
+      accuracy={sessionData.accuracy}
+      onSessionEnd={handleSessionEnd}
+      onExit={onExit}
+      autoStart={false}
+      showAccuracy={true}
+      showLevel={true}
+      className="w-full max-w-4xl mx-auto"
+    >
+      <Card>
+        <CardContent className="p-8">
+          <div className="space-y-6">
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground mb-4">{GAME_CONFIG.description}</p>
+              <p className="text-xs text-muted-foreground">
+                Nivel {level} • {config.wordsPerLine} palabras/línea • {config.wordExposureMs}ms
+              </p>
+            </div>
+            
+            <div className="min-h-[400px] flex items-center justify-center">
+              {!gameStarted ? (
+                <div className="text-center">
+                  <p className="text-muted-foreground mb-4">Presiona Iniciar para comenzar</p>
+                  <Button onClick={handleSessionStart}>
+                    Comenzar Juego
+                  </Button>
+                </div>
+              ) : (
+                renderContent()
+              )}
+            </div>
           </div>
-          
-          <div className="min-h-[400px] flex items-center justify-center">
-            {renderContent()}
-          </div>
-          
-          <div className="text-center text-sm text-muted-foreground">
-            Puntuación: {score} • Precisión: {(sessionData.accuracy * 100).toFixed(1)}%
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </SessionManager>
   )
 }
