@@ -9,7 +9,7 @@ import { Progress } from '@/components/ui/progress'
 import { Brain, Clock, Target, Zap } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { EnhancedAdaptiveDifficulty } from '@/lib/enhanced-difficulty'
-import { loadGameProgress, saveGameProgress, generateRandomNumber, getLastLevel, setLastLevel, getLastBestScore, updateBestScore } from '@/lib/progress-tracking'
+import { loadGameProgress, saveGameProgress, generateRandomNumber, getLastLevel, setLastLevel, getLastBestScore, updateBestScore, updateGameProgress, GAME_IDS } from '@/lib/progress-tracking'
 import { GAME_LEVEL_CONFIGS, calculateLevelProgression } from '@/lib/level-progression'
 
 const GAME_STATES = {
@@ -170,6 +170,9 @@ export default function MemoryDigits({ userId = 'anonymous', onFinish, onExit, t
     
     setGameState(GAME_STATES.SUMMARY)
     
+    const avgAccuracy = rounds.length > 0 ? rounds.filter(r => r.correct).length / rounds.length : 0
+    const avgRT = rounds.length > 0 ? rounds.reduce((sum, r) => sum + r.responseTime, 0) / rounds.length : 0
+    
     // Save game run to database
     const gameData = {
       game: 'memory_digits',
@@ -178,24 +181,44 @@ export default function MemoryDigits({ userId = 'anonymous', onFinish, onExit, t
       metrics: {
         total_rounds: rounds.length,
         final_level: adaptiveDifficulty?.getCurrentLevel() || 1,
-        average_rt: rounds.length > 0 ? rounds.reduce((sum, r) => sum + r.responseTime, 0) / rounds.length : 0,
-        accuracy: rounds.length > 0 ? rounds.filter(r => r.correct).length / rounds.length : 0,
+        average_rt: avgRT,
+        accuracy: avgAccuracy,
         rounds: rounds
       }
     }
+    
+    // Update progress tracking with new system
+    const sessionSummary = {
+      gameId: GAME_IDS.MEMORY_DIGITS,
+      score: totalScore,
+      level: adaptiveDifficulty?.getCurrentLevel() || 1,
+      accuracy: avgAccuracy,
+      durationSec: (timeLimit - timeRemaining) / 1000,
+      timestamp: Date.now(),
+      extras: {
+        totalRounds: rounds.length,
+        avgRT: avgRT,
+        digitsLen: currentParams.digitsLen,
+        correctAnswers: rounds.filter(r => r.correct).length,
+        rounds: rounds
+      }
+    }
+
+    // Persist the progress
+    updateGameProgress(GAME_IDS.MEMORY_DIGITS, sessionSummary)
     
     // Save to game_runs (this would be handled by parent component)
     if (onFinish) {
       onFinish(gameData)
     }
     
-    // Save progress
+    // Save progress (backward compatibility)
     try {
       await saveGameProgress(userId, 'memory_digits', {
         last_level: adaptiveDifficulty?.getCurrentLevel() || 1,
         last_best_score: Math.max(totalScore, 0),
         total_rounds: rounds.length,
-        average_rt: rounds.length > 0 ? rounds.reduce((sum, r) => sum + r.responseTime, 0) / rounds.length : 0
+        average_rt: avgRT
       })
     } catch (error) {
       console.error('Error saving progress:', error)

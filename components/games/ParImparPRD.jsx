@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Calculator, CheckCircle, XCircle } from 'lucide-react'
 import GameShell from '@/components/GameShell'
-import { getLastLevel, setLastLevel } from '@/lib/progress-tracking'
+import { getLastLevel, setLastLevel, updateGameProgress, GAME_IDS } from '@/lib/progress-tracking'
 import { calculateLevelProgression, GAME_LEVEL_CONFIGS } from '@/lib/level-progression'
 
 const GAME_STATES = {
@@ -252,6 +252,29 @@ export default function ParImparPRD({
     const finalLevel = finalLevelResult.newLevel
     setLevel(finalLevel)
     setLastLevel(gameKey, finalLevel)
+    
+    // Update progress tracking with new system
+    const sessionSummary = {
+      gameId: GAME_IDS.PAR_IMPAR,
+      score: totalScore,
+      level: finalLevel,
+      accuracy: avgAccuracy,
+      durationSec: 60, // Fixed 60-second duration
+      timestamp: Date.now(),
+      extras: {
+        totalRounds: rounds.length,
+        avgTime: avgTime,
+        totalHits: totalHits,
+        totalFP: totalFP,
+        bestRoundScore: rounds.length > 0 ? Math.max(...rounds.map(r => r.score)) : 0,
+        levelProgression: finalLevelResult.levelChanged ? (finalLevelResult.newLevel > level ? 'up' : 'down') : 'none',
+        currentRule: currentRule,
+        gridConfig: getGridConfig(level)
+      }
+    }
+
+    // Persist the progress
+    updateGameProgress(GAME_IDS.PAR_IMPAR, sessionSummary)
     
     const finalGameData = {
       ...gameData,

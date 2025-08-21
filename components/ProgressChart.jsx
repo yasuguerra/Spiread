@@ -21,7 +21,8 @@ export default function ProgressChart({
   gameType, 
   gameTitle, 
   currentLevel = 1,
-  bestScore = 0 
+  bestScore = 0,
+  progressData 
 }) {
   const [chartData, setChartData] = useState([])
   const [loading, setLoading] = useState(true)
@@ -34,37 +35,64 @@ export default function ProgressChart({
   })
 
   useEffect(() => {
-    if (userId && gameType) {
-      loadChartData()
-    }
-  }, [userId, gameType, timeFilter])
+    loadChartData()
+  }, [gameType, timeFilter, progressData])
 
   const loadChartData = async () => {
     setLoading(true)
     
     try {
-      // For now, we'll generate mock data since the API integration might have issues
-      // In production, this would fetch from game_runs table
-      const mockData = generateMockData()
-      setChartData(mockData)
+      let chartData = []
+      let stats = {
+        totalRuns: 0,
+        averageScore: 0,
+        bestScore: bestScore,
+        improvement: 0
+      }
       
-      // Calculate stats from the mock data
-      const totalRuns = mockData.length
-      const scores = mockData.map(d => d.score)
-      const averageScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0
-      const maxScore = Math.max(...scores, 0)
+      if (progressData && progressData.recentSessions) {
+        // Filter sessions by time range
+        const daysAgo = parseInt(timeFilter)
+        const cutoffTime = Date.now() - (daysAgo * 24 * 60 * 60 * 1000)
+        
+        const filteredSessions = progressData.recentSessions
+          .filter(session => session.timestamp > cutoffTime)
+          .sort((a, b) => a.timestamp - b.timestamp)
+        
+        // Convert to chart data
+        chartData = filteredSessions.map(session => ({
+          date: new Date(session.timestamp).toLocaleDateString(),
+          score: session.score,
+          level: session.level || 1,
+          accuracy: session.accuracy ? Math.round(session.accuracy * 100) : 0
+        }))
+        
+        // Calculate stats
+        const scores = filteredSessions.map(s => s.score)
+        stats = {
+          totalRuns: progressData.totalSessions || 0,
+          averageScore: scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0,
+          bestScore: progressData.bestScore || bestScore,
+          improvement: scores.length >= 2 
+            ? Math.round(((scores[scores.length - 1] - scores[0]) / Math.max(scores[0], 1)) * 100)
+            : 0
+        }
+      } else {
+        // Fall back to mock data if no progress data available
+        chartData = generateMockData()
+        const scores = chartData.map(d => d.score)
+        stats = {
+          totalRuns: chartData.length,
+          averageScore: scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0,
+          bestScore: Math.max(...scores, bestScore),
+          improvement: scores.length >= 2 
+            ? Math.round(((scores[scores.length - 1] - scores[0]) / Math.max(scores[0], 1)) * 100)
+            : 0
+        }
+      }
       
-      // Calculate improvement (last score vs first score)
-      const improvement = scores.length >= 2 
-        ? Math.round(((scores[scores.length - 1] - scores[0]) / scores[0]) * 100)
-        : 0
-
-      setStats({
-        totalRuns,
-        averageScore,
-        bestScore: Math.max(maxScore, bestScore),
-        improvement
-      })
+      setChartData(chartData)
+      setStats(stats)
       
     } catch (error) {
       console.error('Error loading chart data:', error)

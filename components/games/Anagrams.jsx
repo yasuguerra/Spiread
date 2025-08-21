@@ -11,7 +11,7 @@ import { Progress } from '@/components/ui/progress'
 import { Switch } from '@/components/ui/switch'
 import { Timer, Trophy, Target, TrendingUp, Lightbulb, CheckCircle, Shuffle, Flame } from 'lucide-react'
 import { WORD_BANK } from '@/lib/word-bank'
-import { getLastLevel, setLastLevel, getLastBestScore, updateBestScore } from '@/lib/progress-tracking'
+import { getLastLevel, setLastLevel, getLastBestScore, updateBestScore, updateGameProgress, GAME_IDS } from '@/lib/progress-tracking'
 
 const GAME_CONFIG = {
   name: 'anagrams',
@@ -317,9 +317,34 @@ export default function Anagrams({
         bestStreak: sessionData.bestStreak
       }
 
+      // Update progress tracking with new system
+      const sessionSummary = {
+        gameId: GAME_IDS.ANAGRAMS,
+        score: score,
+        level: level,
+        streak: sessionData.bestStreak,
+        accuracy: sessionData.accuracy,
+        durationSec: (120000 - timeRemaining) / 1000, // Assuming 2 minute timer
+        timestamp: Date.now(),
+        extras: {
+          length: config.length,
+          timePerAnagram: config.timePerAnagram,
+          decoyLetters: config.decoyLetters,
+          solved: sessionData.solvedAnagrams,
+          expired: sessionData.expiredAnagrams,
+          totalAnagrams: sessionData.totalAnagrams,
+          meanRT: meanRT,
+          responseTimes: sessionData.responseTimes,
+          currentStreak: sessionData.currentStreak
+        }
+      }
+
+      // Persist the progress
+      updateGameProgress(GAME_IDS.ANAGRAMS, sessionSummary)
+
       onComplete?.(score, metrics)
     }
-  }, [timeRemaining, gameState, score, sessionData, config, onComplete])
+  }, [timeRemaining, gameState, score, sessionData, config, onComplete, level])
 
   const renderContent = () => {
     if (gameState === 'playing') {

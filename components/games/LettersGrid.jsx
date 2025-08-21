@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Timer, Trophy, Target, TrendingUp, Eye, Grid3X3, AlertCircle } from 'lucide-react'
 import { WORD_BANK } from '@/lib/word-bank'
-import { getLastLevel, setLastLevel, getLastBestScore, updateBestScore } from '@/lib/progress-tracking'
+import { getLastLevel, setLastLevel, getLastBestScore, updateBestScore, updateGameProgress, GAME_IDS } from '@/lib/progress-tracking'
 
 const GAME_CONFIG = {
   name: 'letters_grid',
@@ -350,9 +350,34 @@ export default function LettersGrid({
         accuracy: sessionData.accuracy
       }
 
+      // Update progress tracking with new system
+      const sessionSummary = {
+        gameId: GAME_IDS.LETTERS_GRID,
+        score: score,
+        level: level,
+        accuracy: sessionData.accuracy,
+        durationSec: (120000 - timeRemaining) / 1000, // Assuming 2 minute timer
+        timestamp: Date.now(),
+        extras: {
+          N: config.N,
+          targets: targetLetters.length,
+          targetLetters: targetLetters,
+          hits: sessionData.totalHits,
+          falsePositives: sessionData.totalFalsePositives,
+          misses: sessionData.totalMisses,
+          totalScreens: sessionData.totalScreens,
+          meanRT: meanRT,
+          exposureMs: config.exposureTotal,
+          responseTimes: sessionData.responseTimes
+        }
+      }
+
+      // Persist the progress
+      updateGameProgress(GAME_IDS.LETTERS_GRID, sessionSummary)
+
       onComplete?.(score, metrics)
     }
-  }, [timeRemaining, gameState, score, sessionData, config, targetLetters, onComplete])
+  }, [timeRemaining, gameState, score, sessionData, config, targetLetters, onComplete, level])
 
   const renderContent = () => {
     if (gameState === 'showing') {

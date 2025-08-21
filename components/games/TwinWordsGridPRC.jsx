@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { Eye, Timer, Trophy, Target, TrendingUp, AlertCircle } from 'lucide-react'
-import { getLastLevel, setLastLevel, getLastBestScore, updateBestScore } from '@/lib/progress-tracking'
+import { getLastLevel, setLastLevel, getLastBestScore, updateBestScore, updateGameProgress, GAME_IDS } from '@/lib/progress-tracking'
 
 // PR C - TwinWords with 60s gameplay and adaptive difficulty
 export default function TwinWordsGridPRC({ onExit, onBackToGames, onViewStats }) {
@@ -70,12 +70,36 @@ export default function TwinWordsGridPRC({ onExit, onBackToGames, onViewStats })
 
   // Handle game completion
   const handleGameEnd = (gameResult) => {
-    // Save final level and best score
+    // Save final level and best score (backward compatibility)
     setLastLevel('twinwords', currentLevel)
     const previousBest = getLastBestScore('twinwords')
     if (score > previousBest) {
       updateBestScore('twinwords', score)
     }
+
+    // Update progress tracking with new system
+    const sessionSummary = {
+      gameId: GAME_IDS.TWIN_WORDS,
+      score: score,
+      level: currentLevel,
+      streak: currentStreak,
+      accuracy: accuracy / 100,
+      durationSec: 60, // Fixed 60-second duration
+      timestamp: Date.now(),
+      extras: {
+        correctPairs: correctPairs,
+        mistakes: mistakes,
+        totalAttempts: totalAttempts,
+        roundsCompleted: roundsCompleted,
+        difficultyLevel: difficultyLevel,
+        avgSolveTime: avgSolveTime,
+        bestStreak: bestStreak,
+        adaptiveSimilarity: adaptiveSimilarity
+      }
+    }
+
+    // Persist the progress
+    updateGameProgress(GAME_IDS.TWIN_WORDS, sessionSummary)
 
     // Call parent completion handler if provided
     if (onExit) {

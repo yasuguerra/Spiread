@@ -12,7 +12,9 @@ import {
 } from 'lucide-react'
 import { getUserStats, calculateLevel, getXpToNextLevel } from '@/lib/gamification'
 import { useAppStore } from '@/lib/store'
+import { getAllGameProgress, GAME_IDS } from '@/lib/progress-tracking'
 import ProgressChart from './ProgressChart'
+import ProgressSettings from './ProgressSettings'
 
 // Game configurations for tabs
 const GAME_CONFIGS = {
@@ -20,6 +22,11 @@ const GAME_CONFIGS = {
     title: 'General',
     icon: BarChart3,
     color: 'text-blue-500'
+  },
+  settings: {
+    title: 'Configuración',
+    icon: Star,
+    color: 'text-gray-500'
   },
   // Legacy games
   schulte: {
@@ -89,19 +96,24 @@ export default function StatsPanel() {
   const [progressData, setProgressData] = useState({})
 
   useEffect(() => {
-    if (userProfile?.id) {
-      loadUserStats()
-      loadGameStats()
-      loadProgressData()
-    } else {
-      setLoading(false)
-    }
-  }, [userProfile?.id])
+    loadUserStats()
+    loadGameStats()
+    loadProgressData()
+  }, [])
 
   const loadUserStats = async () => {
     try {
-      const userStats = await getUserStats(userProfile.id)
-      setStats(userStats)
+      if (userProfile?.id) {
+        const userStats = await getUserStats(userProfile.id)
+        setStats(userStats)
+      } else {
+        // Use local progress data for guest users
+        setStats({
+          profile: { xp: 0, level: 1 },
+          streak: { current: 0, longest: 0 },
+          achievements: []
+        })
+      }
     } catch (error) {
       console.error('Error loading user stats:', error)
     }
@@ -109,12 +121,9 @@ export default function StatsPanel() {
 
   const loadGameStats = async () => {
     try {
-      // Load game statistics from progress API
-      const response = await fetch(`/api/progress/get?userId=${userProfile.id}`)
-      if (response.ok) {
-        const data = await response.json()
-        setProgressData(data.progress || {})
-      }
+      // Load from new local progress tracking system
+      const allProgress = getAllGameProgress()
+      setProgressData(allProgress)
     } catch (error) {
       console.error('Error loading game stats:', error)
     }
@@ -122,18 +131,37 @@ export default function StatsPanel() {
 
   const loadProgressData = async () => {
     try {
-      // This would typically load from game_runs table for chart data
-      // For now, mock some basic stats
+      // Calculate overall stats from local progress data
+      const allProgress = getAllGameProgress()
+      
+      let totalSessions = 0
+      let totalGames = Object.keys(allProgress).length
+      let totalScore = 0
+      let sessionCount = 0
+      
+      Object.values(allProgress).forEach(gameProgress => {
+        totalSessions += gameProgress.totalSessions
+        totalScore += gameProgress.bestScore
+        sessionCount += gameProgress.recentSessions.length
+      })
+      
+      const averageScore = sessionCount > 0 ? totalScore / sessionCount : 0
+      
       setGameStats({
-        totalSessions: 0,
-        totalGames: 0,
-        averageScore: 0
+        totalSessions,
+        totalGames,
+        averageScore: Math.round(averageScore)
       })
     } catch (error) {
       console.error('Error loading progress data:', error)
     } finally {
       setLoading(false)
     }
+  }
+
+  const refreshData = () => {
+    loadGameStats()
+    loadProgressData()
   }
 
   if (loading) {
@@ -304,12 +332,13 @@ export default function StatsPanel() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {Object.entries(GAME_CONFIGS)
-                  .filter(([key]) => key !== 'overview')
+                  .filter(([key]) => !['overview', 'settings'].includes(key))
                   .map(([gameKey, config]) => {
                     const Icon = config.icon
                     const gameProgress = progressData[gameKey]
-                    const lastLevel = gameProgress?.lastLevel || 1
-                    const lastBestScore = gameProgress?.lastBestScore || 0
+                    const bestLevel = gameProgress?.bestLevel || 1
+                    const bestScore = gameProgress?.bestScore || 0
+                    const totalSessions = gameProgress?.totalSessions || 0
                     
                     return (
                       <div 
@@ -321,7 +350,7 @@ export default function StatsPanel() {
                         <div className="flex-1 min-w-0">
                           <div className="font-medium text-sm">{config.title}</div>
                           <div className="text-xs text-muted-foreground">
-                            Nivel {lastLevel} • {lastBestScore} pts
+                            Nivel {bestLevel} • {bestScore} pts • {totalSessions} sesiones
                           </div>
                         </div>
                       </div>
@@ -332,17 +361,22 @@ export default function StatsPanel() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="settings" className="space-y-6">
+          <ProgressSettings onProgressReset={refreshData} />
+        </TabsContent>
+
         {/* Individual Game Tabs */}
         {Object.entries(GAME_CONFIGS)
-          .filter(([key]) => key !== 'overview')
+          .filter(([key]) => !['overview', 'settings'].includes(key))
           .map(([gameKey, config]) => (
             <TabsContent key={gameKey} value={gameKey}>
               <ProgressChart 
                 userId={userProfile?.id}
                 gameType={gameKey}
                 gameTitle={config.title}
-                currentLevel={progressData[gameKey]?.lastLevel || 1}
-                bestScore={progressData[gameKey]?.lastBestScore || 0}
+                currentLevel={progressData[gameKey]?.bestLevel || 1}
+                bestScore={progressData[gameKey]?.bestScore || 0}
+                progressData={progressData[gameKey]}
               />
             </TabsContent>
           ))}

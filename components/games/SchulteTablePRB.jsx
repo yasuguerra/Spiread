@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { Grid3x3, Timer, Trophy, Target } from 'lucide-react'
-import { setLastLevel } from '@/lib/progress-tracking'
+import { setLastLevel, updateGameProgress, GAME_IDS } from '@/lib/progress-tracking'
 import { calculateLevelProgression, getEyeGuideConfig, getLevelDisplayInfo, GAME_LEVEL_CONFIGS } from '@/lib/level-progression'
 
 // PR B - SchulteTable with UX polish, responsive mobile, EndScreen integration
@@ -176,6 +176,29 @@ export default function SchulteTablePRB({ onExit, onBackToGames, onViewStats }) 
     }
     
     const progression = calculateLevelProgression('schulte', currentLevel, performance)
+    
+    // Update progress tracking with new system
+    const sessionSummary = {
+      gameId: GAME_IDS.SCHULTE,
+      score: finalScore,
+      level: progression.newLevel,
+      accuracy: accuracy,
+      durationSec: 60, // Fixed 60-second duration
+      timestamp: Date.now(),
+      extras: {
+        mistakes: mistakes,
+        tablesCompleted: tablesCompleted,
+        completionRate: completionRate,
+        avgResponseTime: tablesCompleted > 0 ? (60000 / Math.max(currentNumber - 1, 1)) : 0,
+        eyeGuideEnabled: currentEyeGuideLevel > 0,
+        eyeGuideType: currentEyeGuideLevel === 2 ? 'full' : currentEyeGuideLevel === 1 ? 'minimal' : 'none',
+        numbersFound: currentNumber - 1,
+        levelProgression: progression
+      }
+    }
+    
+    // Persist the progress
+    updateGameProgress(GAME_IDS.SCHULTE, sessionSummary)
     
     return {
       score: finalScore,

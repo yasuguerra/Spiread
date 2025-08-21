@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Timer, Trophy, Target, TrendingUp, Search, CheckCircle, Compass } from 'lucide-react'
 import { WORD_BANK } from '@/lib/word-bank'
-import { getLastLevel, setLastLevel, getLastBestScore, updateBestScore } from '@/lib/progress-tracking'
+import { getLastLevel, setLastLevel, getLastBestScore, updateBestScore, updateGameProgress, GAME_IDS } from '@/lib/progress-tracking'
 
 const GAME_CONFIG = {
   name: 'word_search',
@@ -386,9 +386,34 @@ export default function WordSearch({
         accuracy: sessionData.accuracy
       }
 
+      // Update progress tracking with new system
+      const sessionSummary = {
+        gameId: GAME_IDS.WORD_SEARCH,
+        score: score,
+        level: level,
+        accuracy: sessionData.accuracy,
+        durationSec: (120000 - timeRemaining) / 1000, // Assuming 2 minute timer
+        timestamp: Date.now(),
+        extras: {
+          gridSize: config.gridSize,
+          wordsCount: config.wordsCount,
+          diagonals: config.diagonals,
+          reverse: config.reverse,
+          wordsShown: sessionData.totalWordsShown + words.length,
+          wordsFound: sessionData.totalWordsFound,
+          invalidSelections: sessionData.invalidSelections,
+          meanTimePerWord: meanTimePerWord,
+          totalRounds: sessionData.totalRounds + (words.length > 0 ? 1 : 0),
+          wordFindTimes: sessionData.wordFindTimes
+        }
+      }
+
+      // Persist the progress
+      updateGameProgress(GAME_IDS.WORD_SEARCH, sessionSummary)
+
       onComplete?.(score, metrics)
     }
-  }, [timeRemaining, gameState, score, sessionData, config, words.length, onComplete])
+  }, [timeRemaining, gameState, score, sessionData, config, words.length, onComplete, level])
 
   const renderContent = () => {
     if (gameState === 'playing') {

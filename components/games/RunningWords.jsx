@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Timer, Trophy, Target, TrendingUp, Clock, Zap } from 'lucide-react'
 import { WORD_BANK } from '@/lib/word-bank'
-import { getLastLevel, setLastLevel, getLastBestScore, updateBestScore } from '@/lib/progress-tracking'
+import { getLastLevel, setLastLevel, getLastBestScore, updateBestScore, updateGameProgress, GAME_IDS } from '@/lib/progress-tracking'
 
 const GAME_CONFIG = {
   name: 'running_words',
@@ -245,9 +245,30 @@ export default function RunningWords({
         meanRT
       }
 
+      // Update progress tracking with new system
+      const sessionSummary = {
+        gameId: GAME_IDS.RUNNING_WORDS,
+        score: score,
+        level: level,
+        accuracy: sessionData.accuracy,
+        durationSec: (120000 - timeRemaining) / 1000, // Assuming 2 minute timer
+        timestamp: Date.now(),
+        extras: {
+          wordsPerLine: config.wordsPerLine,
+          wordExposureMs: config.wordExposureMs,
+          totalRounds: sessionData.totalRounds,
+          meanRT: meanRT,
+          responseTs: sessionData.responseTs,
+          streakBest: sessionData.streakBest
+        }
+      }
+
+      // Persist the progress
+      updateGameProgress(GAME_IDS.RUNNING_WORDS, sessionSummary)
+
       onComplete?.(score, metrics)
     }
-  }, [timeRemaining, gameState, score, sessionData, config, questionData, selectedAnswer, onComplete])
+  }, [timeRemaining, gameState, score, sessionData, config, questionData, selectedAnswer, onComplete, level])
 
   // Render current display
   const renderContent = () => {
