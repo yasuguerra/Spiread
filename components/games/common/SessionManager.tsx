@@ -337,7 +337,7 @@ export default function SessionManager({
           {/* Timer Progress Bar */}
           <div className="mt-2">
             <Progress 
-              value={(countdown.timeLeft / durationSec) * 100} 
+              {...{ value: (countdown.timeLeft / durationSec) * 100 } as any}
               className="h-2"
             />
           </div>
