@@ -13,8 +13,12 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { Timer, Trophy, Target, Pause, Play, Square, ArrowLeft } from 'lucide-react'
+import { Play, Pause, Square, RotateCcw, Trophy, ArrowLeft, Star, Gift } from 'lucide-react'
 import { useCountdown } from '@/hooks/useCountdown'
+import { motion, AnimatePresence } from 'framer-motion'
+import { checkNewAchievements, Badge as AchievementBadge } from '@/lib/achievements'
+import { getUserAchievements, saveUserAchievements, getOverallProgress } from '@/lib/progress-tracking'
+import { Timer, Target } from 'lucide-react'
 import { SessionSummary } from '@/lib/progress-tracking'
 
 export type SessionState = 'idle' | 'running' | 'paused' | 'ended'
@@ -81,6 +85,37 @@ export function SummaryDialog({
         </DialogHeader>
 
         <div className="space-y-4">
+          {/* New Achievements */}
+          {summary.extras?.newAchievements && summary.extras.newAchievements.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-4 bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg"
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <Gift className="w-5 h-5 text-yellow-600" />
+                <span className="font-semibold text-yellow-800">¡Nuevos Logros Desbloqueados!</span>
+              </div>
+              <div className="space-y-2">
+                {summary.extras.newAchievements.map((achievement: AchievementBadge) => (
+                  <motion.div
+                    key={achievement.id}
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.2 }}
+                    className="flex items-center gap-3 p-2 bg-white rounded border"
+                  >
+                    <div className="text-2xl">{achievement.icon}</div>
+                    <div>
+                      <div className="font-medium text-sm">{achievement.name}</div>
+                      <div className="text-xs text-gray-600">{achievement.description}</div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
           {/* Score */}
           <div className="text-center">
             <div className="text-3xl font-bold text-primary">{summary.score}</div>
@@ -197,6 +232,27 @@ export default function SessionManager({
       durationSec: actualDuration,
       timestamp: endTime,
       extras: {}
+    }
+    
+    // Check for new achievements
+    const currentProgress = getOverallProgress()
+    const userAchievements = getUserAchievements()
+    const newAchievements = checkNewAchievements(currentProgress, userAchievements.earnedBadges)
+    
+    if (newAchievements.length > 0) {
+      // Update achievements
+      const updatedAchievements = {
+        ...userAchievements,
+        earnedBadges: [...userAchievements.earnedBadges, ...newAchievements.map(a => a.id)],
+        lastCheckedAt: Date.now()
+      }
+      saveUserAchievements(updatedAchievements)
+      
+      // Add achievements to summary for display
+      summary.extras = {
+        ...summary.extras,
+        newAchievements: newAchievements
+      }
     }
     
     setSessionSummary(summary)

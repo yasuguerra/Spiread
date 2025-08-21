@@ -36,6 +36,7 @@ const RSVPReader = lazy(() => import('@/components/RSVPReader'))
 const OnboardingTest = lazy(() => import('@/components/OnboardingTest'))
 const StatsPanel = lazy(() => import('@/components/StatsPanel'))
 const SettingsPanel = lazy(() => import('@/components/SettingsPanel'))
+const AchievementsPanel = lazy(() => import('@/components/AchievementsPanel'))
 const SessionRunner = lazy(() => import('@/components/SessionRunner'))
 
 // Lazy load games (only when needed)
@@ -618,7 +619,11 @@ export default function HomePage() {
           </TabsContent>
 
           <TabsContent value="achievements" className="space-y-6">
-            <AchievementsPanel />
+            <Suspense fallback={<div className="flex items-center justify-center h-32">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>}>
+              <AchievementsPanel />
+            </Suspense>
           </TabsContent>
         </Tabs>
       </main>

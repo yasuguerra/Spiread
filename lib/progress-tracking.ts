@@ -232,7 +232,8 @@ export const GAME_IDS = {
   RUNNING_WORDS: 'running_words',
   LETTERS_GRID: 'letters_grid',
   WORD_SEARCH: 'word_search',
-  ANAGRAMS: 'anagrams'
+  ANAGRAMS: 'anagrams',
+  RSVP_READER: 'rsvp_reader'
 } as const;
 
 /**
@@ -323,6 +324,67 @@ export function shouldShowGameIntro(gameKey: string): boolean {
   const progress = getGameProgress(gameKey);
   // Show intro if this is the first time playing (no sessions)
   return progress.totalSessions === 0;
+}
+
+// Achievement tracking
+export type UserAchievements = {
+  earnedBadges: string[];
+  lastCheckedAt: number;
+};
+
+export function getUserAchievements(): UserAchievements {
+  const key = `${STORAGE_PREFIX}.achievements`;
+  const stored = safeLocalStorageGet(key);
+  
+  if (!stored) {
+    return {
+      earnedBadges: [],
+      lastCheckedAt: Date.now()
+    };
+  }
+  
+  return safeJsonParse(stored, {
+    earnedBadges: [],
+    lastCheckedAt: Date.now()
+  });
+}
+
+export function saveUserAchievements(achievements: UserAchievements): void {
+  const key = `${STORAGE_PREFIX}.achievements`;
+  safeLocalStorageSet(key, JSON.stringify(achievements));
+}
+
+export function getAllGameSessions(): SessionSummary[] {
+  const allSessions: SessionSummary[] = [];
+  
+  Object.values(GAME_IDS).forEach(gameId => {
+    const progress = getGameProgress(gameId);
+    allSessions.push(...progress.recentSessions);
+  });
+  
+  // Sort by timestamp, most recent first
+  return allSessions.sort((a, b) => b.timestamp - a.timestamp);
+}
+
+export function getOverallProgress() {
+  const sessions = getAllGameSessions();
+  const achievements = getUserAchievements();
+  const gameProgress: Record<string, GameProgress> = {};
+  
+  Object.values(GAME_IDS).forEach(gameId => {
+    gameProgress[gameId] = getGameProgress(gameId);
+  });
+  
+  return {
+    gameSessions: sessions,
+    gameProgress,
+    achievements: achievements.earnedBadges,
+    totalSessions: sessions.length,
+    totalTimePlayed: sessions.reduce((sum, s) => sum + s.durationSec, 0),
+    avgAccuracy: sessions.length > 0 
+      ? sessions.reduce((sum, s) => sum + (s.accuracy || 0), 0) / sessions.length 
+      : 0
+  };
 }
 
 // TODO: Add hooks for Supabase sync
