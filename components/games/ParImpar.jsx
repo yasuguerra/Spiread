@@ -440,8 +440,8 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
 
         {/* Game Area */}
         <Card>
-          <CardContent className="p-3 sm:p-6">
-            <div className="min-h-[300px] sm:min-h-[400px] flex items-center justify-center bg-gray-50 rounded-lg border-2 border-dashed">
+          <CardContent className="p-2 sm:p-6">
+            <div className="min-h-[280px] sm:min-h-[400px] flex items-center justify-center bg-gray-50 rounded-lg border-2 border-dashed overflow-hidden">
               <AnimatePresence mode="wait">
                 {gameState === GAME_STATES.SHOWING && (
                   <motion.div
@@ -449,9 +449,9 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="w-full max-w-sm mx-auto"
+                    className="w-full px-2 sm:px-4"
                   >
-                    <div className="grid grid-cols-4 gap-2 sm:gap-3 p-2 sm:p-4">
+                    <div className="grid grid-cols-4 gap-1 sm:gap-3 max-w-xs sm:max-w-md mx-auto">
                       {currentNumbers.map((num) => (
                         <motion.div
                           key={num.id}
@@ -460,20 +460,21 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
                           className={`
                             aspect-square flex items-center justify-center font-bold
                             bg-white border-2 rounded-lg shadow-md
-                            min-h-[44px] min-w-[44px]
                             ${num.style?.color || 'text-gray-800'}
                             ${num.style?.opacity || ''}
                           `}
                           style={{
-                            fontSize: 'clamp(18px, 4vw, 24px)',
-                            lineHeight: 1
+                            fontSize: 'clamp(16px, 6vw, 24px)',
+                            lineHeight: 1,
+                            minWidth: '60px',
+                            minHeight: '60px'
                           }}
                         >
                           {num.value}
                         </motion.div>
                       ))}
                     </div>
-                    <div className="text-center mt-4 text-muted-foreground text-sm">
+                    <div className="text-center mt-3 text-muted-foreground text-sm">
                       Memoriza los números...
                     </div>
                   </motion.div>
@@ -484,9 +485,9 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
                     key="selecting"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="w-full max-w-sm mx-auto"
+                    className="w-full px-2 sm:px-4"
                   >
-                    <div className="grid grid-cols-4 gap-2 sm:gap-3 p-2 sm:p-4">
+                    <div className="grid grid-cols-4 gap-1 sm:gap-3 max-w-xs sm:max-w-md mx-auto">
                       {currentNumbers.map((num) => (
                         <motion.button
                           key={num.id}
@@ -496,7 +497,6 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
                           className={`
                             aspect-square flex items-center justify-center font-bold
                             border-2 rounded-lg shadow-md transition-all touch-manipulation
-                            min-h-[44px] min-w-[44px]
                             ${num.selected 
                               ? 'bg-blue-500 text-white border-blue-600 ring-2 ring-blue-300' 
                               : 'bg-white border-gray-300 hover:border-gray-400'
@@ -505,9 +505,11 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
                             ${!num.selected && (num.style?.opacity || '')}
                           `}
                           style={{
-                            fontSize: 'clamp(18px, 4vw, 24px)',
+                            fontSize: 'clamp(16px, 6vw, 24px)',
                             lineHeight: 1,
-                            WebkitTapHighlightColor: 'transparent'
+                            WebkitTapHighlightColor: 'transparent',
+                            minWidth: '60px',
+                            minHeight: '60px'
                           }}
                           aria-label={`Número ${num.value}`}
                         >
@@ -515,7 +517,7 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
                         </motion.button>
                       ))}
                     </div>
-                    <div className="text-center mt-4">
+                    <div className="text-center mt-3">
                       <Button onClick={submitSelections} size="lg">
                         Confirmar Selección
                       </Button>
