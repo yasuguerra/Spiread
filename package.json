@@ -97,7 +97,7 @@
         "wait-on": "8.0.1"
     },
     "engines": {
-        "node": ">=20.0.0",
+        "node": ">=18.17.0",
         "yarn": ">=1.22.0"
     },
     "resolutions": {

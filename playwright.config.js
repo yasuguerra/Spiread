@@ -71,9 +71,11 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
+    // Always attempt to reuse an existing dev server to avoid EADDRINUSE errors when
+    // running tests while `yarn dev` is already running locally or in another process.
     command: 'yarn dev',
     url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: true,
     timeout: 120 * 1000,
   },
 });
