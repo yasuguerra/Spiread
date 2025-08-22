@@ -277,10 +277,15 @@ export default function MemoryDigits({ userId = 'anonymous', onFinish, onExit, t
             </ul>
           </div>
           
-          <Button onClick={startGame} className="w-full" size="lg">
-            <Zap className="w-4 h-4 mr-2" />
-            Comenzar Juego (60s)
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={onExit} variant="outline" className="flex-1">
+              Volver
+            </Button>
+            <Button onClick={startGame} className="flex-1" size="lg">
+              <Zap className="w-4 h-4 mr-2" />
+              Comenzar Juego (60s)
+            </Button>
+          </div>
         </CardContent>
       </Card>
     )

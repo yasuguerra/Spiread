@@ -25,7 +25,7 @@ import {
 import { useRSVPStore, useAppStore } from '@/lib/store'
 import { saveReadingSession } from '@/lib/supabase'
 
-export default function RSVPReader() {
+export default function RSVPReader({ onExit }) {
   const [inputText, setInputText] = useState('')
   const [showSettings, setShowSettings] = useState(false)
   const [sessionStartTime, setSessionStartTime] = useState(null)
@@ -77,6 +77,7 @@ export default function RSVPReader() {
     stop,
     setWpm,
     setChunkSize,
+    setFontSize,
     getNextChunk,
     advance,
     getProgress
@@ -352,10 +353,22 @@ export default function RSVPReader() {
       <Card className="min-h-[400px]">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Zap className="w-5 h-5" />
-              Lector RSVP
-            </CardTitle>
+            <div className="flex items-center gap-2">
+              {onExit && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={onExit}
+                  className="mr-2"
+                >
+                  ← Volver
+                </Button>
+              )}
+              <CardTitle className="flex items-center gap-2">
+                <Zap className="w-5 h-5" />
+                Lector RSVP
+              </CardTitle>
+            </div>
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="font-mono">
                 {wpm} WPM
@@ -661,10 +674,7 @@ export default function RSVPReader() {
               </div>
               <Slider
                 value={[fontSize]}
-                onValueChange={([value]) => {
-                  // Update font size in store
-                  // This would need to be added to the store
-                }}
+                onValueChange={([value]) => setFontSize(value)}
                 max={48}
                 min={12}
                 step={2}
