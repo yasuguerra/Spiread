@@ -31,18 +31,21 @@ const pairs = getConfusablePairs(level, count, identicalRatio)
 **Problem**: Poor mobile UX with small numbers and rightward grid shift.
 
 **Changes**:
-- **Responsive grid container**:
-  - Centered with `max-w-sm mx-auto`
-  - Fixed 4-column grid with `gap-2 sm:gap-3`
-  - Responsive font sizing: `clamp(18px, 4vw, 24px)`
-- **Touch-optimized buttons**:
-  - Minimum 44×44px touch targets
-  - `touch-manipulation` CSS property
+- **Centered mobile layout**:
+  - Changed container from `max-w-4xl` to `max-w-2xl` for mobile fit
+  - Replaced complex grid with flexbox centering approach
+  - Fixed grid sizing with `w-14 h-14` instead of aspect-square
+  - Removed interfering background styling
+- **Touch-optimized interface**:
+  - Fixed 56×56px minimum touch targets
+  - `touch-manipulation` CSS property for better responsiveness
   - Disabled tap highlight: `WebkitTapHighlightColor: transparent`
+  - Proper grid spacing: `gap-2 sm:gap-3`
 - **Layout stability**:
-  - Pre-measured grid dimensions prevent layout shift
-  - Consistent padding: `p-2 sm:p-4`
-  - Reduced min-height on mobile: `min-h-[300px] sm:min-h-[400px]`
+  - Simplified container structure prevents layout shifts
+  - Consistent spacing and padding across devices
+  - Responsive font sizing: `clamp(16px, 4vw, 20px)`
+  - Centered content with proper mobile constraints
 
 ### 3. Letters Grid Game (`components/games/LettersGrid.jsx`)
 **Problem**: Never started, stuck on "preparando el juego".
