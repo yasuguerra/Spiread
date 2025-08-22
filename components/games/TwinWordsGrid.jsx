@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { CheckCircle, XCircle } from 'lucide-react'
 import GameShell from '../GameShell'
+import { getConfusablePairs, areWordsIdentical } from '@/lib/words-es'
 
 export default function TwinWordsGrid({ difficultyLevel = 1, durationMs, onFinish, onExit }) {
   return (
@@ -31,6 +32,8 @@ function TwinWordsGame({ gameContext }) {
   const [roundScores, setRoundScores] = useState([])
   const [isShowingResults, setIsShowingResults] = useState(false)
   const [roundTimer, setRoundTimer] = useState(0)
+  const [consecutiveCorrect, setConsecutiveCorrect] = useState(0)
+  const [currentDifficulty, setCurrentDifficulty] = useState(1)
   
   const { 
     gameState, 
@@ -39,46 +42,8 @@ function TwinWordsGame({ gameContext }) {
     handleGameEnd 
   } = gameContext
 
-  // Word pairs dataset with micro-differences
-  const wordDatabase = [
-    // Spanish pairs
-    { word1: 'casa', word2: 'casa', identical: true },
-    { word1: 'cosa', word2: 'casa', identical: false },
-    { word1: 'peso', word2: 'piso', identical: false },
-    { word1: 'perro', word2: 'perno', identical: false },
-    { word1: 'carro', word2: 'corro', identical: false },
-    { word1: 'mano', word2: 'nano', identical: false },
-    { word1: 'claro', word2: 'daro', identical: false },
-    { word1: 'tiempo', word2: 'tiempo', identical: true },
-    { word1: 'tiempo', word2: 'tiernpo', identical: false },
-    { word1: 'persona', word2: 'persorna', identical: false },
-    { word1: 'momento', word2: 'mornento', identical: false },
-    { word1: 'trabajo', word2: 'trabajo', identical: true },
-    { word1: 'trabajo', word2: 'trabaja', identical: false },
-    { word1: 'problema', word2: 'problerna', identical: false },
-    { word1: 'gobierno', word2: 'gobiemo', identical: false },
-    { word1: 'desarrollo', word2: 'desarroilo', identical: false },
-    
-    // Accent differences
-    { word1: 'médico', word2: 'medico', identical: false },
-    { word1: 'rápido', word2: 'rapido', identical: false },
-    { word1: 'teléfono', word2: 'telefono', identical: false },
-    { word1: 'música', word2: 'musica', identical: false },
-    { word1: 'público', word2: 'publico', identical: false },
-    
-    // Case differences
-    { word1: 'CASA', word2: 'casa', identical: false },
-    { word1: 'Mundo', word2: 'mundo', identical: false },
-    { word1: 'TIEMPO', word2: 'tiempo', identical: false },
-    
-    // More subtle differences
-    { word1: 'leer', word2: 'leer', identical: true },
-    { word1: 'leer', word2: 'beer', identical: false },
-    { word1: 'escribir', word2: 'escribir', identical: true },
-    { word1: 'escribir', word2: 'escnbir', identical: false },
-    { word1: 'estudiar', word2: 'estudiar', identical: true },
-    { word1: 'estudiar', word2: 'estuciar', identical: false }
-  ]
+  // Word pairs dataset with micro-differences - REPLACED WITH NEW SYSTEM
+  // Now using getConfusablePairs from words-es.ts
 
   // Generate new round when game starts
   useEffect(() => {
@@ -107,46 +72,29 @@ function TwinWordsGame({ gameContext }) {
 
   const generateNewRound = () => {
     const params = getGameParameters()
-    const { pairsCount, difficultyRatio, subtletyLevel } = params
+    const { pairsCount = 6 } = params
     
-    // Filter words by subtlety level
-    let availablePairs = wordDatabase.filter(pair => {
-      if (pair.identical) return true
-      
-      // More subtle differences at higher levels
-      const wordLength = Math.max(pair.word1.length, pair.word2.length)
-      const isSubtle = pair.word1.toLowerCase() !== pair.word2.toLowerCase() &&
-                      (pair.word1.includes('m') || pair.word1.includes('n') || 
-                       pair.word1.includes('rn') || pair.word1.includes('cl') ||
-                       pair.word1.includes('í') || pair.word1.includes('é'))
-      
-      if (subtletyLevel >= 4) return isSubtle
-      if (subtletyLevel >= 3) return wordLength >= 6
-      if (subtletyLevel >= 2) return wordLength >= 4
-      return true
-    })
-
-    // Shuffle and select pairs
-    availablePairs = [...availablePairs].sort(() => Math.random() - 0.5)
+    // Get confusable pairs using new system
+    // Difficulty increases after consecutive correct answers
+    const difficultyLevel = Math.min(5, currentDifficulty)
+    const identicalRatio = 0.3 // 30% identical pairs
     
-    // Calculate how many should be different
-    const differentCount = Math.round(pairsCount * difficultyRatio)
-    const identicalCount = pairsCount - differentCount
+    const pairTuples = getConfusablePairs(difficultyLevel, pairsCount, identicalRatio)
     
-    const selectedPairs = []
-    const identicalPairs = availablePairs.filter(p => p.identical).slice(0, identicalCount)
-    const differentPairs = availablePairs.filter(p => !p.identical).slice(0, differentCount)
+    // Convert to format expected by the UI
+    const formattedPairs = pairTuples.map(([word1, word2]) => ({
+      word1,
+      word2,
+      identical: areWordsIdentical(word1, word2)
+    }))
     
-    selectedPairs.push(...identicalPairs, ...differentPairs)
-    
-    // Shuffle final pairs
-    const shuffledPairs = selectedPairs.sort(() => Math.random() - 0.5)
-    
-    setCurrentPairs(shuffledPairs)
+    setCurrentPairs(formattedPairs)
     setSelectedPairs(new Set())
     setRoundStartTime(Date.now())
     setIsShowingResults(false)
-    setRoundTimer(params.exposureTime)
+    setRoundTimer(params.exposureTime || 12000)
+    
+    console.log(`TwinWords: Generated round ${currentRound + 1} with difficulty ${difficultyLevel}`)
   }
 
   const handlePairClick = (pairIndex) => {
@@ -192,6 +140,24 @@ function TwinWordsGame({ gameContext }) {
     const accuracy = currentPairs.length > 0 
       ? (hits + (currentPairs.length - selectedPairs.size - misses)) / currentPairs.length 
       : 0
+    
+    // Update difficulty based on accuracy
+    if (accuracy >= 0.8) {
+      setConsecutiveCorrect(prev => {
+        const newCount = prev + 1
+        // Increase difficulty after 3 consecutive correct rounds
+        if (newCount >= 3) {
+          setCurrentDifficulty(prev => Math.min(5, prev + 1))
+          console.log(`TwinWords: Difficulty increased to ${Math.min(5, currentDifficulty + 1)}`)
+          return 0 // Reset streak
+        }
+        return newCount
+      })
+    } else {
+      setConsecutiveCorrect(0)
+      // Decrease difficulty on poor performance
+      setCurrentDifficulty(prev => Math.max(1, prev - 1))
+    }
     
     const roundResult = {
       round: currentRound + 1,
@@ -270,8 +236,8 @@ function TwinWordsGame({ gameContext }) {
               <div className="text-xs text-muted-foreground">Tiempo</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-red-600">{Math.round(params.difficultyRatio * 100)}%</div>
-              <div className="text-xs text-muted-foreground">Diferentes</div>
+              <div className="text-2xl font-bold text-red-600">{currentDifficulty}</div>
+              <div className="text-xs text-muted-foreground">Dificultad</div>
             </div>
           </div>
         </CardContent>

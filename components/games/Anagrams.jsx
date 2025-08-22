@@ -77,9 +77,22 @@ export default function Anagrams({
   const [showHint, setShowHint] = useState(false)
   const [gameStartTime, setGameStartTime] = useState(0)
   const [normalizedInput, setNormalizedInput] = useState('')
+  const [adaptiveDifficulty, setAdaptiveDifficulty] = useState({
+    currentLevel: level,
+    wordLength: 4,
+    timePerWord: 10000,
+    streakCount: 0
+  })
   const gameContextRef = useRef(null)
 
-  const config = GAME_CONFIG.levels[Math.min(level, 20)]
+  const config = GAME_CONFIG.levels[Math.min(adaptiveDifficulty.currentLevel, 20)]
+  
+  // Use adaptive difficulty values when available
+  const effectiveConfig = {
+    ...config,
+    length: adaptiveDifficulty.wordLength,
+    timePerAnagram: adaptiveDifficulty.timePerWord
+  }
   const wordsData = WORD_BANK.anagrams[locale] || WORD_BANK.anagrams.es
   const anagramStartTime = useRef(null)
   const anagramTimer = useRef(null)
@@ -108,17 +121,17 @@ export default function Anagrams({
 
   // Get random word for current length
   const getRandomWord = useCallback(() => {
-    const wordsOfLength = wordsData[config.length] || []
+    const wordsOfLength = wordsData[effectiveConfig.length] || []
     if (wordsOfLength.length === 0) return 'test'
     return wordsOfLength[Math.floor(Math.random() * wordsOfLength.length)]
-  }, [config.length, wordsData])
+  }, [effectiveConfig.length, wordsData])
 
   // Shuffle letters to create anagram
   const shuffleWord = useCallback((word) => {
     const letters = word.split('')
     
     // Add decoy letters if enabled
-    if (config.decoyLetters && Math.random() < 0.4) {
+    if (effectiveConfig.decoyLetters && Math.random() < 0.4) {
       const vowels = ['a', 'e', 'i', 'o', 'u']
       const consonants = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z']
       
@@ -140,7 +153,7 @@ export default function Anagrams({
     }
     
     return letters.join('')
-  }, [config.decoyLetters])
+  }, [effectiveConfig.decoyLetters])
 
   // Start new anagram
   const startAnagram = useCallback(() => {
@@ -152,7 +165,7 @@ export default function Anagrams({
     setCurrentWord(word)
     setAnagram(shuffled)
     setUserInput('')
-    setAnagramTimeLeft(config.timePerAnagram)
+    setAnagramTimeLeft(effectiveConfig.timePerAnagram)
     anagramStartTime.current = Date.now()
     
     // Start countdown timer
@@ -168,7 +181,7 @@ export default function Anagrams({
         return prev - 100
       })
     }, 100)
-  }, [getRandomWord, shuffleWord, config.timePerAnagram]) // Remove timeRemaining from deps
+  }, [getRandomWord, shuffleWord, effectiveConfig.timePerAnagram]) // Remove timeRemaining from deps
 
   // Handle anagram expired
   const handleAnagramExpired = useCallback(() => {
@@ -176,6 +189,23 @@ export default function Anagrams({
       clearInterval(anagramTimer.current)
       anagramTimer.current = null
     }
+    
+    // Adaptive difficulty: step down on errors
+    setAdaptiveDifficulty(prev => {
+      let newDifficulty = { ...prev, streakCount: 0 } // Reset streak
+      
+      // Decrease difficulty on wrong answer
+      if (prev.wordLength > 4) {
+        newDifficulty.wordLength = prev.wordLength - 1
+        console.log(`Anagrams: Decreased word length to ${newDifficulty.wordLength}`)
+      } else if (prev.timePerWord < 10000) {
+        // Increase time if at minimum word length
+        newDifficulty.timePerWord = Math.min(10000, prev.timePerWord + 500)
+        console.log(`Anagrams: Increased time to ${newDifficulty.timePerWord}ms`)
+      }
+      
+      return newDifficulty
+    })
     
     // Penalty for expired anagram
     setScore(prev => Math.max(0, prev - 1))
@@ -232,10 +262,32 @@ export default function Anagrams({
     const rt = Date.now() - anagramStartTime.current
     const newStreak = streak + 1
     
+    // Adaptive difficulty: 3-up/1-down staircase
+    setAdaptiveDifficulty(prev => {
+      const newStreakCount = prev.streakCount + 1
+      let newDifficulty = { ...prev, streakCount: newStreakCount }
+      
+      // Increase difficulty after 3 consecutive correct
+      if (newStreakCount >= 3) {
+        // Primary parameter: word length (4→5→6→7→8)
+        if (prev.wordLength < 8) {
+          newDifficulty.wordLength = prev.wordLength + 1
+          console.log(`Anagrams: Increased word length to ${newDifficulty.wordLength}`)
+        } else if (prev.timePerWord > 4000) {
+          // Secondary parameter: reduce time when max word length reached
+          newDifficulty.timePerWord = Math.max(4000, prev.timePerWord - 500)
+          console.log(`Anagrams: Reduced time to ${newDifficulty.timePerWord}ms`)
+        }
+        newDifficulty.streakCount = 0 // Reset streak count
+      }
+      
+      return newDifficulty
+    })
+    
     // Calculate score
-    const baseScore = config.length
+    const baseScore = effectiveConfig.length
     const streakBonus = Math.floor(newStreak / 3) // Bonus every 3 correct
-    const timeBonus = rt < config.goalRT ? 1 : 0
+    const timeBonus = rt < effectiveConfig.goalRT ? 1 : 0
     const anagramScore = baseScore + streakBonus + timeBonus
     
     setScore(prev => prev + anagramScore)
@@ -261,7 +313,7 @@ export default function Anagrams({
         setGameState('complete')
       }
     }, 500)
-  }, [streak, config, score, onScoreUpdate, timeRemaining, startAnagram])
+  }, [streak, effectiveConfig, score, onScoreUpdate, timeRemaining, startAnagram])
 
   // Handle key press (Enter to submit)
   const handleKeyPress = useCallback((e) => {

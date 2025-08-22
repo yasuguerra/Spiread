@@ -64,6 +64,9 @@ export default function WordSearch({
   const [selection, setSelection] = useState({ start: null, end: null, cells: [] })
   const [isSelecting, setIsSelecting] = useState(false)
   const [score, setScore] = useState(0)
+  const [tapMode, setTapMode] = useState(false) // Mobile tap-to-find mode
+  const [cellWordMap, setCellWordMap] = useState(new Map()) // Cell -> words mapping
+  const [pendingTap, setPendingTap] = useState(null) // For disambiguation
   const [sessionData, setSessionData] = useState({
     totalRounds: 0,
     totalWordsShown: 0,
@@ -82,6 +85,18 @@ export default function WordSearch({
   const [countdown, setCountdown] = useState(0) // Screen countdown for each round
   const [wordHighlights, setWordHighlights] = useState(new Map()) // Visual feedback
   const gameContextRef = useRef(null)
+
+  // Auto-detect mobile viewport and enable tap mode
+  useEffect(() => {
+    const checkMobile = () => {
+      const isMobile = window.innerWidth <= 768 || 'ontouchstart' in window
+      setTapMode(isMobile)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   const gridRef = useRef(null) // Ref for the grid container
   const config = GAME_CONFIG.levels[Math.min(level, 20)]
@@ -194,6 +209,22 @@ export default function WordSearch({
       }
     }
 
+    // Build cell-to-word mapping for tap mode
+    const newCellWordMap = new Map()
+    placedWords.forEach(word => {
+      const positions = newWordPositions.get(word)
+      if (positions) {
+        positions.forEach(({ row, col }) => {
+          const cellKey = `${row}-${col}`
+          if (!newCellWordMap.has(cellKey)) {
+            newCellWordMap.set(cellKey, [])
+          }
+          newCellWordMap.get(cellKey).push(word)
+        })
+      }
+    })
+    setCellWordMap(newCellWordMap)
+
     return { grid: newGrid, words: placedWords, wordPositions: newWordPositions }
   }, [config, getWordsForRound, placeWord])
 
@@ -232,9 +263,88 @@ export default function WordSearch({
     return null
   }
 
+  // Handle cell tap for mobile tap-to-find mode
+  const handleCellTap = useCallback((row, col) => {
+    if (!tapMode || gameState !== 'playing') return
+    
+    const cellKey = `${row}-${col}`
+    const availableWords = cellWordMap.get(cellKey)?.filter(word => !foundWords.has(word)) || []
+    
+    if (availableWords.length === 0) {
+      // No words at this cell
+      setPendingTap(null)
+      return
+    }
+    
+    if (availableWords.length === 1) {
+      // Unique word - mark it immediately
+      const word = availableWords[0]
+      markWordAsFound(word)
+      setPendingTap(null)
+    } else {
+      // Multiple words - need disambiguation
+      if (pendingTap && pendingTap.cellKey === cellKey) {
+        // Second tap on same cell - cycle through words or auto-select
+        const wordIndex = (pendingTap.wordIndex + 1) % availableWords.length
+        const word = availableWords[wordIndex]
+        markWordAsFound(word)
+        setPendingTap(null)
+      } else {
+        // First tap - set pending
+        setPendingTap({ cellKey, wordIndex: 0, availableWords })
+        // Auto-clear pending after 3 seconds
+        setTimeout(() => setPendingTap(null), 3000)
+      }
+    }
+  }, [tapMode, gameState, cellWordMap, foundWords])
+
+  // Mark a word as found
+  const markWordAsFound = useCallback((word) => {
+    const wordFindTime = Date.now() - roundStartTime.current
+    
+    const newFoundWords = new Set(foundWords)
+    newFoundWords.add(word)
+    setFoundWords(newFoundWords)
+    
+    const wordScore = word.length
+    setScore(prev => prev + wordScore)
+    
+    // Visual feedback
+    setWordHighlights(prev => new Map(prev).set(word, Date.now()))
+    setTimeout(() => {
+      setWordHighlights(prev => {
+        const newMap = new Map(prev)
+        newMap.delete(word)
+        return newMap
+      })
+    }, 1000)
+    
+    // Update session data
+    setSessionData(prev => ({
+      ...prev,
+      totalWordsFound: prev.totalWordsFound + 1,
+      wordFindTimes: [...prev.wordFindTimes, wordFindTime],
+      bestFindTime: Math.min(prev.bestFindTime, wordFindTime),
+      avgFindTime: [...prev.wordFindTimes, wordFindTime].reduce((a, b) => a + b, 0) / (prev.wordFindTimes.length + 1),
+      accuracy: (prev.totalWordsFound + 1) / Math.max(1, prev.totalWordsShown)
+    }))
+    
+    console.log(`WordSearch: Found word "${word}" in ${wordFindTime}ms`)
+  }, [foundWords, roundStartTime])
+    if (gameState !== 'playing' || !gridRef.current) return
+
   // Handle pointer down on cell
   const handlePointerDown = useCallback((e) => {
     if (gameState !== 'playing' || !gridRef.current) return
+    
+    // Check for tap mode first
+    if (tapMode) {
+      const cell = getCellFromEvent(e)
+      if (cell) {
+        handleCellTap(cell.row, cell.col)
+        return
+      }
+    }
 
     const startCell = getCellFromEvent(e)
     if (!startCell) return
@@ -246,7 +356,7 @@ export default function WordSearch({
       end: startCell,
       cells: [startCell]
     })
-  }, [gameState, config.gridSize])
+  }, [gameState, config.gridSize, tapMode, handleCellTap])
 
   // Handle pointer move for selection
   const handlePointerMove = useCallback((e) => {
@@ -457,17 +567,36 @@ export default function WordSearch({
                     cell => cell.row === rowIndex && cell.col === colIndex
                   )
                   
+                  const cellKey = `${rowIndex}-${colIndex}`
+                  const hasWords = cellWordMap.get(cellKey)?.some(word => !foundWords.has(word))
+                  const isPending = pendingTap?.cellKey === cellKey
+                  
+                  // Check if this cell is part of any found word for highlighting
+                  const isInFoundWord = Array.from(foundWords).some(word => {
+                    const positions = wordPositions.get(word) || []
+                    return positions.some(pos => pos.row === rowIndex && pos.col === colIndex)
+                  })
+                  
                   return (
                     <div
                       key={`${rowIndex}-${colIndex}`}
                       className={`
                         w-6 h-6 border border-gray-200 flex items-center justify-center
-                        text-xs font-mono transition-colors pointer-events-none
+                        text-xs font-mono transition-all duration-200
                         ${isSelected 
                           ? 'bg-blue-500 text-white' 
+                          : isInFoundWord
+                          ? 'bg-green-100 text-green-800'
+                          : isPending
+                          ? 'bg-yellow-200 text-yellow-800 ring-2 ring-yellow-400'
+                          : hasWords && tapMode
+                          ? 'bg-blue-50 hover:bg-blue-100 cursor-pointer'
                           : 'bg-white'
                         }
+                        ${tapMode ? 'pointer-events-auto' : 'pointer-events-none'}
                       `}
+                      onClick={tapMode ? () => handleCellTap(rowIndex, colIndex) : undefined}
+                      aria-label={tapMode && hasWords ? `Letra ${letter}, toca para encontrar palabra` : undefined}
                     >
                       {letter}
                     </div>
@@ -477,8 +606,18 @@ export default function WordSearch({
             </div>
           </div>
           
-          <div className="text-center text-xs text-muted-foreground">
-            Arrastra para seleccionar palabras • Puntuación: {score}
+          <div className="text-center text-xs text-muted-foreground space-y-1">
+            <div>
+              {tapMode 
+                ? 'Toca cualquier letra de una palabra para marcarla completa'
+                : 'Arrastra para seleccionar palabras'
+              } • Puntuación: {score}
+            </div>
+            {pendingTap && (
+              <div className="text-yellow-600">
+                Múltiples palabras encontradas - toca otra letra de la palabra objetivo
+              </div>
+            )}
           </div>
         </div>
       )

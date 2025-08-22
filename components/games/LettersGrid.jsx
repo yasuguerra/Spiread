@@ -49,11 +49,12 @@ export default function LettersGrid({
   onBackToGames,
   onViewStats
 }) {
-  const [gameState, setGameState] = useState('idle') // idle, showing, complete
+  const [gameState, setGameState] = useState('preparing') // preparing, idle, showing, complete
   const [grid, setGrid] = useState([])
   const [targetLetters, setTargetLetters] = useState([])
   const [selectedCells, setSelectedCells] = useState(new Set())
   const [score, setScore] = useState(0)
+  const [isInitialized, setIsInitialized] = useState(false)
   const [sessionData, setSessionData] = useState({
     totalScreens: 0,
     totalHits: 0,
@@ -77,6 +78,36 @@ export default function LettersGrid({
   const config = GAME_CONFIG.levels[Math.min(level, 20)]
   const lettersData = WORD_BANK.lettersGrid[locale] || WORD_BANK.lettersGrid.es
   const screenStartTime = useRef(null)
+
+  // Initialize game immediately with timeout fallback
+  useEffect(() => {
+    const initializeGame = async () => {
+      try {
+        // Set timeout fallback to prevent infinite loading
+        const timeoutId = setTimeout(() => {
+          console.log('LettersGrid: Initialization timeout, proceeding with default setup')
+          setIsInitialized(true)
+          setGameState('idle')
+        }, 300) // 300ms timeout
+
+        // Initialize game components
+        if (lettersData && lettersData.targets) {
+          setIsInitialized(true)
+          setGameState('idle')
+          clearTimeout(timeoutId)
+        } else {
+          throw new Error('Missing letters data')
+        }
+      } catch (error) {
+        console.error('LettersGrid: Initialization error:', error)
+        // Still proceed with game
+        setIsInitialized(true) 
+        setGameState('idle')
+      }
+    }
+
+    initializeGame()
+  }, [lettersData])
 
   // Generate random letters with optional confusables
   const generateLetters = useCallback((count, useConfusables = false) => {
@@ -455,9 +486,18 @@ export default function LettersGrid({
       )
     }
 
+    if (gameState === 'preparing' || !isInitialized) {
+      return (
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="text-muted-foreground">Preparando el juego...</p>
+        </div>
+      )
+    }
+
     return (
       <div className="text-center">
-        <p className="text-muted-foreground">Preparando juego...</p>
+        <Button onClick={startScreen}>Comenzar Juego</Button>
       </div>
     )
   }
