@@ -376,7 +376,7 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
   }
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
+    <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
@@ -440,8 +440,8 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
 
         {/* Game Area */}
         <Card>
-          <CardContent className="p-2 sm:p-6">
-            <div className="min-h-[280px] sm:min-h-[400px] flex items-center justify-center bg-gray-50 rounded-lg border-2 border-dashed overflow-hidden">
+          <CardContent className="p-3 sm:p-6">
+            <div className="min-h-[300px] sm:min-h-[400px] flex items-center justify-center">
               <AnimatePresence mode="wait">
                 {gameState === GAME_STATES.SHOWING && (
                   <motion.div
@@ -449,32 +449,30 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="w-full px-2 sm:px-4"
+                    className="w-full flex flex-col items-center"
                   >
-                    <div className="grid grid-cols-4 gap-1 sm:gap-3 max-w-xs sm:max-w-md mx-auto">
+                    <div className="grid grid-cols-4 gap-2 sm:gap-3 w-fit mx-auto mb-4">
                       {currentNumbers.map((num) => (
                         <motion.div
                           key={num.id}
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
                           className={`
-                            aspect-square flex items-center justify-center font-bold
+                            w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center font-bold
                             bg-white border-2 rounded-lg shadow-md
                             ${num.style?.color || 'text-gray-800'}
                             ${num.style?.opacity || ''}
                           `}
                           style={{
-                            fontSize: 'clamp(16px, 6vw, 24px)',
-                            lineHeight: 1,
-                            minWidth: '60px',
-                            minHeight: '60px'
+                            fontSize: 'clamp(16px, 4vw, 20px)',
+                            lineHeight: 1
                           }}
                         >
                           {num.value}
                         </motion.div>
                       ))}
                     </div>
-                    <div className="text-center mt-3 text-muted-foreground text-sm">
+                    <div className="text-center text-muted-foreground text-sm">
                       Memoriza los números...
                     </div>
                   </motion.div>
@@ -485,9 +483,9 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
                     key="selecting"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="w-full px-2 sm:px-4"
+                    className="w-full flex flex-col items-center"
                   >
-                    <div className="grid grid-cols-4 gap-1 sm:gap-3 max-w-xs sm:max-w-md mx-auto">
+                    <div className="grid grid-cols-4 gap-2 sm:gap-3 w-fit mx-auto mb-4">
                       {currentNumbers.map((num) => (
                         <motion.button
                           key={num.id}
@@ -495,7 +493,7 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
                           whileTap={{ scale: 0.95 }}
                           onClick={() => handleNumberClick(num.id)}
                           className={`
-                            aspect-square flex items-center justify-center font-bold
+                            w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center font-bold
                             border-2 rounded-lg shadow-md transition-all touch-manipulation
                             ${num.selected 
                               ? 'bg-blue-500 text-white border-blue-600 ring-2 ring-blue-300' 
@@ -505,11 +503,9 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
                             ${!num.selected && (num.style?.opacity || '')}
                           `}
                           style={{
-                            fontSize: 'clamp(16px, 6vw, 24px)',
+                            fontSize: 'clamp(16px, 4vw, 20px)',
                             lineHeight: 1,
-                            WebkitTapHighlightColor: 'transparent',
-                            minWidth: '60px',
-                            minHeight: '60px'
+                            WebkitTapHighlightColor: 'transparent'
                           }}
                           aria-label={`Número ${num.value}`}
                         >
@@ -517,7 +513,7 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
                         </motion.button>
                       ))}
                     </div>
-                    <div className="text-center mt-3">
+                    <div className="text-center">
                       <Button onClick={submitSelections} size="lg">
                         Confirmar Selección
                       </Button>
