@@ -251,54 +251,58 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
 
   if (!gameStarted) {
     return (
-      <Card className="w-full max-w-2xl mx-auto">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CheckCircle className="w-6 h-6 text-green-500" />
-            Par / Impar
-          </CardTitle>
-          <div className="text-sm text-muted-foreground">
-            Selecciona números pares o impares según la regla que aparece
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div>
-              <div className="text-2xl font-bold text-blue-600">
-                {adaptiveDifficulty?.getCurrentLevel() || 1}
+      <div className="w-full min-h-screen bg-gray-50">
+        <div className="max-w-lg mx-auto px-3 py-4 sm:max-w-2xl sm:px-6">
+          <Card className="w-full">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CheckCircle className="w-6 h-6 text-green-500" />
+                Par / Impar
+              </CardTitle>
+              <div className="text-sm text-muted-foreground">
+                Selecciona números pares o impares según la regla que aparece
               </div>
-              <div className="text-sm text-muted-foreground">Nivel</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-green-600">
-                {currentParams.k}
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <div className="text-2xl font-bold text-blue-600">
+                    {adaptiveDifficulty?.getCurrentLevel() || 1}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Nivel</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-green-600">
+                    {currentParams.k}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Números</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-purple-600">
+                    {currentParams.digitsLen}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Dígitos</div>
+                </div>
               </div>
-              <div className="text-sm text-muted-foreground">Números</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-purple-600">
-                {currentParams.digitsLen}
+              
+              <div className="space-y-2">
+                <div className="text-sm font-medium">Instrucciones:</div>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• Los números aparecen brevemente</li>
+                  <li>• Luego selecciona todos los números PARES o IMPARES</li>
+                  <li>• La regla alterna cada ronda</li>
+                  <li>• Sé rápido y preciso para máxima puntuación</li>
+                </ul>
               </div>
-              <div className="text-sm text-muted-foreground">Dígitos</div>
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <div className="text-sm font-medium">Instrucciones:</div>
-            <ul className="text-sm text-muted-foreground space-y-1">
-              <li>• Los números aparecen brevemente</li>
-              <li>• Luego selecciona todos los números PARES o IMPARES</li>
-              <li>• La regla alterna cada ronda</li>
-              <li>• Sé rápido y preciso para máxima puntuación</li>
-            </ul>
-          </div>
-          
-          <Button onClick={startGame} className="w-full" size="lg">
-            <Zap className="w-4 h-4 mr-2" />
-            Comenzar Juego (60s)
-          </Button>
-        </CardContent>
-      </Card>
+              
+              <Button onClick={startGame} className="w-full" size="lg">
+                <Zap className="w-4 h-4 mr-2" />
+                Comenzar Juego (60s)
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     )
   }
 
@@ -309,128 +313,124 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
     const totalFP = rounds.reduce((sum, r) => sum + r.falsePositives, 0)
 
     return (
-      <Card className="w-full max-w-2xl mx-auto">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="w-6 h-6 text-green-500" />
-            Resumen Final
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-blue-600">{totalScore}</div>
-              <div className="text-sm text-muted-foreground">Puntuación</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-green-600">{rounds.length}</div>
-              <div className="text-sm text-muted-foreground">Rondas</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-purple-600">{avgAccuracy.toFixed(1)}%</div>
-              <div className="text-sm text-muted-foreground">Precisión</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-orange-600">{(avgRt / 1000).toFixed(1)}s</div>
-              <div className="text-sm text-muted-foreground">Tiempo Promedio</div>
-            </div>
-          </div>
+      <div className="w-full min-h-screen bg-gray-50">
+        <div className="max-w-lg mx-auto px-3 py-4 sm:max-w-2xl sm:px-6">
+          <Card className="w-full">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Target className="w-6 h-6 text-green-500" />
+                Resumen Final
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-blue-600">{totalScore}</div>
+                  <div className="text-sm text-muted-foreground">Puntuación</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-green-600">{rounds.length}</div>
+                  <div className="text-sm text-muted-foreground">Rondas</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-purple-600">{avgAccuracy.toFixed(1)}%</div>
+                  <div className="text-sm text-muted-foreground">Precisión</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-orange-600">{(avgRt / 1000).toFixed(1)}s</div>
+                  <div className="text-sm text-muted-foreground">Tiempo Promedio</div>
+                </div>
+              </div>
 
-          <div className="grid grid-cols-2 gap-4 text-center">
-            <div>
-              <div className="text-2xl font-bold text-green-600">{totalHits}</div>
-              <div className="text-sm text-muted-foreground">Aciertos</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-red-600">{totalFP}</div>
-              <div className="text-sm text-muted-foreground">Falsos Positivos</div>
-            </div>
-          </div>
+              <div className="grid grid-cols-2 gap-4 text-center">
+                <div>
+                  <div className="text-2xl font-bold text-green-600">{totalHits}</div>
+                  <div className="text-sm text-muted-foreground">Aciertos</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-red-600">{totalFP}</div>
+                  <div className="text-sm text-muted-foreground">Falsos Positivos</div>
+                </div>
+              </div>
 
-          <div className="space-y-2">
-            <div className="font-medium">Progreso del Nivel:</div>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline">
-                Nivel Final: {adaptiveDifficulty?.getCurrentLevel() || 1}
-              </Badge>
-              <Badge variant="outline">
-                Números: {currentParams.k}
-              </Badge>
-              <Badge variant="outline">
-                Dígitos: {currentParams.digitsLen}
-              </Badge>
-            </div>
-          </div>
+              <div className="space-y-2">
+                <div className="font-medium">Progreso del Nivel:</div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline">
+                    Nivel Final: {adaptiveDifficulty?.getCurrentLevel() || 1}
+                  </Badge>
+                  <Badge variant="outline">
+                    Números: {currentParams.k}
+                  </Badge>
+                  <Badge variant="outline">
+                    Dígitos: {currentParams.digitsLen}
+                  </Badge>
+                </div>
+              </div>
 
-          <div className="flex gap-2">
-            <Button onClick={() => startGame()} className="flex-1">
-              Jugar de Nuevo
-            </Button>
-            <Button onClick={onExit} variant="outline" className="flex-1">
-              Salir
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+              <div className="flex gap-2">
+                <Button onClick={() => startGame()} className="flex-1">
+                  Jugar de Nuevo
+                </Button>
+                <Button onClick={onExit} variant="outline" className="flex-1">
+                  Salir
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     )
   }
 
+  // Calculate grid columns based on number count and screen size
+  const getGridCols = () => {
+    const numCount = currentNumbers.length
+    // For mobile (≤480px), prefer 3 cols max to keep cells large
+    if (numCount <= 9) return 3
+    if (numCount <= 12) return 3  // Still 3 for readability
+    return Math.min(4, Math.ceil(Math.sqrt(numCount)))  // Cap at 4 cols
+  }
+
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <CheckCircle className="w-5 h-5 text-green-500" />
-            Ronda {currentRound}
-          </CardTitle>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4" />
-              <span className="font-mono">{formatTime(timeRemaining)}</span>
-            </div>
-            <Badge variant="outline">
-              Nivel {adaptiveDifficulty?.getCurrentLevel() || 1}
-            </Badge>
-          </div>
-        </div>
-        <Progress value={progress} className="h-2" />
-      </CardHeader>
-      
-      <CardContent className="space-y-4">
-        {/* Game Stats */}
-        <div className="grid grid-cols-4 gap-4 text-center">
+    <div className="w-full min-h-screen bg-gray-50">
+      {/* Mobile-optimized container */}
+      <div className="max-w-lg mx-auto px-3 py-4 sm:max-w-2xl sm:px-6">
+        
+        {/* Stats bar - single row */}
+        <div className="grid grid-cols-4 gap-2 mb-4 text-center">
           <div>
-            <div className="text-2xl font-bold text-blue-600">{totalScore}</div>
+            <div className="text-lg sm:text-2xl font-bold text-blue-600">{totalScore}</div>
             <div className="text-xs text-muted-foreground">Puntos</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-green-600">{rounds.length}</div>
-            <div className="text-xs text-muted-foreground">Rondas</div>
+            <div className="text-lg sm:text-2xl font-bold text-green-600">{adaptiveDifficulty?.getCurrentLevel() || 1}</div>
+            <div className="text-xs text-muted-foreground">Nivel</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-purple-600">{currentParams.k}</div>
+            <div className="text-lg sm:text-2xl font-bold text-purple-600">{currentNumbers.length}</div>
             <div className="text-xs text-muted-foreground">Números</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-orange-600">{currentParams.digitsLen}</div>
-            <div className="text-xs text-muted-foreground">Dígitos</div>
+            <div className="text-lg sm:text-2xl font-bold text-orange-600">{formatTime(timeRemaining)}</div>
+            <div className="text-xs text-muted-foreground">Tiempo</div>
           </div>
         </div>
 
-        {/* Rule Display */}
-        <Card className="bg-gradient-to-r from-blue-50 to-purple-50">
-          <CardContent className="p-6 text-center">
-            <div className="space-y-2">
-              <div className="text-lg font-medium text-muted-foreground">
+        {/* Single instruction banner - compact on mobile */}
+        <Card className="mb-4 bg-gradient-to-r from-blue-50 to-purple-50">
+          <CardContent className="px-4 py-3 sm:p-6 text-center">
+            <div className="space-y-1 sm:space-y-2">
+              <div className="text-sm sm:text-lg font-medium text-muted-foreground">
                 Selecciona todos los números:
               </div>
-              <div className={`text-4xl font-bold ${
+              <div className={`text-2xl sm:text-4xl font-bold ${
                 currentRule === 'even' ? 'text-blue-600' : 'text-purple-600'
               }`}>
                 {currentRule === 'even' ? 'PARES' : 'IMPARES'}
               </div>
               {gameState === GAME_STATES.SELECTING && (
-                <div className="text-sm text-muted-foreground">
+                <div className="text-xs sm:text-sm text-muted-foreground">
                   Objetivos: {getTargetCount()} | Seleccionados: {getSelectedCount()}
                 </div>
               )}
@@ -438,155 +438,170 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
           </CardContent>
         </Card>
 
-        {/* Game Area */}
-        <Card>
-          <CardContent className="p-3 sm:p-6">
-            <div className="min-h-[300px] sm:min-h-[400px] flex items-center justify-center">
-              <AnimatePresence mode="wait">
-                {gameState === GAME_STATES.SHOWING && (
-                  <motion.div
-                    key="showing"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="w-full flex flex-col items-center"
+        {/* Grid container - centered with no overflow */}
+        <div className="gridWrap max-w-md mx-auto px-3 mb-4 overflow-hidden">
+          <div className="min-h-[320px] sm:min-h-[400px] flex items-center justify-center">
+            <AnimatePresence mode="wait">
+              {gameState === GAME_STATES.SHOWING && (
+                <motion.div
+                  key="showing"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="w-full"
+                >
+                  <div 
+                    className="grid gap-3 justify-items-center align-items-center mx-auto w-fit"
+                    style={{
+                      gridTemplateColumns: `repeat(${getGridCols()}, minmax(clamp(56px, 10vw, 72px), 1fr))`
+                    }}
                   >
-                    <div className="grid grid-cols-4 gap-2 sm:gap-3 w-fit mx-auto mb-4">
-                      {currentNumbers.map((num) => (
-                        <motion.div
-                          key={num.id}
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          className={`
-                            w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center font-bold
-                            bg-white border-2 rounded-lg shadow-md
-                            ${num.style?.color || 'text-gray-800'}
-                            ${num.style?.opacity || ''}
-                          `}
-                          style={{
-                            fontSize: 'clamp(16px, 4vw, 20px)',
-                            lineHeight: 1
-                          }}
-                        >
-                          {num.value}
-                        </motion.div>
-                      ))}
-                    </div>
-                    <div className="text-center text-muted-foreground text-sm">
-                      Memoriza los números...
-                    </div>
-                  </motion.div>
-                )}
+                    {currentNumbers.map((num) => (
+                      <motion.div
+                        key={num.id}
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className={`
+                          cell aspect-square flex items-center justify-center font-bold
+                          bg-white border-2 rounded-lg shadow-md touch-manipulation
+                          ${num.style?.color || 'text-gray-800'}
+                          ${num.style?.opacity || ''}
+                        `}
+                        style={{
+                          minWidth: 'clamp(56px, 10vw, 72px)',
+                          fontSize: 'clamp(24px, 7vw, 40px)',
+                          lineHeight: 1,
+                          userSelect: 'none',
+                          WebkitTapHighlightColor: 'transparent'
+                        }}
+                      >
+                        {num.value}
+                      </motion.div>
+                    ))}
+                  </div>
+                  <div className="text-center text-muted-foreground text-sm mt-4">
+                    Memoriza los números...
+                  </div>
+                </motion.div>
+              )}
 
-                {gameState === GAME_STATES.SELECTING && (
-                  <motion.div
-                    key="selecting"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="w-full flex flex-col items-center"
+              {gameState === GAME_STATES.SELECTING && (
+                <motion.div
+                  key="selecting"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="w-full"
+                >
+                  <div 
+                    className="grid gap-3 justify-items-center align-items-center mx-auto w-fit"
+                    style={{
+                      gridTemplateColumns: `repeat(${getGridCols()}, minmax(clamp(56px, 10vw, 72px), 1fr))`
+                    }}
                   >
-                    <div className="grid grid-cols-4 gap-2 sm:gap-3 w-fit mx-auto mb-4">
-                      {currentNumbers.map((num) => (
-                        <motion.button
-                          key={num.id}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => handleNumberClick(num.id)}
-                          className={`
-                            w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center font-bold
-                            border-2 rounded-lg shadow-md transition-all touch-manipulation
-                            ${num.selected 
-                              ? 'bg-blue-500 text-white border-blue-600 ring-2 ring-blue-300' 
-                              : 'bg-white border-gray-300 hover:border-gray-400'
-                            }
-                            ${!num.selected && (num.style?.color || 'text-gray-800')}
-                            ${!num.selected && (num.style?.opacity || '')}
-                          `}
-                          style={{
-                            fontSize: 'clamp(16px, 4vw, 20px)',
-                            lineHeight: 1,
-                            WebkitTapHighlightColor: 'transparent'
-                          }}
-                          aria-label={`Número ${num.value}`}
-                        >
-                          {num.value}
-                        </motion.button>
-                      ))}
-                    </div>
-                    <div className="text-center">
-                      <Button onClick={submitSelections} size="lg">
-                        Confirmar Selección
-                      </Button>
-                    </div>
-                  </motion.div>
-                )}
+                    {currentNumbers.map((num) => (
+                      <motion.button
+                        key={num.id}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleNumberClick(num.id)}
+                        className={`
+                          cell aspect-square flex items-center justify-center font-bold
+                          border-2 rounded-lg shadow-md transition-all touch-manipulation
+                          ${num.selected 
+                            ? 'bg-blue-500 text-white border-blue-600 ring-2 ring-blue-300' 
+                            : 'bg-white border-gray-300 hover:border-gray-400 active:scale-95'
+                          }
+                          ${!num.selected && (num.style?.color || 'text-gray-800')}
+                          ${!num.selected && (num.style?.opacity || '')}
+                        `}
+                        style={{
+                          minWidth: 'clamp(56px, 10vw, 72px)',
+                          fontSize: 'clamp(24px, 7vw, 40px)',
+                          lineHeight: 1,
+                          userSelect: 'none',
+                          WebkitTapHighlightColor: 'transparent',
+                          touchAction: 'manipulation'
+                        }}
+                        aria-label={`Número ${num.value}`}
+                      >
+                        {num.value}
+                      </motion.button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
 
-                {gameState === GAME_STATES.FEEDBACK && rounds.length > 0 && (
-                  <motion.div
-                    key="feedback"
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="text-center space-y-4"
-                  >
-                    <div className="space-y-2">
-                      <div className={`text-6xl ${
-                        rounds[rounds.length - 1].accuracy >= 0.8 ? 'text-green-600' : 'text-orange-600'
-                      }`}>
-                        {rounds[rounds.length - 1].accuracy >= 0.8 ? '✓' : '○'}
-                      </div>
-                      <div className="text-2xl font-bold">
-                        {(rounds[rounds.length - 1].accuracy * 100).toFixed(0)}% Precisión
-                      </div>
-                      <div className="text-lg">
-                        +{rounds[rounds.length - 1].score} puntos
-                      </div>
+              {gameState === GAME_STATES.FEEDBACK && rounds.length > 0 && (
+                <motion.div
+                  key="feedback"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="text-center space-y-4"
+                >
+                  <div className="space-y-2">
+                    <div className={`text-6xl ${
+                      rounds[rounds.length - 1].accuracy >= 0.8 ? 'text-green-600' : 'text-orange-600'
+                    }`}>
+                      {rounds[rounds.length - 1].accuracy >= 0.8 ? '✓' : '○'}
                     </div>
-                    
-                    <div className="grid grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <div className="font-bold text-green-600">{rounds[rounds.length - 1].hits}</div>
-                        <div>Aciertos</div>
-                      </div>
-                      <div>
-                        <div className="font-bold text-red-600">{rounds[rounds.length - 1].falsePositives}</div>
-                        <div>Falsos +</div>
-                      </div>
-                      <div>
-                        <div className="font-bold text-orange-600">{rounds[rounds.length - 1].misses}</div>
-                        <div>Perdidos</div>
-                      </div>
+                    <div className="text-2xl font-bold">
+                      {(rounds[rounds.length - 1].accuracy * 100).toFixed(0)}% Precisión
                     </div>
-                    
-                    {rounds[rounds.length - 1].levelChanged && (
-                      <Badge variant="default" className="bg-blue-500">
-                        ¡Nivel {rounds[rounds.length - 1].newLevel}!
-                      </Badge>
-                    )}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </CardContent>
-        </Card>
+                    <div className="text-lg">
+                      +{rounds[rounds.length - 1].score} puntos
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-3 gap-4 text-sm">
+                    <div>
+                      <div className="font-bold text-green-600">{rounds[rounds.length - 1].hits}</div>
+                      <div>Aciertos</div>
+                    </div>
+                    <div>
+                      <div className="font-bold text-red-600">{rounds[rounds.length - 1].falsePositives}</div>
+                      <div>Falsos +</div>
+                    </div>
+                    <div>
+                      <div className="font-bold text-orange-600">{rounds[rounds.length - 1].misses}</div>
+                      <div>Perdidos</div>
+                    </div>
+                  </div>
+                  
+                  {rounds[rounds.length - 1].levelChanged && (
+                    <Badge variant="default" className="bg-blue-500">
+                      ¡Nivel {rounds[rounds.length - 1].newLevel}!
+                    </Badge>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
 
-        {/* Instructions */}
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-center text-sm text-muted-foreground space-y-2">
-              <div className="font-medium">
-                {gameState === GAME_STATES.SHOWING && "Observa y memoriza los números..."}
-                {gameState === GAME_STATES.SELECTING && `Selecciona todos los números ${currentRule === 'even' ? 'PARES' : 'IMPARES'}`}
-                {gameState === GAME_STATES.FEEDBACK && "Calculando resultados..."}
-              </div>
-              <div className="flex justify-center gap-6 text-xs">
-                <span>🎯 Regla: {currentRule === 'even' ? 'Pares' : 'Impares'}</span>
-                <span>⚡ Números: {currentParams.k}</span>
-                <span>🔢 Dígitos: {currentParams.digitsLen}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </CardContent>
-    </Card>
+        {/* Footer CTA - full width, never overlaps grid */}
+        {gameState === GAME_STATES.SELECTING && (
+          <div className="footerCta max-w-md mx-auto px-3">
+            <Button 
+              onClick={submitSelections} 
+              className="w-full h-12 text-lg font-semibold"
+              style={{
+                marginBottom: 'calc(8px + env(safe-area-inset-bottom))'
+              }}
+            >
+              Confirmar Selección
+            </Button>
+          </div>
+        )}
+
+        {/* Progress indicator */}
+        <div className="mt-4">
+          <Progress value={progress} className="h-2" />
+          <div className="flex justify-between items-center mt-2 text-xs text-muted-foreground">
+            <span>Ronda {currentRound}</span>
+            <span>Nivel {adaptiveDifficulty?.getCurrentLevel() || 1}</span>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
