@@ -42,28 +42,7 @@ export default function RSVPReader({ onExit }) {
   const intervalRef = useRef(null)
   const { sessionId } = useAppStore()
   
-  // Load preferences from localStorage on mount
-  useEffect(() => {
-    const savedWpm = localStorage.getItem('rsvp_wpm')
-    const savedChunkSize = localStorage.getItem('rsvp_chunkSize')
-    
-    if (savedWpm) {
-      setWpm(parseInt(savedWpm))
-    }
-    if (savedChunkSize) {
-      setChunkSize(parseInt(savedChunkSize))
-    }
-  }, []) // Remove setWpm, setChunkSize from dependencies
-  
-  // Save preferences to localStorage when they change
-  useEffect(() => {
-    localStorage.setItem('rsvp_wpm', wpm.toString())
-  }, [wpm])
-  
-  useEffect(() => {
-    localStorage.setItem('rsvp_chunkSize', chunkSize.toString())
-  }, [chunkSize])
-  
+  // Extract RSVP store values first
   const {
     isActive,
     words,
@@ -82,6 +61,28 @@ export default function RSVPReader({ onExit }) {
     advance,
     getProgress
   } = useRSVPStore()
+  
+  // Load preferences from localStorage on mount
+  useEffect(() => {
+    const savedWpm = localStorage.getItem('rsvp_wpm')
+    const savedChunkSize = localStorage.getItem('rsvp_chunkSize')
+    
+    if (savedWpm) {
+      setWpm(parseInt(savedWpm))
+    }
+    if (savedChunkSize) {
+      setChunkSize(parseInt(savedChunkSize))
+    }
+  }, [setWpm, setChunkSize])
+  
+  // Save preferences to localStorage when they change
+  useEffect(() => {
+    localStorage.setItem('rsvp_wpm', wpm.toString())
+  }, [wpm])
+  
+  useEffect(() => {
+    localStorage.setItem('rsvp_chunkSize', chunkSize.toString())
+  }, [chunkSize])
 
   // Sample texts for quick testing with comprehension questions
   const sampleTexts = {
