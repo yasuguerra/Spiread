@@ -137,6 +137,10 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
       selectionTimes.current = []
     }, params.exposureTotal)
   }
+      setRoundStartTime(Date.now())
+      selectionTimes.current = []
+    }, params.exposureTotal)
+  }
 
   const handleNumberClick = (numberId) => {
     if (gameState !== GAME_STATES.SELECTING) return
@@ -244,20 +248,28 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
         average_accuracy: rounds.length > 0 ? rounds.reduce((sum, r) => sum + r.accuracy, 0) / rounds.length : 0,
         average_rt: rounds.length > 0 ? rounds.reduce((sum, r) => sum + r.meanRt, 0) / rounds.length : 0,
         total_hits: rounds.reduce((sum, r) => sum + r.hits, 0),
-        total_false_positives: rounds.reduce((sum, r) => sum + r.falsePositives, 0)
+        total_false_positives: rounds.reduce((sum, r) => sum + r.falsePositives, 0),
+        rounds: rounds
       }
     }
     
-    try {
-      await saveGameProgress(userId, 'par_impar', gameData)
-    } catch (error) {
-      console.error('Error saving game progress:', error)
+    if (onFinish) {
+      onFinish(gameData)
     }
     
-    onFinish?.(gameData)
+    // Save progress
+    try {
+      await saveGameProgress(userId, 'par_impar', {
+        last_level: adaptiveDifficulty?.getCurrentLevel() || 1,
+        last_best_score: Math.max(totalScore, 0),
+        total_rounds: rounds.length,
+        best_accuracy: rounds.length > 0 ? Math.max(...rounds.map(r => r.accuracy)) : 0
+      })
+    } catch (error) {
+      console.error('Error saving progress:', error)
+    }
   }
 
-  // Helper functions
   const formatTime = (ms) => {
     const seconds = Math.ceil(ms / 1000)
     return `${seconds}s`
@@ -276,33 +288,10 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
   const currentParams = adaptiveDifficulty?.getGameParameters() || { k: 8, digitsLen: 3, exposureTotal: 12000, goalRt: 900 }
   const progress = timeLimit > 0 ? ((timeLimit - timeRemaining) / timeLimit) * 100 : 0
 
-  // Skeleton Grid Component - same columns as real grid to prevent layout shift
-  const SkeletonGrid = () => (
-    <div 
-      className="grid gap-3 justify-items-center"
-      style={{
-        gridTemplateColumns: `repeat(auto-fit, minmax(clamp(56px, 10vw, 72px), 1fr))`,
-        maxWidth: '100%'
-      }}
-    >
-      {Array.from({ length: currentParams.k }).map((_, index) => (
-        <div
-          key={`skeleton-${index}`}
-          className="aspect-square rounded-lg bg-gray-200 animate-pulse border-2 border-gray-300"
-          style={{
-            minWidth: 'clamp(56px, 10vw, 72px)',
-            minHeight: 'clamp(56px, 10vw, 72px)'
-          }}
-        />
-      ))}
-    </div>
-  )
-
-  // Pre-game setup screen
-  if (!started) {
+  if (!gameStarted) {
     return (
       <div className="w-full min-h-screen bg-gray-50">
-        <div className="max-w-[480px] mx-auto px-3 overflow-x-hidden">
+        <div className="max-w-lg mx-auto px-3 py-4 sm:max-w-2xl sm:px-6">
           <Card className="w-full">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -345,14 +334,9 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
                 </ul>
               </div>
               
-              <Button 
-                onClick={onStart} 
-                className="w-full" 
-                size="lg"
-                disabled={!ready}
-              >
+              <Button onClick={startGame} className="w-full" size="lg">
                 <Zap className="w-4 h-4 mr-2" />
-                {ready ? 'Comenzar Juego (60s)' : 'Preparando...'}
+                Comenzar Juego (60s)
               </Button>
             </CardContent>
           </Card>
@@ -369,7 +353,7 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
 
     return (
       <div className="w-full min-h-screen bg-gray-50">
-        <div className="max-w-[480px] mx-auto px-3 overflow-x-hidden">
+        <div className="max-w-lg mx-auto px-3 py-4 sm:max-w-2xl sm:px-6">
           <Card className="w-full">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -424,7 +408,7 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
               </div>
 
               <div className="flex gap-2">
-                <Button onClick={() => onStart()} className="flex-1">
+                <Button onClick={() => startGame()} className="flex-1">
                   Jugar de Nuevo
                 </Button>
                 <Button onClick={onExit} variant="outline" className="flex-1">
@@ -438,84 +422,72 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
     )
   }
 
-  // Mobile-first game layout: Stats → Instruction → Grid → CTA
   return (
     <div className="w-full min-h-screen bg-gray-50">
-      <div className="max-w-[480px] mx-auto px-3 overflow-x-hidden">
+      {/* Mobile-optimized game wrapper */}
+      <div className="gameWrap">
         
-        {/* Stats Section */}
-        <div className="flex justify-between items-center py-4 text-sm">
-          <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4" />
-            <span className="font-mono">{formatTime(timeRemaining)}</span>
+        {/* Stats bar - single row, fixed width counters */}
+        <div className="grid grid-cols-4 gap-2 mb-4 text-center">
+          <div className="min-w-0">
+            <div className="text-lg sm:text-2xl font-bold text-blue-600 truncate">{totalScore}</div>
+            <div className="text-xs text-muted-foreground">Puntos</div>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1">
-              <Target className="w-4 h-4" />
-              <span>{totalScore}</span>
-            </div>
-            <Badge variant="outline">R{currentRound}</Badge>
-            <Badge variant="outline">L{adaptiveDifficulty?.getCurrentLevel() || 1}</Badge>
+          <div className="min-w-0">
+            <div className="text-lg sm:text-2xl font-bold text-green-600 truncate">{adaptiveDifficulty?.getCurrentLevel() || 1}</div>
+            <div className="text-xs text-muted-foreground">Nivel</div>
+          </div>
+          <div className="min-w-0">
+            <div className="text-lg sm:text-2xl font-bold text-purple-600 truncate">{currentNumbers.length}</div>
+            <div className="text-xs text-muted-foreground">Números</div>
+          </div>
+          <div className="min-w-0">
+            <div className="text-lg sm:text-2xl font-bold text-orange-600 truncate">{formatTime(timeRemaining)}</div>
+            <div className="text-xs text-muted-foreground">Tiempo</div>
           </div>
         </div>
 
-        {/* Single Instruction Banner */}
-        <div className="w-full mb-6">
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-center">
-                <div className="text-lg font-bold mb-2">
-                  {gameState === GAME_STATES.SHOWING && 'Memoriza los números'}
-                  {gameState === GAME_STATES.SELECTING && (
-                    <>Selecciona todos los números <span className="text-blue-600">{currentRule === 'even' ? 'PARES' : 'IMPARES'}</span></>
-                  )}
-                  {gameState === GAME_STATES.FEEDBACK && 'Evaluando respuesta...'}
-                </div>
-                {gameState === GAME_STATES.SELECTING && (
-                  <div className="text-sm text-muted-foreground">
-                    Objetivo: {getTargetCount()} • Seleccionados: {getSelectedCount()}
-                  </div>
-                )}
+        {/* Single instruction banner - mobile stacked layout */}
+        <div className="instruction-banner mb-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border">
+          <div className="px-4 py-3 text-center">
+            <div className="space-y-1">
+              <div className="text-sm font-medium text-muted-foreground">
+                Selecciona todos los números:
               </div>
-            </CardContent>
-          </Card>
+              <div className={`text-2xl font-bold ${
+                currentRule === 'even' ? 'text-blue-600' : 'text-purple-600'
+              }`}>
+                {currentRule === 'even' ? 'PARES' : 'IMPARES'}
+              </div>
+              {gameState === GAME_STATES.SELECTING && (
+                <div className="text-xs text-muted-foreground">
+                  Objetivos: {getTargetCount()} | Seleccionados: {getSelectedCount()}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
-        {/* Centered Grid Container */}
-        <div className="w-full flex justify-center mb-6">
-          <div className="w-full max-w-sm">
+        {/* Grid container - centered with responsive columns */}
+        <div className="grid-container">
+          <div className="min-h-[320px] flex items-center justify-center">
             <AnimatePresence mode="wait">
-              {!ready && (
-                <motion.div key="skeleton" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                  <SkeletonGrid />
-                </motion.div>
-              )}
-
-              {ready && gameState === GAME_STATES.SHOWING && (
+              {gameState === GAME_STATES.SHOWING && (
                 <motion.div
                   key="showing"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 1.2 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
                   className="w-full"
                 >
-                  <div 
-                    className="grid gap-3 justify-items-center"
-                    style={{
-                      gridTemplateColumns: `repeat(auto-fit, minmax(clamp(56px, 10vw, 72px), 1fr))`
-                    }}
-                  >
+                  <div className="grid gap-3 justify-items-center">
                     {currentNumbers.map((num) => (
                       <motion.div
                         key={num.id}
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        transition={{ delay: Math.random() * 0.2 }}
-                        className="aspect-square rounded-lg border-2 border-gray-300 bg-white flex items-center justify-center font-bold transition-all duration-200"
+                        className="cell"
                         style={{
-                          minWidth: 'clamp(56px, 10vw, 72px)',
-                          minHeight: 'clamp(56px, 10vw, 72px)',
-                          fontSize: 'clamp(24px, 7vw, 40px)',
                           color: num.style?.color || 'inherit',
                           opacity: num.style?.opacity || 1
                         }}
@@ -524,22 +496,20 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
                       </motion.div>
                     ))}
                   </div>
+                  <div className="text-center text-muted-foreground text-sm mt-4">
+                    Memoriza los números...
+                  </div>
                 </motion.div>
               )}
 
-              {ready && gameState === GAME_STATES.SELECTING && (
+              {gameState === GAME_STATES.SELECTING && (
                 <motion.div
                   key="selecting"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   className="w-full"
                 >
-                  <div 
-                    className="grid gap-3 justify-items-center"
-                    style={{
-                      gridTemplateColumns: `repeat(auto-fit, minmax(clamp(56px, 10vw, 72px), 1fr))`
-                    }}
-                  >
+                  <div className="grid gap-3 justify-items-center">
                     {currentNumbers.map((num) => (
                       <motion.button
                         key={num.id}
@@ -547,16 +517,13 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
                         whileTap={{ scale: 0.95 }}
                         onClick={() => handleNumberClick(num.id)}
                         className={`
-                          aspect-square rounded-lg border-2 flex items-center justify-center font-bold transition-all duration-200 cursor-pointer touch-manipulation
+                          cell
                           ${num.selected 
                             ? 'bg-blue-500 text-white border-blue-600 ring-2 ring-blue-300' 
-                            : 'bg-white border-gray-300 hover:border-gray-400 hover:shadow-md'
+                            : 'bg-white border-gray-300 hover:border-gray-400'
                           }
                         `}
                         style={{
-                          minWidth: 'clamp(56px, 10vw, 72px)',
-                          minHeight: 'clamp(56px, 10vw, 72px)',
-                          fontSize: 'clamp(24px, 7vw, 40px)',
                           color: !num.selected ? (num.style?.color || 'inherit') : undefined,
                           opacity: !num.selected ? (num.style?.opacity || 1) : undefined
                         }}
@@ -569,7 +536,7 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
                 </motion.div>
               )}
 
-              {ready && gameState === GAME_STATES.FEEDBACK && rounds.length > 0 && (
+              {gameState === GAME_STATES.FEEDBACK && rounds.length > 0 && (
                 <motion.div
                   key="feedback"
                   initial={{ opacity: 0, scale: 0.8 }}
@@ -616,33 +583,26 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
           </div>
         </div>
 
-        {/* Progress indicator */}
-        <div className="mb-4">
-          <Progress value={progress} className="h-2" />
-          <div className="flex justify-between items-center mt-2 text-xs text-muted-foreground">
-            <span>Ronda {currentRound}</span>
-            <span>Nivel {adaptiveDifficulty?.getCurrentLevel() || 1}</span>
-          </div>
-        </div>
-
-        {/* Full-width bottom CTA - no overlap, safe-area friendly */}
+        {/* Footer CTA - full width, no overlap, safe-area friendly */}
         {gameState === GAME_STATES.SELECTING && (
-          <div 
-            className="w-full"
-            style={{ 
-              paddingBottom: 'calc(8px + env(safe-area-inset-bottom))' 
-            }}
-          >
+          <div className="footerCta">
             <Button 
               onClick={submitSelections} 
               className="w-full h-12 text-lg font-semibold"
-              size="lg"
             >
               Confirmar Selección
             </Button>
           </div>
         )}
 
+        {/* Progress indicator */}
+        <div className="mt-4">
+          <Progress value={progress} className="h-2" />
+          <div className="flex justify-between items-center mt-2 text-xs text-muted-foreground">
+            <span>Ronda {currentRound}</span>
+            <span>Nivel {adaptiveDifficulty?.getCurrentLevel() || 1}</span>
+          </div>
+        </div>
       </div>
     </div>
   )
