@@ -230,8 +230,7 @@ export default function WordSearch({
 
   // Start new round
   const startRound = useCallback(() => {
-    if (timeRemaining <= 0) return
-
+    // Remove timeRemaining dependency for mobile-first approach
     const { grid: newGrid, words: newWords, wordPositions: newWordPositions } = generateRound()
     setGrid(newGrid)
     setWords(newWords)
@@ -240,7 +239,7 @@ export default function WordSearch({
     setSelection({ start: null, end: null, cells: [] })
     setGameState('playing')
     roundStartTime.current = Date.now()
-  }, [generateRound, timeRemaining])
+  }, [generateRound])
 
   // Get cell coordinates from a pointer event
   const getCellFromEvent = (e) => {
@@ -470,12 +469,13 @@ export default function WordSearch({
     setSelection({ start: null, end: null, cells: [] })
   }, [isSelecting, selection, grid, words, foundWords, score, onScoreUpdate, timeRemaining, startRound])
 
-  // Auto-start first round
+  // Auto-start first round - mobile-first approach
   useEffect(() => {
-    if (timeRemaining > 0 && gameState === 'idle') {
+    // Don't wait for timeRemaining, start immediately when component ready
+    if (gameState === 'idle' && words.length === 0) {
       startRound()
     }
-  }, [timeRemaining, gameState, startRound])
+  }, [gameState, words, startRound])
 
   // Handle game completion
   useEffect(() => {

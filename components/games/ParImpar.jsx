@@ -40,6 +40,23 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
   const selectionTimes = useRef([])
   const lastTimestamp = useRef(Date.now())
 
+  // Client-side number generation with object wrapping
+  const generateNumbersForGame = useCallback((k, digitsLen, hasDistractors) => {
+    const rawNumbers = generateNumberGrid(k, digitsLen, hasDistractors)
+    
+    return rawNumbers.map((num, index) => ({
+      id: `num-${index}-${Date.now()}`,
+      value: num,
+      isEven: num % 2 === 0,
+      isOdd: num % 2 === 1,
+      selected: false,
+      style: {
+        color: '#000',
+        opacity: 1
+      }
+    }))
+  }, [])
+
   // Client-side initialization to avoid SSR randomness
   useEffect(() => {
     const initializeGameClient = async () => {
@@ -92,6 +109,9 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
     setTimeRemaining(timeLimit)
     lastTimestamp.current = Date.now()
     
+    // Generate first number immediately on client-side
+    startNewRound()
+    
     // Start game timer with visibility pause support
     gameTimer.current = setInterval(() => {
       if (isPaused) return // Skip timer updates when paused
@@ -122,8 +142,8 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
     const newRule = currentRound % 2 === 1 ? 'even' : 'odd'
     setCurrentRule(newRule)
     
-    // Generate number grid client-side
-    const numbers = generateNumberGrid(params.k, params.digitsLen, params.hasDistractors)
+    // Generate number grid client-side with proper object structure
+    const numbers = generateNumbersForGame(params.k, params.digitsLen, params.hasDistractors)
     setCurrentNumbers(numbers)
     setSelections([])
     

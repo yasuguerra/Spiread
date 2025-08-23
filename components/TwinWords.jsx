@@ -47,24 +47,45 @@ export default function TwinWords({ onGameFinish, difficultyLevel = 1, durationM
     setGameParams(params)
   }, [difficultyLevel])
 
-  // Word pairs with micro-differences
+  // Word pairs with micro-differences - improved difficulty progression
   const generateWordPairs = () => {
-    const basePairs = [
+    // Basic pairs for easier levels
+    const easyPairs = [
+      // Very obvious differences for beginners
+      { word1: 'casa', word2: 'mesa', identical: false }, // c/m clearly different
+      { word1: 'gato', word2: 'pato', identical: false }, // g/p clearly different
+      { word1: 'sol', word2: 'sal', identical: false }, // o/a clearly different
+      { word1: 'mar', word2: 'par', identical: false }, // m/p clearly different
+      { word1: 'luz', word2: 'paz', identical: false }, // l/p clearly different
+      
       // Identical pairs
       { word1: 'casa', word2: 'casa', identical: true },
       { word1: 'gato', word2: 'gato', identical: true },
       { word1: 'libro', word2: 'libro', identical: true },
       { word1: 'mundo', word2: 'mundo', identical: true },
-      { word1: 'tiempo', word2: 'tiempo', identical: true },
-      
-      // Different pairs with subtle differences
+      { word1: 'tiempo', word2: 'tiempo', identical: true }
+    ]
+
+    // Medium difficulty pairs
+    const mediumPairs = [
+      // Single letter differences
       { word1: 'cosa', word2: 'casa', identical: false }, // o/a
       { word1: 'peso', word2: 'piso', identical: false }, // e/i
-      { word1: 'perro', word2: 'perno', identical: false }, // rr/rn
       { word1: 'carro', word2: 'corro', identical: false }, // a/o
       { word1: 'mano', word2: 'nano', identical: false }, // m/n
-      { word1: 'claro', word2: 'daro', identical: false }, // cl/d
       { word1: 'bueno', word2: 'nuevo', identical: false }, // b/n
+      
+      // Add more identical pairs for balance
+      { word1: 'papel', word2: 'papel', identical: true },
+      { word1: 'mesa', word2: 'mesa', identical: true },
+      { word1: 'agua', word2: 'agua', identical: true }
+    ]
+    
+    // Hard difficulty pairs  
+    const hardPairs = [
+      // Subtle differences (rn/m, cl/d, etc.)
+      { word1: 'perro', word2: 'perno', identical: false }, // rr/rn
+      { word1: 'claro', word2: 'daro', identical: false }, // cl/d
       { word1: 'tiempo', word2: 'tiernpo', identical: false }, // m/rn
       { word1: 'persona', word2: 'persorna', identical: false }, // o/or
       { word1: 'momento', word2: 'mornento', identical: false }, // m/rn
@@ -84,16 +105,43 @@ export default function TwinWords({ onGameFinish, difficultyLevel = 1, durationM
       { word1: 'TIEMPO', word2: 'tiempo', identical: false }
     ]
 
+    // Select pairs based on difficulty level
+    let availablePairs = []
+    const difficultyLevel = gameParams.difficulty || 1
+    
+    if (difficultyLevel <= 2) {
+      // Easy: mostly obvious differences and identical pairs
+      availablePairs = [...easyPairs, ...easyPairs] // Double easy pairs for more practice
+    } else if (difficultyLevel <= 4) {
+      // Medium: mix of easy and medium
+      availablePairs = [...easyPairs, ...mediumPairs]
+    } else {
+      // Hard: all difficulty levels with emphasis on harder pairs
+      availablePairs = [...easyPairs.slice(5), ...mediumPairs, ...hardPairs]
+    }
+
     // Filter by word length based on difficulty
-    const filteredPairs = basePairs.filter(pair => {
+    const filteredPairs = availablePairs.filter(pair => {
       const avgLength = (pair.word1.length + pair.word2.length) / 2
       return avgLength >= Math.max(3, gameParams.wordLength - 2) && 
              avgLength <= gameParams.wordLength + 2
     })
 
-    // Shuffle and take 20 pairs for the game
-    const shuffled = [...filteredPairs].sort(() => Math.random() - 0.5)
-    return shuffled.slice(0, 20)
+    // Ensure good balance of identical vs different pairs
+    const identicalPairs = filteredPairs.filter(p => p.identical)
+    const differentPairs = filteredPairs.filter(p => !p.identical)
+    
+    // Take balanced selection (50/50 split roughly)
+    const numPairs = 20
+    const numIdentical = Math.min(Math.floor(numPairs * 0.4), identicalPairs.length) // 40% identical
+    const numDifferent = numPairs - numIdentical
+    
+    const selectedIdentical = identicalPairs.sort(() => Math.random() - 0.5).slice(0, numIdentical)
+    const selectedDifferent = differentPairs.sort(() => Math.random() - 0.5).slice(0, numDifferent)
+    
+    // Combine and shuffle
+    const finalPairs = [...selectedIdentical, ...selectedDifferent]
+    return finalPairs.sort(() => Math.random() - 0.5)
   }
 
   // Initialize game

@@ -204,7 +204,8 @@ export default function LettersGrid({
 
   // Enhanced screen timing with visual countdown
   const startScreen = useCallback(() => {
-    if (!gameContextRef.current || gameContextRef.current.gameState !== 'playing') return
+    // Remove gameContextRef dependency for mobile-first approach
+    if (!isInitialized) return
 
     // Apply progressive difficulty modifier
     const adjustedConfig = {
@@ -242,7 +243,7 @@ export default function LettersGrid({
     screenStartTime.current = screenStart
     
     return () => clearInterval(countdownInterval)
-  }, [config, generateGrid, sessionData.totalScreens, difficultyModifier, gameStartTime])
+  }, [config, generateGrid, sessionData.totalScreens, difficultyModifier, gameStartTime, isInitialized])
 
   // Handle cell click
   const handleCellClick = useCallback((row, col) => {
@@ -353,12 +354,13 @@ export default function LettersGrid({
     }, 1500) // Brief pause to show results
   }, [selectedCells, currentScreenStartTime, config, sessionData, startScreen])
 
-  // Auto-start first screen
+  // Auto-start first screen - mobile-first approach  
   useEffect(() => {
-    if (timeRemaining > 0 && gameState === 'idle') {
+    // Don't wait for timeRemaining, start immediately when ready
+    if (gameState === 'idle' && isInitialized) {
       startScreen()
     }
-  }, [timeRemaining, gameState, startScreen])
+  }, [gameState, isInitialized, startScreen])
 
   // Handle game completion
   useEffect(() => {
