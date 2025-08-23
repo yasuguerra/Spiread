@@ -262,10 +262,13 @@ export default function SchulteTable({ onGameFinish, difficultyLevel = 1, durati
 
             {/* Grid */}
             <div 
-              className="grid gap-2 mx-auto"
+              className="gameWrap"
               style={{
+                display: 'grid',
                 gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
-                maxWidth: `${gridSize * 80}px`
+                gap: 'clamp(4px, 2vw, 8px)',
+                maxWidth: 'min(90vw, 480px)',
+                margin: '0 auto'
               }}
             >
               {grid.flat().map((number, index) => (
@@ -274,8 +277,7 @@ export default function SchulteTable({ onGameFinish, difficultyLevel = 1, durati
                   onClick={() => handleCellClick(number)}
                   disabled={isCompleted}
                   className={`
-                    aspect-square flex items-center justify-center text-lg font-bold
-                    border-2 rounded-lg transition-all duration-200
+                    cell
                     ${number < currentNumber 
                       ? 'bg-green-100 border-green-300 text-green-700' 
                       : number === currentNumber

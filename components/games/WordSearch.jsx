@@ -549,17 +549,23 @@ export default function WordSearch({
           <div className="flex justify-center">
             <div 
               ref={gridRef}
-              className="grid gap-0 p-2 bg-gray-50 rounded-lg border-2 select-none cursor-pointer"
+              className="gameWrap" 
               data-testid="word-search-grid"
               style={{ 
+                display: 'grid',
                 gridTemplateColumns: `repeat(${config.gridSize}, 1fr)`,
-                maxWidth: '400px',
-                touchAction: 'none' // Prevent scrolling on touch devices
+                gap: '2px',
+                maxWidth: 'min(90vw, 480px)',
+                touchAction: 'none',
+                padding: '8px',
+                backgroundColor: '#f9fafb',
+                borderRadius: '8px',
+                border: '2px solid #e5e7eb'
               }}
               onPointerDown={handlePointerDown}
               onPointerMove={handlePointerMove}
               onPointerUp={handlePointerUp}
-              onPointerCancel={handlePointerUp} // Treat cancel as up
+              onPointerCancel={handlePointerUp}
             >
               {grid.map((row, rowIndex) =>
                 row.map((letter, colIndex) => {
@@ -581,8 +587,7 @@ export default function WordSearch({
                     <div
                       key={`${rowIndex}-${colIndex}`}
                       className={`
-                        w-6 h-6 border border-gray-200 flex items-center justify-center
-                        text-xs font-mono transition-all duration-200
+                        cell
                         ${isSelected 
                           ? 'bg-blue-500 text-white' 
                           : isInFoundWord
