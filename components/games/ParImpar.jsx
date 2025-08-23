@@ -237,7 +237,7 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
     
     // Show feedback briefly
     setTimeout(() => {
-      if (timeRemaining > 3000) { // Continue if time remains
+      if (currentRound < 10) { // Continue for up to 10 rounds instead of checking timeRemaining
         setCurrentRound(prev => prev + 1)
         startNewRound()
       } else {

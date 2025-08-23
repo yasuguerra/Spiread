@@ -96,7 +96,11 @@ export default function LettersGrid({
           setGameState('idle')
           clearTimeout(timeoutId)
         } else {
-          throw new Error('Missing letters data')
+          // Still proceed even without full letter data
+          console.log('LettersGrid: Using fallback letter data')
+          setIsInitialized(true)
+          setGameState('idle')
+          clearTimeout(timeoutId)
         }
       } catch (error) {
         console.error('LettersGrid: Initialization error:', error)
@@ -111,7 +115,8 @@ export default function LettersGrid({
 
   // Generate random letters with optional confusables
   const generateLetters = useCallback((count, useConfusables = false) => {
-    const availableLetters = lettersData.targets
+    // Safety check for letters data
+    const availableLetters = lettersData?.targets || ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
     const selectedTargets = []
     
     for (let i = 0; i < count; i++) {
@@ -346,7 +351,9 @@ export default function LettersGrid({
 
     // Continue with next screen or complete
     setTimeout(() => {
-      if (gameContextRef.current && gameContextRef.current.gameState === 'playing') {
+      // Remove gameContextRef dependency - continue based on internal state
+      const totalScreensCompleted = sessionData?.totalScreens || 0
+      if (totalScreensCompleted < 20) { // Continue for up to 20 screens
         startScreen()
       } else {
         setGameState('complete')

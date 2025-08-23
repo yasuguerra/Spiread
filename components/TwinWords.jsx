@@ -107,12 +107,13 @@ export default function TwinWords({ onGameFinish, difficultyLevel = 1, durationM
 
     // Select pairs based on difficulty level
     let availablePairs = []
-    const difficultyLevel = gameParams.difficulty || 1
+    // Use the passed difficultyLevel parameter directly
+    const currentDifficulty = difficultyLevel || 1
     
-    if (difficultyLevel <= 2) {
+    if (currentDifficulty <= 2) {
       // Easy: mostly obvious differences and identical pairs
       availablePairs = [...easyPairs, ...easyPairs] // Double easy pairs for more practice
-    } else if (difficultyLevel <= 4) {
+    } else if (currentDifficulty <= 4) {
       // Medium: mix of easy and medium
       availablePairs = [...easyPairs, ...mediumPairs]
     } else {

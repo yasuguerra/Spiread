@@ -75,6 +75,7 @@ export default function MobileGameTest() {
   }
 
   const completeGame = (results) => {
+    console.log(`Game ${selectedGame} completed:`, results)
     setTestResults(prev => [...prev, {
       gameId: selectedGame,
       timestamp: new Date().toLocaleTimeString(),
@@ -82,6 +83,16 @@ export default function MobileGameTest() {
       success: true
     }])
     setSelectedGame(null)
+  }
+
+  const handleGameError = (error) => {
+    console.error(`Game ${selectedGame} error:`, error)
+    setTestResults(prev => [...prev, {
+      gameId: selectedGame,
+      timestamp: new Date().toLocaleTimeString(),
+      error: error.message || 'Unknown error',
+      success: false
+    }])
   }
 
   const selectedGameData = games.find(g => g.id === selectedGame)
@@ -138,12 +149,21 @@ export default function MobileGameTest() {
           <CardContent>
             <div className="space-y-2">
               {testResults.map((result, index) => (
-                <div key={index} className="flex items-center justify-between p-2 bg-green-50 rounded">
-                  <span className="text-sm font-medium">
-                    {games.find(g => g.id === result.gameId)?.name}
-                  </span>
-                  <Badge variant="default" className="bg-green-500">
-                    ✅ {result.timestamp}
+                <div key={index} className={`flex items-center justify-between p-2 rounded ${
+                  result.success ? 'bg-green-50' : 'bg-red-50'
+                }`}>
+                  <div>
+                    <span className="text-sm font-medium">
+                      {games.find(g => g.id === result.gameId)?.name}
+                    </span>
+                    {result.error && (
+                      <div className="text-xs text-red-600 mt-1">
+                        Error: {result.error}
+                      </div>
+                    )}
+                  </div>
+                  <Badge variant="default" className={result.success ? 'bg-green-500' : 'bg-red-500'}>
+                    {result.success ? '✅' : '❌'} {result.timestamp}
                   </Badge>
                 </div>
               ))}

@@ -105,12 +105,23 @@ export default function WordSearch({
 
   // Get words for current round
   const getWordsForRound = useCallback(() => {
+    // Safety check for word data
+    if (!wordsData || Object.keys(wordsData).length === 0) {
+      // Fallback words if WORD_BANK is not available
+      return ['CASA', 'GATO', 'MESA', 'AGUA', 'LIBRO'].slice(0, config.wordsCount)
+    }
+    
     const allWords = []
     // Collect words from different lengths (4-8 chars for variety)
     for (let length = 4; length <= 8; length++) {
       if (wordsData[length]) {
         allWords.push(...wordsData[length])
       }
+    }
+    
+    // If no words found, use fallback
+    if (allWords.length === 0) {
+      return ['CASA', 'GATO', 'MESA', 'AGUA', 'LIBRO'].slice(0, config.wordsCount)
     }
     
     // Shuffle and pick required number
@@ -471,11 +482,11 @@ export default function WordSearch({
 
   // Auto-start first round - mobile-first approach
   useEffect(() => {
-    // Don't wait for timeRemaining, start immediately when component ready
-    if (gameState === 'idle' && words.length === 0) {
+    // Start immediately when component mounts and is ready
+    if (gameState === 'idle') {
       startRound()
     }
-  }, [gameState, words, startRound])
+  }, [gameState, startRound])
 
   // Handle game completion
   useEffect(() => {
