@@ -383,16 +383,6 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
     )
   }
 
-  const getTargetCount = () => {
-    return currentNumbers.filter(num => 
-      currentRule === 'even' ? num.value % 2 === 0 : num.value % 2 !== 0
-    ).length
-  }
-
-  const getSelectedCount = () => {
-    return currentNumbers.filter(num => num.selected).length
-  }
-
   return (
     <div className="w-full min-h-screen bg-gray-50">
       {/* Mobile-optimized game wrapper */}

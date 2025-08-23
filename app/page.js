@@ -45,7 +45,6 @@ const SchulteTablePRB = lazy(() => import('@/components/games/SchulteTablePRB'))
 const TwinWordsGrid = lazy(() => import('@/components/games/TwinWordsGrid'))
 const TwinWordsGridPRC = lazy(() => import('@/components/games/TwinWordsGridPRC'))
 const ParImpar = lazy(() => import('@/components/games/ParImpar'))
-const ParImparPRD = lazy(() => import('@/components/games/ParImparPRD'))
 const MemoryDigits = lazy(() => import('@/components/games/MemoryDigits'))
 
 // Lazy load Phase 3 games
@@ -271,7 +270,7 @@ export default function HomePage() {
     const gameComponents = {
       shuttle: SchulteTablePRB, // PR B: Updated Schulte with UX polish
       twin_words: TwinWordsGridPRC, // PR C: Updated TwinWords with 60s adaptive gameplay
-      par_impar: ParImparPRD, // PR D: Updated ParImpar with immediate feedback and grid scaling
+      par_impar: ParImpar, // Updated ParImpar with mobile responsive design
       memory_digits: MemoryDigits,
       rsvp: RSVPReader
     }
