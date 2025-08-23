@@ -383,64 +383,65 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
     )
   }
 
-  // Calculate grid columns based on number count and screen size
-  const getGridCols = () => {
-    const numCount = currentNumbers.length
-    // For mobile (≤480px), prefer 3 cols max to keep cells large
-    if (numCount <= 9) return 3
-    if (numCount <= 12) return 3  // Still 3 for readability
-    return Math.min(4, Math.ceil(Math.sqrt(numCount)))  // Cap at 4 cols
+  const getTargetCount = () => {
+    return currentNumbers.filter(num => 
+      currentRule === 'even' ? num.value % 2 === 0 : num.value % 2 !== 0
+    ).length
+  }
+
+  const getSelectedCount = () => {
+    return currentNumbers.filter(num => num.selected).length
   }
 
   return (
     <div className="w-full min-h-screen bg-gray-50">
-      {/* Mobile-optimized container */}
-      <div className="max-w-lg mx-auto px-3 py-4 sm:max-w-2xl sm:px-6">
+      {/* Mobile-optimized game wrapper */}
+      <div className="gameWrap">
         
-        {/* Stats bar - single row */}
+        {/* Stats bar - single row, fixed width counters */}
         <div className="grid grid-cols-4 gap-2 mb-4 text-center">
-          <div>
-            <div className="text-lg sm:text-2xl font-bold text-blue-600">{totalScore}</div>
+          <div className="min-w-0">
+            <div className="text-lg sm:text-2xl font-bold text-blue-600 truncate">{totalScore}</div>
             <div className="text-xs text-muted-foreground">Puntos</div>
           </div>
-          <div>
-            <div className="text-lg sm:text-2xl font-bold text-green-600">{adaptiveDifficulty?.getCurrentLevel() || 1}</div>
+          <div className="min-w-0">
+            <div className="text-lg sm:text-2xl font-bold text-green-600 truncate">{adaptiveDifficulty?.getCurrentLevel() || 1}</div>
             <div className="text-xs text-muted-foreground">Nivel</div>
           </div>
-          <div>
-            <div className="text-lg sm:text-2xl font-bold text-purple-600">{currentNumbers.length}</div>
+          <div className="min-w-0">
+            <div className="text-lg sm:text-2xl font-bold text-purple-600 truncate">{currentNumbers.length}</div>
             <div className="text-xs text-muted-foreground">Números</div>
           </div>
-          <div>
-            <div className="text-lg sm:text-2xl font-bold text-orange-600">{formatTime(timeRemaining)}</div>
+          <div className="min-w-0">
+            <div className="text-lg sm:text-2xl font-bold text-orange-600 truncate">{formatTime(timeRemaining)}</div>
             <div className="text-xs text-muted-foreground">Tiempo</div>
           </div>
         </div>
 
-        {/* Single instruction banner - compact on mobile */}
-        <Card className="mb-4 bg-gradient-to-r from-blue-50 to-purple-50">
-          <CardContent className="px-4 py-3 sm:p-6 text-center">
-            <div className="space-y-1 sm:space-y-2">
-              <div className="text-sm sm:text-lg font-medium text-muted-foreground">
+        {/* Single instruction banner - mobile stacked layout */}
+        <div className="instruction-banner mb-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border">
+          <div className="px-4 py-3 text-center">
+            <div className="space-y-1">
+              <div className="text-sm font-medium text-muted-foreground">
                 Selecciona todos los números:
               </div>
-              <div className={`text-2xl sm:text-4xl font-bold ${
+              <div className={`text-2xl font-bold ${
                 currentRule === 'even' ? 'text-blue-600' : 'text-purple-600'
               }`}>
                 {currentRule === 'even' ? 'PARES' : 'IMPARES'}
               </div>
               {gameState === GAME_STATES.SELECTING && (
-                <div className="text-xs sm:text-sm text-muted-foreground">
+                <div className="text-xs text-muted-foreground">
                   Objetivos: {getTargetCount()} | Seleccionados: {getSelectedCount()}
                 </div>
               )}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        {/* Grid container - centered with no overflow */}
-        <div className="gridWrap max-w-md mx-auto px-3 mb-4 overflow-hidden">
-          <div className="min-h-[320px] sm:min-h-[400px] flex items-center justify-center">
+        {/* Grid container - centered with responsive columns */}
+        <div className="grid-container">
+          <div className="min-h-[320px] flex items-center justify-center">
             <AnimatePresence mode="wait">
               {gameState === GAME_STATES.SHOWING && (
                 <motion.div
@@ -450,29 +451,16 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
                   exit={{ opacity: 0 }}
                   className="w-full"
                 >
-                  <div 
-                    className="grid gap-3 justify-items-center align-items-center mx-auto w-fit"
-                    style={{
-                      gridTemplateColumns: `repeat(${getGridCols()}, minmax(clamp(56px, 10vw, 72px), 1fr))`
-                    }}
-                  >
+                  <div className="grid gap-3 justify-items-center">
                     {currentNumbers.map((num) => (
                       <motion.div
                         key={num.id}
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        className={`
-                          cell aspect-square flex items-center justify-center font-bold
-                          bg-white border-2 rounded-lg shadow-md touch-manipulation
-                          ${num.style?.color || 'text-gray-800'}
-                          ${num.style?.opacity || ''}
-                        `}
+                        className="cell"
                         style={{
-                          minWidth: 'clamp(56px, 10vw, 72px)',
-                          fontSize: 'clamp(24px, 7vw, 40px)',
-                          lineHeight: 1,
-                          userSelect: 'none',
-                          WebkitTapHighlightColor: 'transparent'
+                          color: num.style?.color || 'inherit',
+                          opacity: num.style?.opacity || 1
                         }}
                       >
                         {num.value}
@@ -492,12 +480,7 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
                   animate={{ opacity: 1 }}
                   className="w-full"
                 >
-                  <div 
-                    className="grid gap-3 justify-items-center align-items-center mx-auto w-fit"
-                    style={{
-                      gridTemplateColumns: `repeat(${getGridCols()}, minmax(clamp(56px, 10vw, 72px), 1fr))`
-                    }}
-                  >
+                  <div className="grid gap-3 justify-items-center">
                     {currentNumbers.map((num) => (
                       <motion.button
                         key={num.id}
@@ -505,22 +488,15 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
                         whileTap={{ scale: 0.95 }}
                         onClick={() => handleNumberClick(num.id)}
                         className={`
-                          cell aspect-square flex items-center justify-center font-bold
-                          border-2 rounded-lg shadow-md transition-all touch-manipulation
+                          cell
                           ${num.selected 
                             ? 'bg-blue-500 text-white border-blue-600 ring-2 ring-blue-300' 
-                            : 'bg-white border-gray-300 hover:border-gray-400 active:scale-95'
+                            : 'bg-white border-gray-300 hover:border-gray-400'
                           }
-                          ${!num.selected && (num.style?.color || 'text-gray-800')}
-                          ${!num.selected && (num.style?.opacity || '')}
                         `}
                         style={{
-                          minWidth: 'clamp(56px, 10vw, 72px)',
-                          fontSize: 'clamp(24px, 7vw, 40px)',
-                          lineHeight: 1,
-                          userSelect: 'none',
-                          WebkitTapHighlightColor: 'transparent',
-                          touchAction: 'manipulation'
+                          color: !num.selected ? (num.style?.color || 'inherit') : undefined,
+                          opacity: !num.selected ? (num.style?.opacity || 1) : undefined
                         }}
                         aria-label={`Número ${num.value}`}
                       >
@@ -578,15 +554,12 @@ export default function ParImpar({ userId = 'anonymous', onFinish, onExit, timeL
           </div>
         </div>
 
-        {/* Footer CTA - full width, never overlaps grid */}
+        {/* Footer CTA - full width, no overlap, safe-area friendly */}
         {gameState === GAME_STATES.SELECTING && (
-          <div className="footerCta max-w-md mx-auto px-3">
+          <div className="footerCta">
             <Button 
               onClick={submitSelections} 
               className="w-full h-12 text-lg font-semibold"
-              style={{
-                marginBottom: 'calc(8px + env(safe-area-inset-bottom))'
-              }}
             >
               Confirmar Selección
             </Button>
