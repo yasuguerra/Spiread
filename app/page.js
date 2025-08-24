@@ -269,7 +269,7 @@ export default function HomePage() {
     // Original games with PR B, PR C, and PR D updates
     const gameComponents = {
       shuttle: SchulteTablePRB, // PR B: Updated Schulte with UX polish
-      twin_words: TwinWordsGridPRC, // PR C: Updated TwinWords with 60s adaptive gameplay
+      twin_words: TwinWordsGrid, // Restored Twin Words with confusable pairs
       par_impar: ParImpar, // Updated ParImpar with mobile responsive design
       memory_digits: MemoryDigits,
       rsvp: RSVPReader

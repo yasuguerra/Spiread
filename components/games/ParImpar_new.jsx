@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { generateNumberGrid } from '@/lib/parimpar/generateNumberGrid';
-import { useCountdown } from '@/hooks/useCountdown';
+import useCountdown from '@/hooks/useCountdown';
 import HeaderBar from './common/HeaderBar';
 import SummaryDialog from './common/SummaryDialog';
 
@@ -85,25 +85,6 @@ function NumberGrid({ grid, masked, selectedIds = new Set(), onCell }) {
   );
 }
 
-function FeedbackGrid({ grid, selectedIds }) {
-  return (
-    <div className="grid gap-3 grid-cols-[repeat(auto-fit,minmax(clamp(56px,10vw,72px),1fr))] mt-6 mb-8">
-      {grid.map((item) => (
-        <div
-          key={item.id}
-          className={`aspect-square flex items-center justify-center select-none rounded text-[clamp(24px,7vw,40px)] font-bold border-2 transition-all duration-300
-            ${selectedIds.has(item.id)
-              ? (item.isTarget ? 'bg-green-200 border-green-500 text-green-900' : 'bg-red-200 border-red-500 text-red-900')
-              : (item.isTarget ? 'bg-yellow-100 border-yellow-500 text-yellow-900' : 'bg-gray-100 border-gray-300 text-gray-700')}
-          `}
-        >
-          {item.value}
-        </div>
-      ))}
-    </div>
-  );
-}
-
 function FooterCTA({ onConfirm, phase, canFinish }) {
   return (
     <div className="w-full pb-[calc(8px+env(safe-area-inset-bottom))]">
@@ -173,14 +154,6 @@ const ParImpar = () => {
     }
   };
 
-  const finishSelection = () => {
-    if (phase !== 'SELECTING') return;
-    setPhase('FEEDBACK');
-    setTimeout(() => {
-      setPhase('SUMMARY');
-    }, 1500); // Show feedback for 1.5s before going to summary
-  };
-
   const resetGame = () => {
     setReady(false);
     setPhase('READY');
@@ -211,15 +184,7 @@ const ParImpar = () => {
   return (
     <section className="mx-auto max-w-[480px] px-3 overflow-x-hidden">
       <HeaderBar fixedHeight />
-      <InstructionBanner 
-        text={
-          phase === 'READY' ? 'Get ready to memorize numbers' :
-          phase === 'SHOWING' ? 'Memorize these numbers' :
-          phase === 'SELECTING' ? 'Select all EVEN numbers' :
-          phase === 'FEEDBACK' ? 'Results' :
-          'Game Complete'
-        } 
-      />
+      <InstructionBanner text="Select all EVEN numbers" />
       
       {phase === 'READY' && (
         <FooterCTA onConfirm={start} phase={phase} canFinish={true} />
@@ -237,14 +202,10 @@ const ParImpar = () => {
           onCell={toggleSelect}
         />
       )}
-
-      {phase === 'FEEDBACK' && (
-        <FeedbackGrid grid={grid} selectedIds={selectedIds} />
-      )}
       
       {(phase === 'SELECTING' || phase === 'SHOWING') && (
         <FooterCTA 
-          onConfirm={finishSelection} 
+          onConfirm={() => setPhase('SUMMARY')} 
           phase={phase} 
           canFinish={phase === 'SELECTING'} 
         />

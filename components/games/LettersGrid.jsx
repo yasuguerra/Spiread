@@ -1,538 +1,359 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import GameShell from '../GameShell'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
-import { Timer, Trophy, Target, TrendingUp, Eye, Grid3X3, AlertCircle } from 'lucide-react'
-import { WORD_BANK } from '@/lib/word-bank'
-import { getLastLevel, setLastLevel, getLastBestScore, updateBestScore, updateGameProgress, GAME_IDS } from '@/lib/progress-tracking'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { generateGrid, getGridConfig } from '@/lib/letters/generateGrid'
+import { useCountdown } from '@/hooks/useCountdown'
+import HeaderBar from './common/HeaderBar'
+import SummaryDialog from './common/SummaryDialog'
 
-const GAME_CONFIG = {
-  name: 'letters_grid',
-  displayName: 'Letters Grid',
-  description: 'Encuentra las letras objetivo en la cuadrícula',
-  levels: {
-    1: { N: 5, targets: 1, exposureTotal: 12000, goalRT: 2000 },
-    2: { N: 6, targets: 1, exposureTotal: 11000, goalRT: 1900 },
-    3: { N: 6, targets: 1, exposureTotal: 10000, goalRT: 1800 },
-    4: { N: 7, targets: 2, exposureTotal: 10000, goalRT: 1800 },
-    5: { N: 7, targets: 2, exposureTotal: 9000, goalRT: 1700 },
-    6: { N: 8, targets: 2, exposureTotal: 9000, goalRT: 1700 },
-    7: { N: 8, targets: 2, exposureTotal: 8000, goalRT: 1600 },
-    8: { N: 9, targets: 2, exposureTotal: 8000, goalRT: 1600 },
-    9: { N: 9, targets: 2, exposureTotal: 7000, goalRT: 1500 },
-    10: { N: 10, targets: 3, exposureTotal: 7000, goalRT: 1500, useConfusables: true },
-    11: { N: 10, targets: 3, exposureTotal: 6500, goalRT: 1400, useConfusables: true },
-    12: { N: 11, targets: 3, exposureTotal: 6000, goalRT: 1400, useConfusables: true },
-    13: { N: 11, targets: 3, exposureTotal: 5500, goalRT: 1300, useConfusables: true },
-    14: { N: 12, targets: 3, exposureTotal: 5500, goalRT: 1300, useConfusables: true },
-    15: { N: 12, targets: 3, exposureTotal: 5000, goalRT: 1200, useConfusables: true },
-    16: { N: 13, targets: 3, exposureTotal: 5000, goalRT: 1200, useConfusables: true },
-    17: { N: 13, targets: 3, exposureTotal: 4500, goalRT: 1100, useConfusables: true },
-    18: { N: 14, targets: 3, exposureTotal: 4500, goalRT: 1100, useConfusables: true },
-    19: { N: 14, targets: 3, exposureTotal: 4200, goalRT: 1000, useConfusables: true },
-    20: { N: 15, targets: 3, exposureTotal: 4000, goalRT: 1000, useConfusables: true }
-  }
+// Mobile-first container styles
+const containerStyles = {
+  width: '100%',
+  maxWidth: '480px',
+  margin: '0 auto',
+  padding: '0 1rem',
+  minHeight: '100vh',
+  display: 'flex',
+  flexDirection: 'column',
+  paddingBottom: 'max(1rem, env(safe-area-inset-bottom))'
+}
+
+const gridContainerStyles = {
+  flex: 1,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: '1rem 0'
 }
 
 export default function LettersGrid({ 
-  level = 1, 
+  level = 1,
   onComplete,
   onScoreUpdate,
-  timeRemaining, // Managed by GameShell now
-  locale = 'es',
   onExit,
-  onBackToGames,
-  onViewStats
+  onBackToGames
 }) {
-  const [gameState, setGameState] = useState('preparing') // preparing, idle, showing, complete
+  // Game state
+  const [phase, setPhase] = useState<GamePhase>('ready')
   const [grid, setGrid] = useState([])
-  const [targetLetters, setTargetLetters] = useState([])
+  const [gridConfig, setGridConfig] = useState(() => getGridConfig(level))
   const [selectedCells, setSelectedCells] = useState(new Set())
-  const [score, setScore] = useState(0)
-  const [isInitialized, setIsInitialized] = useState(false)
-  const [sessionData, setSessionData] = useState({
-    totalScreens: 0,
-    totalHits: 0,
-    totalFalsePositives: 0,
-    totalMisses: 0,
-    responseTimes: [],
+  const [gameStats, setGameStats] = useState({
+    hits: 0,
+    misses: 0,
+    falsePositives: 0,
+    totalTargets: 0,
     accuracy: 0,
     avgResponseTime: 0,
-    currentScreenIndex: 0,
-    perfectScreens: 0
+    selections: []
+  })
+  const [isGridReady, setIsGridReady] = useState(false)
+  
+  // Refs for timing
+  const gameStartTimeRef = useRef(0)
+  const selectionTimesRef = useRef([])
+  
+  // Countdown for showing phase (brief target exposure)
+  const showingCountdown = useCountdown({
+    durationSec: 3,
+    autostart: false,
+    onEnd: () => {
+      setPhase('playing')
+      gameStartTimeRef.current = performance.now()
+    }
+  })
+  
+  // Countdown for playing phase
+  const playingCountdown = useCountdown({
+    durationSec: 15,
+    autostart: false,
+    onEnd: () => {
+      endGame()
+    }
   })
 
-  // Enhanced state for fixes and progressive difficulty
-  const [gameStartTime, setGameStartTime] = useState(0)
-  const [currentScreenStartTime, setCurrentScreenStartTime] = useState(0)
-  const [screenTimeRemaining, setScreenTimeRemaining] = useState(0)
-  const [difficultyModifier, setDifficultyModifier] = useState(1) // Progressive difficulty
-  const [visualDistractors, setVisualDistractors] = useState([])
-  const gameContextRef = useRef(null)
-
-  const config = GAME_CONFIG.levels[Math.min(level, 20)]
-  const lettersData = WORD_BANK.lettersGrid[locale] || WORD_BANK.lettersGrid.es
-  const screenStartTime = useRef(null)
-
-  // Initialize game immediately with timeout fallback
+  // Initialize grid synchronously on mount
   useEffect(() => {
-    const initializeGame = async () => {
-      try {
-        // Set timeout fallback to prevent infinite loading
-        const timeoutId = setTimeout(() => {
-          console.log('LettersGrid: Initialization timeout, proceeding with default setup')
-          setIsInitialized(true)
-          setGameState('idle')
-        }, 300) // 300ms timeout
-
-        // Initialize game components
-        if (lettersData && lettersData.targets) {
-          setIsInitialized(true)
-          setGameState('idle')
-          clearTimeout(timeoutId)
-        } else {
-          // Still proceed even without full letter data
-          console.log('LettersGrid: Using fallback letter data')
-          setIsInitialized(true)
-          setGameState('idle')
-          clearTimeout(timeoutId)
-        }
-      } catch (error) {
-        console.error('LettersGrid: Initialization error:', error)
-        // Still proceed with game
-        setIsInitialized(true) 
-        setGameState('idle')
-      }
-    }
-
-    initializeGame()
-  }, [lettersData])
-
-  // Generate random letters with optional confusables
-  const generateLetters = useCallback((count, useConfusables = false) => {
-    // Safety check for letters data
-    const availableLetters = lettersData?.targets || ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
-    const selectedTargets = []
+    const config = getGridConfig(level)
+    setGridConfig(config)
     
-    for (let i = 0; i < count; i++) {
-      const randomLetter = availableLetters[Math.floor(Math.random() * availableLetters.length)]
-      selectedTargets.push(randomLetter)
-    }
-
-    if (useConfusables) {
-      // Add some confusable letters to make it harder
-      selectedTargets.forEach(letter => {
-        if (lettersData.confusables[letter] && Math.random() < 0.3) {
-          const confusables = lettersData.confusables[letter]
-          const confusable = confusables[Math.floor(Math.random() * confusables.length)]
-          if (Math.random() < 0.5) {
-            selectedTargets.push(confusable)
-          }
-        }
-      })
-    }
-
-    return selectedTargets
-  }, [lettersData])
-
-  // Generate grid
-  const generateGrid = useCallback(() => {
-    const { N, targets: targetCount, useConfusables } = config
-    const targets = generateLetters(targetCount, useConfusables)
+    // Generate grid synchronously
+    const newGrid = generateGrid({
+      rows: config.rows,
+      cols: config.cols,
+      targetLetter: config.targetLetter,
+      targetCount: config.targetCount,
+      confusables: config.confusables
+    })
     
-    // Calculate target positions (ensure at least one of each target)
-    const targetPositions = new Map()
-    targets.forEach(letter => {
-      if (!targetPositions.has(letter)) {
-        targetPositions.set(letter, [])
-      }
-    })
-
-    // Place at least one of each unique target
-    const uniqueTargets = [...new Set(targets)]
-    uniqueTargets.forEach(letter => {
-      const row = Math.floor(Math.random() * N)
-      const col = Math.floor(Math.random() * N)
-      targetPositions.get(letter).push({ row, col })
-    })
-
-    // Generate random additional targets (2-4 more per target letter)
-    uniqueTargets.forEach(letter => {
-      const additional = 2 + Math.floor(Math.random() * 3)
-      for (let i = 0; i < additional; i++) {
-        const row = Math.floor(Math.random() * N)
-        const col = Math.floor(Math.random() * N)
-        targetPositions.get(letter).push({ row, col })
-      }
-    })
-
-    // Create grid
-    const newGrid = Array(N).fill(null).map(() => Array(N).fill(''))
-    
-    // Fill with target letters
-    targetPositions.forEach((positions, letter) => {
-      positions.forEach(({ row, col }) => {
-        newGrid[row][col] = letter
-      })
-    })
-
-    // Fill remaining cells with random letters
-    const allLetters = lettersData.targets
-    for (let row = 0; row < N; row++) {
-      for (let col = 0; col < N; col++) {
-        if (newGrid[row][col] === '') {
-          // Use confusables sometimes if enabled
-          let randomLetter
-          if (useConfusables && Math.random() < 0.4) {
-            const targetLetter = uniqueTargets[Math.floor(Math.random() * uniqueTargets.length)]
-            const confusables = lettersData.confusables[targetLetter]
-            if (confusables && Math.random() < 0.6) {
-              randomLetter = confusables[Math.floor(Math.random() * confusables.length)]
-            } else {
-              randomLetter = allLetters[Math.floor(Math.random() * allLetters.length)]
-            }
-          } else {
-            randomLetter = allLetters[Math.floor(Math.random() * allLetters.length)]
-          }
-          newGrid[row][col] = randomLetter
-        }
-      }
-    }
-
-    return { grid: newGrid, targets: uniqueTargets, targetPositions }
-  }, [config, generateLetters, lettersData])
-
-  // Enhanced screen timing with visual countdown
-  const startScreen = useCallback(() => {
-    // Remove gameContextRef dependency for mobile-first approach
-    if (!isInitialized) return
-
-    // Apply progressive difficulty modifier
-    const adjustedConfig = {
-      ...config,
-      exposureTotal: Math.max(2000, config.exposureTotal - (sessionData.totalScreens * 200 * difficultyModifier))
-    }
-
-    const { grid: newGrid, targets, targetPositions } = generateGrid()
     setGrid(newGrid)
-    setTargetLetters(targets)
-    setSelectedCells(new Set())
-    setGameState('showing')
-    
-    const screenStart = Date.now()
-    setCurrentScreenStartTime(screenStart)
-    setScreenTimeRemaining(adjustedConfig.exposureTotal)
-    
-    if (gameStartTime === 0) {
-      setGameStartTime(screenStart)
-    }
-
-    // Visual countdown timer for screen
-    const countdownInterval = setInterval(() => {
-      const elapsed = Date.now() - screenStart
-      const remaining = Math.max(0, adjustedConfig.exposureTotal - elapsed)
-      setScreenTimeRemaining(remaining)
-      
-      if (remaining <= 0) {
-        clearInterval(countdownInterval)
-        completeScreen(newGrid, targets, targetPositions)
-      }
-    }, 50) // Update every 50ms for smooth countdown
-
-    // Store interval ref for cleanup
-    screenStartTime.current = screenStart
-    
-    return () => clearInterval(countdownInterval)
-  }, [config, generateGrid, sessionData.totalScreens, difficultyModifier, gameStartTime, isInitialized])
-
-  // Handle cell click
-  const handleCellClick = useCallback((row, col) => {
-    if (gameState !== 'showing') return
-
-    const cellKey = `${row}-${col}`
-    const newSelected = new Set(selectedCells)
-    
-    if (newSelected.has(cellKey)) {
-      newSelected.delete(cellKey)
-    } else {
-      newSelected.add(cellKey)
-    }
-    
-    setSelectedCells(newSelected)
-  }, [gameState, selectedCells])
-
-  // Enhanced screen completion with better scoring
-  const completeScreen = useCallback((currentGrid, targets, targetPositions) => {
-    const rt = Date.now() - currentScreenStartTime
-    
-    // Calculate hits, misses, false positives
-    let hits = 0
-    let falsePositives = 0
-    const targetCells = new Set()
-    
-    // Build set of all target positions
-    targetPositions.forEach((positions) => {
-      positions.forEach(({ row, col }) => {
-        targetCells.add(`${row}-${col}`)
-      })
-    })
-
-    // Check selected cells
-    selectedCells.forEach(cellKey => {
-      if (targetCells.has(cellKey)) {
-        hits++
-      } else {
-        falsePositives++
-      }
-    })
-
-    const misses = targetCells.size - hits
-    const isPerfectScreen = hits > 0 && falsePositives === 0 && misses === 0
-    
-    // Enhanced scoring system
-    let screenScore = 0
-    
-    // Base score: +2 per hit, -1 per false positive
-    screenScore += hits * 2
-    screenScore -= falsePositives * 1
-    
-    // Perfect screen bonus
-    if (isPerfectScreen) {
-      screenScore += Math.floor(hits * 1.5) // 1.5x bonus for perfect
-    }
-    
-    // Speed bonus for quick completion
-    const speedThreshold = config.goalRT
-    if (rt < speedThreshold) {
-      const speedBonus = Math.floor((speedThreshold - rt) / 200) // +1 per 200ms faster
-      screenScore += speedBonus
-    }
-    
-    // Difficulty progression bonus
-    if (sessionData.totalScreens >= 5) {
-      screenScore += Math.floor(sessionData.totalScreens / 5) // Progressive difficulty bonus
-    }
-    
-    screenScore = Math.max(0, screenScore)
-    setScore(prev => prev + screenScore)
-
-    // Enhanced session tracking
-    const newResponseTimes = [...sessionData.responseTimes, rt]
-    const avgResponseTime = newResponseTimes.reduce((a, b) => a + b, 0) / newResponseTimes.length
-    const totalAttempts = sessionData.totalHits + sessionData.totalFalsePositives + sessionData.totalMisses + hits + falsePositives + misses
-    const accuracy = totalAttempts > 0 ? (sessionData.totalHits + hits) / totalAttempts : 0
-
-    setSessionData(prev => ({
-      totalScreens: prev.totalScreens + 1,
-      totalHits: prev.totalHits + hits,
-      totalFalsePositives: prev.totalFalsePositives + falsePositives,
-      totalMisses: prev.totalMisses + misses,
-      responseTimes: newResponseTimes,
-      accuracy,
-      avgResponseTime,
-      currentScreenIndex: prev.currentScreenIndex + 1,
-      perfectScreens: prev.perfectScreens + (isPerfectScreen ? 1 : 0)
+    setGameStats(prev => ({
+      ...prev,
+      totalTargets: config.targetCount
     }))
+    
+    // Mark grid as ready after next paint
+    requestAnimationFrame(() => {
+      setIsGridReady(true)
+    })
+  }, [level])
 
-    // Adjust difficulty based on performance
-    if (sessionData.totalScreens > 0 && sessionData.totalScreens % 3 === 0) {
-      const recentAccuracy = accuracy
-      if (recentAccuracy > 0.8) {
-        setDifficultyModifier(prev => Math.min(2, prev + 0.2)) // Increase difficulty
-      } else if (recentAccuracy < 0.5) {
-        setDifficultyModifier(prev => Math.max(0.5, prev - 0.1)) // Decrease difficulty
-      }
+  const startGame = useCallback(() => {
+    setPhase('showing')
+    setSelectedCells(new Set())
+    selectionTimesRef.current = []
+    showingCountdown.start()
+  }, [showingCountdown])
+
+  const startPlaying = useCallback(() => {
+    setPhase('playing')
+    playingCountdown.start()
+    gameStartTimeRef.current = performance.now()
+  }, [playingCountdown])
+
+  const handleCellClick = useCallback((cell) => {
+    if (phase !== 'playing') return
+
+    const selectionTime = performance.now() - gameStartTimeRef.current
+    selectionTimesRef.current.push(selectionTime)
+
+    const newSelectedCells = new Set(selectedCells)
+    const wasSelected = selectedCells.has(cell.id)
+
+    if (wasSelected) {
+      // Deselect
+      newSelectedCells.delete(cell.id)
+    } else {
+      // Select
+      newSelectedCells.add(cell.id)
     }
 
-    // Continue with next screen or complete
-    setTimeout(() => {
-      // Remove gameContextRef dependency - continue based on internal state
-      const totalScreensCompleted = sessionData?.totalScreens || 0
-      if (totalScreensCompleted < 20) { // Continue for up to 20 screens
-        startScreen()
-      } else {
-        setGameState('complete')
-      }
-    }, 1500) // Brief pause to show results
-  }, [selectedCells, currentScreenStartTime, config, sessionData, startScreen])
+    setSelectedCells(newSelectedCells)
 
-  // Auto-start first screen - mobile-first approach  
-  useEffect(() => {
-    // Don't wait for timeRemaining, start immediately when ready
-    if (gameState === 'idle' && isInitialized) {
-      startScreen()
+    // Update stats
+    const selection = {
+      cellId: cell.id,
+      timestamp: selectionTime,
+      isCorrect: cell.isTarget
     }
-  }, [gameState, isInitialized, startScreen])
 
-  // Handle game completion
-  useEffect(() => {
-    if (timeRemaining <= 0 && gameState !== 'complete') {
-      setGameState('complete')
+    setGameStats(prev => {
+      const newSelections = [...prev.selections]
+      const existingIndex = newSelections.findIndex(s => s.cellId === cell.id)
       
-      const meanRT = sessionData.responseTimes.length > 0 
-        ? sessionData.responseTimes.reduce((a, b) => a + b, 0) / sessionData.responseTimes.length 
+      if (wasSelected && existingIndex >= 0) {
+        // Remove selection
+        newSelections.splice(existingIndex, 1)
+      } else if (!wasSelected) {
+        // Add selection
+        newSelections.push(selection)
+      }
+
+      // Calculate stats
+      const hits = newSelections.filter(s => s.isCorrect).length
+      const falsePositives = newSelections.filter(s => !s.isCorrect).length
+      const misses = gridConfig.targetCount - hits
+      const accuracy = gridConfig.targetCount > 0 ? (hits / gridConfig.targetCount) * 100 : 0
+      const avgResponseTime = selectionTimesRef.current.length > 0 
+        ? selectionTimesRef.current.reduce((a, b) => a + b, 0) / selectionTimesRef.current.length 
         : 0
 
-      const metrics = {
-        N: config.N,
-        targets: targetLetters,
-        hits: sessionData.totalHits,
-        falsePositives: sessionData.totalFalsePositives,
-        misses: sessionData.totalMisses,
-        exposure_ms: config.exposureTotal,
-        mean_rt_ms: meanRT,
-        totalScreens: sessionData.totalScreens,
-        accuracy: sessionData.accuracy
+      const newStats = {
+        hits,
+        misses,
+        falsePositives,
+        totalTargets: gridConfig.targetCount,
+        accuracy,
+        avgResponseTime,
+        selections: newSelections
       }
 
-      // Update progress tracking with new system
-      const sessionSummary = {
-        gameId: GAME_IDS.LETTERS_GRID,
-        score: score,
-        level: level,
-        accuracy: sessionData.accuracy,
-        durationSec: (120000 - timeRemaining) / 1000, // Assuming 2 minute timer
-        timestamp: Date.now(),
-        extras: {
-          N: config.N,
-          targets: targetLetters.length,
-          targetLetters: targetLetters,
-          hits: sessionData.totalHits,
-          falsePositives: sessionData.totalFalsePositives,
-          misses: sessionData.totalMisses,
-          totalScreens: sessionData.totalScreens,
-          meanRT: meanRT,
-          exposureMs: config.exposureTotal,
-          responseTimes: sessionData.responseTimes
-        }
+      // Update score callback
+      if (onScoreUpdate) {
+        const score = hits * 100 - falsePositives * 25
+        onScoreUpdate(Math.max(0, score))
       }
 
-      // Persist the progress
-      updateGameProgress(GAME_IDS.LETTERS_GRID, sessionSummary)
+      return newStats
+    })
+  }, [phase, selectedCells, gridConfig.targetCount, onScoreUpdate])
 
-      onComplete?.(score, metrics)
+  const endGame = useCallback(() => {
+    setPhase('summary')
+    playingCountdown.stop()
+    
+    if (onComplete) {
+      onComplete(gameStats)
     }
-  }, [timeRemaining, gameState, score, sessionData, config, targetLetters, onComplete, level])
+  }, [gameStats, onComplete, playingCountdown])
 
-  const renderContent = () => {
-    if (gameState === 'showing') {
+  const resetGame = useCallback(() => {
+    setPhase('ready')
+    setSelectedCells(new Set())
+    setGameStats({
+      hits: 0,
+      misses: 0,
+      falsePositives: 0,
+      totalTargets: gridConfig.targetCount,
+      accuracy: 0,
+      avgResponseTime: 0,
+      selections: []
+    })
+    selectionTimesRef.current = []
+    showingCountdown.reset()
+    playingCountdown.reset()
+  }, [gridConfig.targetCount, showingCountdown, playingCountdown])
+
+  // Skeleton grid for loading state
+  const SkeletonGrid = () => (
+    <div 
+      className="grid gap-2 w-full max-w-sm mx-auto"
+      style={{
+        gridTemplateColumns: `repeat(${gridConfig.cols}, 1fr)`,
+        aspectRatio: '1'
+      }}
+    >
+      {Array.from({ length: gridConfig.rows * gridConfig.cols }).map((_, i) => (
+        <div
+          key={i}
+          className="aspect-square bg-gray-200 rounded animate-pulse"
+        />
+      ))}
+    </div>
+  )
+
+  // Game grid
+  const GameGrid = () => (
+    <div 
+      className="grid gap-2 w-full max-w-sm mx-auto"
+      style={{
+        gridTemplateColumns: `repeat(${gridConfig.cols}, 1fr)`,
+        aspectRatio: '1'
+      }}
+    >
+      {grid.map((cell) => {
+        const isSelected = selectedCells.has(cell.id)
+        const isTarget = cell.isTarget
+        const showTargets = phase === 'showing' || phase === 'summary'
+        
+        return (
+          <button
+            key={cell.id}
+            onClick={() => handleCellClick(cell)}
+            disabled={phase !== 'playing'}
+            className={`
+              aspect-square rounded font-bold text-lg flex items-center justify-center
+              transition-all duration-150 border-2 touch-manipulation
+              ${phase === 'playing' ? 'cursor-pointer' : 'cursor-default'}
+              ${isSelected 
+                ? (isTarget ? 'bg-green-500 border-green-600 text-white' : 'bg-red-500 border-red-600 text-white')
+                : 'bg-white border-gray-300 text-gray-800 hover:border-gray-400'
+              }
+              ${showTargets && isTarget ? 'ring-2 ring-blue-500 ring-offset-1' : ''}
+            `}
+            style={{
+              fontSize: `clamp(1rem, ${100 / gridConfig.cols}vw, 1.5rem)`,
+              minHeight: '2.5rem'
+            }}
+          >
+            {cell.char}
+          </button>
+        )
+      })}
+    </div>
+  )
+
+  // Footer with controls
+  const FooterCTA = () => {
+    if (phase === 'ready') {
       return (
-        <div className="space-y-4">
-          <div className="text-center space-y-2">
-            <div className="flex justify-center gap-2 flex-wrap">
-              {targetLetters.map((letter, index) => (
-                <Badge key={index} variant="secondary" className="text-lg px-3 py-1">
-                  Buscar: {letter.toUpperCase()}
-                </Badge>
-              ))}
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Haz clic en todas las letras objetivo
+        <div className="p-4 space-y-3">
+          <div className="text-center">
+            <p className="text-sm text-gray-600 mb-2">
+              Encuentra todas las letras <span className="font-bold text-blue-600">{gridConfig.targetLetter}</span>
+            </p>
+            <p className="text-xs text-gray-500">
+              {gridConfig.targetCount} objetivo{gridConfig.targetCount > 1 ? 's' : ''} en total
             </p>
           </div>
-          
-          <div className="flex justify-center">
-            <div 
-              className="grid gap-1 p-4 bg-gray-50 rounded-lg"
-              style={{ 
-                gridTemplateColumns: `repeat(${config.N}, 1fr)`,
-                maxWidth: '500px'
-              }}
-            >
-              {grid.map((row, rowIndex) =>
-                row.map((letter, colIndex) => {
-                  const cellKey = `${rowIndex}-${colIndex}`
-                  const isSelected = selectedCells.has(cellKey)
-                  const isTarget = targetLetters.includes(letter.toLowerCase())
-                  
-                  return (
-                    <button
-                      key={cellKey}
-                      onClick={() => handleCellClick(rowIndex, colIndex)}
-                      className={`
-                        w-8 h-8 border border-gray-300 rounded text-sm font-mono
-                        transition-all duration-150 hover:scale-105
-                        ${isSelected 
-                          ? 'bg-blue-500 text-white border-blue-600' 
-                          : 'bg-white hover:bg-gray-100'
-                        }
-                      `}
-                      style={{ fontSize: `${Math.max(10, 20 - config.N)}px` }}
-                    >
-                      {letter.toUpperCase()}
-                    </button>
-                  )
-                })
-              )}
+          <button
+            onClick={startGame}
+            className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+          >
+            Comenzar
+          </button>
+        </div>
+      )
+    }
+
+    if (phase === 'showing') {
+      return (
+        <div className="p-4 text-center">
+          <p className="text-sm text-gray-600 mb-2">Memoriza las posiciones...</p>
+          <div className="text-2xl font-bold text-blue-600">
+            {showingCountdown.timeLeft > 0 ? Math.ceil(showingCountdown.timeLeft / 1000) : '¡Ya!'}
+          </div>
+        </div>
+      )
+    }
+
+    if (phase === 'playing') {
+      return (
+        <div className="p-4">
+          <div className="flex justify-between items-center mb-3">
+            <div className="text-sm">
+              <span className="text-green-600">✓ {gameStats.hits}</span>
+              <span className="text-red-600 ml-3">✗ {gameStats.falsePositives}</span>
+            </div>
+            <div className="text-sm font-medium">
+              {Math.ceil(playingCountdown.timeLeft / 1000)}s
             </div>
           </div>
-          
-          <div className="text-center text-xs text-muted-foreground">
-            Seleccionadas: {selectedCells.size} • Tiempo restante: {Math.ceil(config.exposureTotal / 1000)}s
-          </div>
+          <button
+            onClick={endGame}
+            className="w-full bg-gray-600 text-white py-2 px-4 rounded-lg text-sm hover:bg-gray-700 transition-colors"
+          >
+            Terminar
+          </button>
         </div>
       )
     }
 
-    if (gameState === 'complete') {
-      return (
-        <div className="text-center space-y-4">
-          <h3 className="text-2xl font-bold">¡Tiempo completado!</h3>
-          <div className="space-y-2">
-            <p className="text-lg">Puntuación final: <span className="font-bold text-blue-600">{score}</span></p>
-            <p className="text-sm text-muted-foreground">
-              Precisión: {(sessionData.accuracy * 100).toFixed(1)}% • 
-              Pantallas: {sessionData.totalScreens} •
-              Aciertos: {sessionData.totalHits}
-            </p>
-          </div>
-        </div>
-      )
-    }
-
-    if (gameState === 'preparing' || !isInitialized) {
-      return (
-        <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="text-muted-foreground">Preparando el juego...</p>
-        </div>
-      )
-    }
-
-    return (
-      <div className="text-center">
-        <Button onClick={startScreen}>Comenzar Juego</Button>
-      </div>
-    )
+    return null
   }
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
-      <CardContent className="p-8">
-        <div className="space-y-6">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold mb-2">{GAME_CONFIG.displayName}</h2>
-            <p className="text-sm text-muted-foreground mb-4">{GAME_CONFIG.description}</p>
-            <p className="text-xs text-muted-foreground">
-              Nivel {level} • Grid {config.N}×{config.N} • {config.targets} objetivos
-              {config.useConfusables && " • Con confusables"}
-            </p>
-          </div>
-          
-          <div className="min-h-[400px] flex items-center justify-center">
-            {renderContent()}
-          </div>
-          
-          <div className="text-center text-sm text-muted-foreground">
-            Puntuación: {score} • Precisión: {(sessionData.accuracy * 100).toFixed(1)}%
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+    <div style={containerStyles}>
+      <HeaderBar
+        title="Letters Grid"
+      />
+
+      <div style={gridContainerStyles}>
+        {!isGridReady ? (
+          <SkeletonGrid />
+        ) : (
+          <GameGrid />
+        )}
+      </div>
+
+      <FooterCTA />
+
+      {phase === 'summary' && (
+        <SummaryDialog
+          onClose={resetGame}
+          stats={{
+            score: Math.max(0, gameStats.hits * 100 - gameStats.falsePositives * 25),
+            correct: gameStats.hits,
+            incorrect: gameStats.falsePositives,
+            missed: gameStats.misses,
+            accuracy: gameStats.accuracy / 100,
+            medianRT: gameStats.avgResponseTime,
+            total: gameStats.totalTargets,
+            selected: gameStats.hits + gameStats.falsePositives,
+            targets: gameStats.totalTargets
+          }}
+        />
+      )}
+    </div>
   )
 }

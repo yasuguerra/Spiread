@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { generateNumberGrid } from '@/lib/parimpar/generateNumberGrid';
-import { useCountdown } from '@/hooks/useCountdown';
+import useCountdown from '@/hooks/useCountdown';
 import HeaderBar from './common/HeaderBar';
 import SummaryDialog from './common/SummaryDialog';
 

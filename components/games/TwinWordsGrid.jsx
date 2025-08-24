@@ -1,385 +1,347 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { CheckCircle, XCircle } from 'lucide-react'
-import GameShell from '../GameShell'
-import { getConfusablePairs, areWordsIdentical } from '@/lib/words-es'
+import { CheckCircle, XCircle, Timer, Target } from 'lucide-react'
+import { selectPairs, getDifficultyLevel, getFontStyling, GamePair } from '@/lib/twinwords/selectPairs'
 
-export default function TwinWordsGrid({ difficultyLevel = 1, durationMs, onFinish, onExit }) {
-  return (
-    <GameShell
-      gameId="twin_words"
-      difficultyLevel={difficultyLevel}
-      durationMs={durationMs}
-      onFinish={onFinish}
-      onExit={onExit}
-    >
-      {(gameContext) => <TwinWordsGame gameContext={gameContext} />}
-    </GameShell>
-  )
-}
-
-function TwinWordsGame({ gameContext }) {
+export default function TwinWordsGrid({ 
+  difficultyLevel = 1, 
+  durationMs = 60000, 
+  onFinish, 
+  onExit 
+}) {
+  const [gameState, setGameState] = useState('ready')
   const [currentRound, setCurrentRound] = useState(0)
   const [currentPairs, setCurrentPairs] = useState([])
   const [selectedPairs, setSelectedPairs] = useState(new Set())
   const [roundStartTime, setRoundStartTime] = useState(null)
   const [totalScore, setTotalScore] = useState(0)
   const [roundScores, setRoundScores] = useState([])
-  const [isShowingResults, setIsShowingResults] = useState(false)
-  const [roundTimer, setRoundTimer] = useState(0)
   const [consecutiveCorrect, setConsecutiveCorrect] = useState(0)
-  const [currentDifficulty, setCurrentDifficulty] = useState(1)
+  const [subtletyLevel, setSubtletyLevel] = useState(1)
+  const [timeRemaining, setTimeRemaining] = useState(durationMs)
+  const [reactionTimes, setReactionTimes] = useState([])
   
-  const { 
-    gameState, 
-    recordTrial, 
-    getGameParameters, 
-    handleGameEnd 
-  } = gameContext
+  const gameTimer = useRef(null)
+  const roundTimer = useRef(null)
 
-  // Word pairs dataset with micro-differences - REPLACED WITH NEW SYSTEM
-  // Now using getConfusablePairs from words-es.ts
-
-  // Generate new round when game starts
+  // Update difficulty based on consecutive correct answers
   useEffect(() => {
-    if (gameState === 'playing' && currentPairs.length === 0) {
-      generateNewRound()
+    const newLevel = getDifficultyLevel(consecutiveCorrect)
+    if (newLevel !== subtletyLevel) {
+      setSubtletyLevel(newLevel)
+    }
+  }, [consecutiveCorrect, subtletyLevel])
+
+  // Game timer
+  useEffect(() => {
+    if (gameState === 'playing') {
+      gameTimer.current = setInterval(() => {
+        setTimeRemaining(prev => {
+          if (prev <= 1000) {
+            endGame()
+            return 0
+          }
+          return prev - 1000
+        })
+      }, 1000)
+    }
+
+    return () => {
+      if (gameTimer.current) {
+        clearInterval(gameTimer.current)
+      }
     }
   }, [gameState])
 
-  // Round timer
-  useEffect(() => {
-    if (gameState === 'playing' && roundStartTime && !isShowingResults) {
-      const params = getGameParameters()
-      const interval = setInterval(() => {
-        const elapsed = Date.now() - roundStartTime
-        const remaining = Math.max(0, params.exposureTime - elapsed)
-        setRoundTimer(remaining)
-        
-        if (remaining === 0) {
-          finishRound()
-        }
-      }, 100)
-      
-      return () => clearInterval(interval)
-    }
-  }, [gameState, roundStartTime, isShowingResults])
-
-  const generateNewRound = () => {
-    const params = getGameParameters()
-    const { pairsCount = 6 } = params
-    
-    // Get confusable pairs using new system
-    // Difficulty increases after consecutive correct answers
-    const difficultyLevel = Math.min(5, currentDifficulty)
-    const identicalRatio = 0.3 // 30% identical pairs
-    
-    const pairTuples = getConfusablePairs(difficultyLevel, pairsCount, identicalRatio)
-    
-    // Convert to format expected by the UI
-    const formattedPairs = pairTuples.map(([word1, word2]) => ({
-      word1,
-      word2,
-      identical: areWordsIdentical(word1, word2)
-    }))
-    
-    setCurrentPairs(formattedPairs)
-    setSelectedPairs(new Set())
-    setRoundStartTime(Date.now())
-    setIsShowingResults(false)
-    setRoundTimer(params.exposureTime || 12000)
-    
-    console.log(`TwinWords: Generated round ${currentRound + 1} with difficulty ${difficultyLevel}`)
-  }
-
-  const handlePairClick = (pairIndex) => {
-    if (isShowingResults) return
-    
-    const newSelected = new Set(selectedPairs)
-    if (newSelected.has(pairIndex)) {
-      newSelected.delete(pairIndex)
-    } else {
-      newSelected.add(pairIndex)
-    }
-    setSelectedPairs(newSelected)
-  }
-
-  const finishRound = () => {
-    setIsShowingResults(true)
-    
-    const roundEndTime = Date.now()
-    const reactionTime = roundEndTime - roundStartTime
-    
-    // Calculate score
-    let score = 0
-    let hits = 0
-    let falsePositives = 0
-    let misses = 0
-    
-    currentPairs.forEach((pair, index) => {
-      const isSelected = selectedPairs.has(index)
-      const shouldBeSelected = !pair.identical
-      
-      if (isSelected && shouldBeSelected) {
-        hits++
-        score += 1
-      } else if (isSelected && !shouldBeSelected) {
-        falsePositives++
-        score -= 1
-      } else if (!isSelected && shouldBeSelected) {
-        misses++
-      }
-      // Correct rejections (not selected and identical) don't change score
+  // Generate new round
+  const generateRound = () => {
+    const pairs = selectPairs({
+      level: subtletyLevel,
+      count: 8, // 4 pairs, 8 cards total
+      ratioIdentical: 0.5 // 50% identical pairs
     })
     
-    const accuracy = currentPairs.length > 0 
-      ? (hits + (currentPairs.length - selectedPairs.size - misses)) / currentPairs.length 
-      : 0
-    
-    // Update difficulty based on accuracy
-    if (accuracy >= 0.8) {
-      setConsecutiveCorrect(prev => {
-        const newCount = prev + 1
-        // Increase difficulty after 3 consecutive correct rounds
-        if (newCount >= 3) {
-          setCurrentDifficulty(prev => Math.min(5, prev + 1))
-          console.log(`TwinWords: Difficulty increased to ${Math.min(5, currentDifficulty + 1)}`)
-          return 0 // Reset streak
-        }
-        return newCount
-      })
-    } else {
-      setConsecutiveCorrect(0)
-      // Decrease difficulty on poor performance
-      setCurrentDifficulty(prev => Math.max(1, prev - 1))
-    }
-    
-    const roundResult = {
-      round: currentRound + 1,
-      score,
-      hits,
-      falsePositives,
-      misses,
-      accuracy,
-      reactionTime,
-      pairs: currentPairs.length
-    }
-    
-    setRoundScores(prev => [...prev, roundResult])
-    setTotalScore(prev => prev + Math.max(0, score))
-    
-    // Record trial for adaptive difficulty
-    const success = accuracy >= 0.8 && reactionTime <= getGameParameters().exposureTime * 1.2
-    recordTrial(success, reactionTime, roundResult)
-    
-    // Auto-advance to next round after showing results
-    setTimeout(() => {
-      setCurrentRound(prev => prev + 1)
-      generateNewRound()
-    }, 2000)
+    setCurrentPairs(pairs)
+    setSelectedPairs(new Set())
+    setRoundStartTime(Date.now())
   }
 
-  // Handle game end
-  useEffect(() => {
-    if (gameState === 'summary') {
-      const avgAccuracy = roundScores.length > 0
-        ? roundScores.reduce((sum, r) => sum + r.accuracy, 0) / roundScores.length
-        : 0
+  // Start game
+  const startGame = () => {
+    setGameState('playing')
+    setCurrentRound(1)
+    setTotalScore(0)
+    setRoundScores([])
+    setConsecutiveCorrect(0)
+    setSubtletyLevel(1)
+    setTimeRemaining(durationMs)
+    generateRound()
+  }
+
+  // Handle pair selection
+  const handlePairClick = (index) => {
+    if (gameState !== 'playing' || selectedPairs.has(index)) return
+    
+    const newSelected = new Set(selectedPairs)
+    newSelected.add(index)
+    setSelectedPairs(newSelected)
+    
+    // If we've selected 2 pairs, check if they match
+    if (newSelected.size === 2) {
+      const [first, second] = Array.from(newSelected)
+      const pair1 = currentPairs[first]
+      const pair2 = currentPairs[second]
       
-      const avgReactionTime = roundScores.length > 0
-        ? roundScores.reduce((sum, r) => sum + r.reactionTime, 0) / roundScores.length
-        : 0
-
-      const finalResults = {
-        score: Math.min(100, Math.max(0, Math.round(avgAccuracy * 100))),
-        metrics: {
-          rounds: roundScores.length,
-          total_score: totalScore,
-          accuracy_overall: avgAccuracy,
-          mean_rt_ms: avgReactionTime,
-          rounds_data: roundScores
-        }
+      const isCorrectMatch = pair1.identical === pair2.identical
+      const reactionTime = Date.now() - roundStartTime
+      
+      setReactionTimes(prev => [...prev, reactionTime])
+      
+      if (isCorrectMatch) {
+        setTotalScore(prev => prev + 10)
+        setConsecutiveCorrect(prev => prev + 1)
+        setRoundScores(prev => [...prev, { round: currentRound, score: 10, correct: true, time: reactionTime }])
+      } else {
+        setConsecutiveCorrect(0)
+        setRoundScores(prev => [...prev, { round: currentRound, score: 0, correct: false, time: reactionTime }])
       }
-
-      handleGameEnd(finalResults)
+      
+      // Move to next round after brief delay
+      setTimeout(() => {
+        if (currentRound < 20) { // Max 20 rounds
+          setCurrentRound(prev => prev + 1)
+          generateRound()
+        } else {
+          endGame()
+        }
+      }, 1500)
     }
-  }, [gameState])
+  }
 
-  const params = getGameParameters()
-  const timeLeft = Math.max(0, Math.ceil(roundTimer / 1000))
+  // End game
+  const endGame = () => {
+    setGameState('finished')
+    if (gameTimer.current) {
+      clearInterval(gameTimer.current)
+    }
+    
+    const avgReactionTime = reactionTimes.length > 0 
+      ? reactionTimes.reduce((sum, time) => sum + time, 0) / reactionTimes.length 
+      : 0
+    
+    const accuracy = roundScores.length > 0 
+      ? roundScores.filter(r => r.correct).length / roundScores.length 
+      : 0
+    
+    onFinish?.({
+      score: totalScore,
+      rounds: currentRound,
+      accuracy,
+      avgReactionTime,
+      finalDifficulty: subtletyLevel,
+      consecutiveCorrect
+    })
+  }
+
+  // Get styling based on current difficulty
+  const fontStyling = getFontStyling(subtletyLevel)
+
+  // Format time
+  const formatTime = (ms) => {
+    const seconds = Math.ceil(ms / 1000)
+    return `${seconds}s`
+  }
+
+  if (gameState === 'ready') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardContent className="p-6">
+            <div className="text-center space-y-4">
+              <h1 className="text-2xl font-bold">Twin Words</h1>
+              <p className="text-gray-600">
+                Select pairs of words that are identical or different. 
+                Look carefully for subtle differences!
+              </p>
+              <div className="space-y-2 text-sm text-gray-500">
+                <p>• Accents: esta vs está</p>
+                <p>• Look-alikes: rn vs m</p>
+                <p>• Minimal pairs: casa vs caza</p>
+              </div>
+              <Button onClick={startGame} className="w-full">
+                Start Game ({formatTime(durationMs)})
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  if (gameState === 'finished') {
+    const accuracy = roundScores.length > 0 
+      ? roundScores.filter(r => r.correct).length / roundScores.length * 100 
+      : 0
+    
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardContent className="p-6">
+            <div className="text-center space-y-4">
+              <h1 className="text-2xl font-bold">Game Complete!</h1>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-blue-50 rounded-lg p-3">
+                  <div className="text-2xl font-bold text-blue-600">{totalScore}</div>
+                  <div className="text-sm text-blue-800">Score</div>
+                </div>
+                <div className="bg-green-50 rounded-lg p-3">
+                  <div className="text-2xl font-bold text-green-600">{accuracy.toFixed(1)}%</div>
+                  <div className="text-sm text-green-800">Accuracy</div>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span>Rounds:</span>
+                  <span className="font-semibold">{currentRound}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Final Difficulty:</span>
+                  <Badge variant="outline">Level {subtletyLevel}</Badge>
+                </div>
+                <div className="flex justify-between">
+                  <span>Best Streak:</span>
+                  <span className="font-semibold">{Math.max(...[0, ...roundScores.map((_, i) => {
+                    let streak = 0
+                    for (let j = i; j >= 0 && roundScores[j].correct; j--) streak++
+                    return streak
+                  })])}</span>
+                </div>
+              </div>
+              
+              <div className="flex gap-2">
+                <Button onClick={startGame} className="flex-1">
+                  Play Again
+                </Button>
+                <Button onClick={onExit} variant="outline" className="flex-1">
+                  Exit
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
   return (
-    <div className="space-y-6">
-      {/* Round Stats */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
-            <div>
-              <div className="text-2xl font-bold text-blue-600">{currentRound + 1}</div>
-              <div className="text-xs text-muted-foreground">Ronda</div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="mx-auto max-w-4xl p-4">
+        
+        {/* Header */}
+        <div className="flex justify-between items-center mb-6 bg-white rounded-lg shadow-sm p-4">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Timer className="w-5 h-5" />
+              <span className="font-mono text-lg">{formatTime(timeRemaining)}</span>
             </div>
-            <div>
-              <div className="text-2xl font-bold text-green-600">{totalScore}</div>
-              <div className="text-xs text-muted-foreground">Puntos</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-purple-600">{selectedPairs.size}</div>
-              <div className="text-xs text-muted-foreground">Seleccionados</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-orange-600">{timeLeft}s</div>
-              <div className="text-xs text-muted-foreground">Tiempo</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-red-600">{currentDifficulty}</div>
-              <div className="text-xs text-muted-foreground">Dificultad</div>
+            <div className="flex items-center gap-2">
+              <Target className="w-5 h-5" />
+              <span className="font-semibold">{totalScore}</span>
             </div>
           </div>
-        </CardContent>
-      </Card>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline">Round {currentRound}</Badge>
+            <Badge variant="outline">Level {subtletyLevel}</Badge>
+            <Badge variant="outline">Streak {consecutiveCorrect}</Badge>
+          </div>
+        </div>
 
-      {/* Instructions */}
-      <Card>
-        <CardContent className="p-4 text-center">
-          <div className="space-y-2">
-            <h3 className="text-lg font-semibold">
-              Selecciona los pares que son DIFERENTES
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              Haz clic en las tarjetas que contengan palabras diferentes. 
-              ¡Presta atención a acentos, mayúsculas y letras similares!
+        {/* Instructions */}
+        <div className="mb-4 text-center">
+          <p className="text-gray-600">
+            Select two pairs that are both <strong>identical</strong> or both <strong>different</strong>
+          </p>
+        </div>
+
+        {/* Word Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
+          <AnimatePresence mode="wait">
+            {currentPairs.map((pair, index) => (
+              <motion.div
+                key={`${currentRound}-${index}`}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Card 
+                  className={`cursor-pointer transition-all duration-200 min-h-[120px] ${
+                    selectedPairs.has(index) 
+                      ? 'ring-2 ring-blue-500 bg-blue-50' 
+                      : 'hover:shadow-md hover:scale-105'
+                  }`}
+                  onClick={() => handlePairClick(index)}
+                >
+                  <CardContent className="p-4 h-full flex flex-col justify-center items-center text-center">
+                    <div className={`${fontStyling.fontSize} ${fontStyling.fontWeight} ${fontStyling.letterSpacing} ${fontStyling.lineHeight} space-y-2`}>
+                      <div className="border-b border-gray-200 pb-2">
+                        {pair.left}
+                      </div>
+                      <div>
+                        {pair.right}
+                      </div>
+                    </div>
+                    {pair.kind && (
+                      <Badge variant="secondary" className="mt-2 text-xs">
+                        {pair.kind}
+                      </Badge>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+
+        {/* Selected indicator */}
+        {selectedPairs.size > 0 && (
+          <div className="text-center mt-4">
+            <p className="text-sm text-gray-600">
+              Selected {selectedPairs.size}/2 pairs
             </p>
           </div>
-        </CardContent>
-      </Card>
+        )}
 
-      {/* Pairs Grid */}
-      <Card>
-        <CardContent className="p-6">
-          <div 
-            className="grid gap-4 max-w-4xl mx-auto"
-            style={{ 
-              gridTemplateColumns: `repeat(${Math.min(4, Math.ceil(Math.sqrt(currentPairs.length)))}, 1fr)` 
-            }}
-          >
-            <AnimatePresence>
-              {currentPairs.map((pair, index) => (
-                <motion.div
-                  key={`${pair.word1}-${pair.word2}-${index}`}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => handlePairClick(index)}
-                  className={`
-                    relative p-4 border-2 rounded-lg cursor-pointer transition-all
-                    ${selectedPairs.has(index) 
-                      ? 'border-blue-500 bg-blue-50 shadow-lg' 
-                      : 'border-gray-300 bg-white hover:border-gray-400 hover:shadow-md'
-                    }
-                    ${isShowingResults && !pair.identical 
-                      ? 'ring-2 ring-green-400' 
-                      : ''
-                    }
-                    ${isShowingResults && pair.identical && selectedPairs.has(index)
-                      ? 'ring-2 ring-red-400'
-                      : ''
-                    }
-                  `}
-                >
-                  <div className="space-y-3 text-center">
-                    <div className="text-lg font-mono font-semibold">
-                      {pair.word1}
-                    </div>
-                    <div className="border-t border-gray-200" />
-                    <div className="text-lg font-mono font-semibold">
-                      {pair.word2}
-                    </div>
-                  </div>
-                  
-                  {/* Selection indicator */}
-                  {selectedPairs.has(index) && (
-                    <div className="absolute top-2 right-2">
-                      <CheckCircle className="w-5 h-5 text-blue-600" />
-                    </div>
-                  )}
-                  
-                  {/* Results indicators */}
-                  {isShowingResults && (
-                    <div className="absolute top-2 left-2">
-                      {!pair.identical ? (
-                        <Badge variant="destructive" className="text-xs">
-                          Diferente
-                        </Badge>
-                      ) : (
-                        <Badge variant="secondary" className="text-xs">
-                          Igual
-                        </Badge>
-                      )}
-                    </div>
-                  )}
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-          
-          {isShowingResults && (
+        {/* Round feedback */}
+        {roundScores.length > 0 && (
+          <div className="mt-6 text-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mt-6 text-center"
+              className="inline-flex items-center gap-2"
             >
-              <div className="inline-flex items-center gap-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <div className="text-sm">
-                  <span className="font-semibold text-green-600">Aciertos: {roundScores[roundScores.length - 1]?.hits || 0}</span>
-                </div>
-                <div className="text-sm">
-                  <span className="font-semibold text-red-600">Falsos +: {roundScores[roundScores.length - 1]?.falsePositives || 0}</span>
-                </div>
-                <div className="text-sm">
-                  <span className="font-semibold text-orange-600">Perdidos: {roundScores[roundScores.length - 1]?.misses || 0}</span>
-                </div>
-                <div className="text-sm">
-                  <span className="font-semibold text-blue-600">
-                    Precisión: {Math.round((roundScores[roundScores.length - 1]?.accuracy || 0) * 100)}%
-                  </span>
-                </div>
-              </div>
+              {roundScores[roundScores.length - 1].correct ? (
+                <>
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                  <span className="text-green-600 font-semibold">Correct!</span>
+                </>
+              ) : (
+                <>
+                  <XCircle className="w-5 h-5 text-red-500" />
+                  <span className="text-red-600 font-semibold">Try again!</span>
+                </>
+              )}
             </motion.div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Manual finish button (if time runs out) */}
-      {gameState === 'playing' && !isShowingResults && (
-        <div className="text-center">
-          <Button onClick={finishRound} variant="outline">
-            Finalizar Ronda
-          </Button>
-        </div>
-      )}
-
-      {/* Game info */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="text-center text-sm text-muted-foreground space-y-1">
-            <div>
-              <strong>Objetivo:</strong> Encuentra todas las palabras diferentes en cada ronda
-            </div>
-            <div className="flex justify-center gap-6 text-xs">
-              <span>🎯 Pares: {params.pairsCount}</span>
-              <span>⏱️ Tiempo: {Math.round(params.exposureTime / 1000)}s</span>
-              <span>🎚️ Nivel: {params.subtletyLevel}</span>
-            </div>
           </div>
-        </CardContent>
-      </Card>
+        )}
+      </div>
     </div>
   )
 }
