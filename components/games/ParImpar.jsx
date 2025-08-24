@@ -3,6 +3,7 @@ import { generateNumberGrid } from '@/lib/parimpar/generateNumberGrid';
 import { useCountdown } from '@/hooks/useCountdown';
 import HeaderBar from './common/HeaderBar';
 import SummaryDialog from './common/SummaryDialog';
+import { t } from '@/locales/es';
 
 const EXPOSURE_MS = 1000;
 const GRID_SIZE = 16;
@@ -112,7 +113,9 @@ function FooterCTA({ onConfirm, phase, canFinish }) {
         onClick={onConfirm}
         disabled={!canFinish}
       >
-        {phase === 'READY' ? 'Start' : phase === 'SUMMARY' ? 'Restart' : 'Finish'}
+        {phase === 'READY' ? t('games.parimpar.startGame') : 
+         phase === 'SUMMARY' ? t('games.parimpar.restart') : 
+         t('games.parimpar.finish')}
       </button>
     </div>
   );
@@ -202,7 +205,7 @@ const ParImpar = () => {
     return (
       <section className="mx-auto max-w-[480px] px-3 overflow-x-hidden">
         <HeaderBar fixedHeight />
-        <InstructionBanner text="Loading..." />
+        <InstructionBanner text={t('games.parimpar.loading')} />
         <SkeletonGrid cells={GRID_SIZE} />
       </section>
     );
@@ -213,11 +216,11 @@ const ParImpar = () => {
       <HeaderBar fixedHeight />
       <InstructionBanner 
         text={
-          phase === 'READY' ? 'Get ready to memorize numbers' :
-          phase === 'SHOWING' ? 'Memorize these numbers' :
-          phase === 'SELECTING' ? 'Select all EVEN numbers' :
-          phase === 'FEEDBACK' ? 'Results' :
-          'Game Complete'
+          phase === 'READY' ? t('games.parimpar.readyInstruction') :
+          phase === 'SHOWING' ? t('games.parimpar.showing') :
+          phase === 'SELECTING' ? t(`games.parimpar.selecting_${PARITY}`) :
+          phase === 'FEEDBACK' ? t('games.parimpar.results') :
+          t('games.parimpar.gameComplete')
         } 
       />
       

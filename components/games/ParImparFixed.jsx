@@ -9,6 +9,7 @@ import { Clock, Target, Zap, CheckCircle, XCircle } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useInputDebounce } from '@/hooks/useInputDebounce'
 import { updateGameProgress, GAME_IDS } from '@/lib/progress-tracking'
+import { t } from '@/locales/es'
 
 const GAME_CONFIG = {
   name: 'par_impar',
@@ -305,10 +306,10 @@ export default function ParImparFixed({
       return (
         <div className="text-center">
           <p className="text-muted-foreground mb-4">
-            Selecciona los números {currentRule === 'even' ? 'pares' : 'impares'}
+            Selecciona los números {currentRule === 'even' ? t('games.parimpar.even') : t('games.parimpar.odd')}
           </p>
           <Button onClick={handleSessionStart}>
-            Comenzar Juego
+            {t('games.parimpar.startGame')}
           </Button>
         </div>
       )

@@ -6,7 +6,9 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { CheckCircle, XCircle, Timer, Target } from 'lucide-react'
+import GameTopBar from '@/components/ui/GameTopBar'
 import { selectPairs, getDifficultyLevel, getFontStyling, GamePair } from '@/lib/twinwords/selectPairs'
+import { t } from '@/locales/es'
 
 export default function TwinWordsGrid({ 
   difficultyLevel = 1, 
@@ -18,11 +20,13 @@ export default function TwinWordsGrid({
   const [currentRound, setCurrentRound] = useState(0)
   const [currentPairs, setCurrentPairs] = useState([])
   const [selectedPairs, setSelectedPairs] = useState(new Set())
+  const [foundTargets, setFoundTargets] = useState(new Set()) // Track found incorrect pairs
   const [roundStartTime, setRoundStartTime] = useState(null)
   const [totalScore, setTotalScore] = useState(0)
   const [roundScores, setRoundScores] = useState([])
   const [consecutiveCorrect, setConsecutiveCorrect] = useState(0)
   const [subtletyLevel, setSubtletyLevel] = useState(1)
+  const [level, setLevel] = useState(difficultyLevel) // Added level for GameTopBar
   const [timeRemaining, setTimeRemaining] = useState(durationMs)
   const [reactionTimes, setReactionTimes] = useState([])
   
@@ -68,6 +72,7 @@ export default function TwinWordsGrid({
     
     setCurrentPairs(pairs)
     setSelectedPairs(new Set())
+    setFoundTargets(new Set()) // Reset found targets for new round
     setRoundStartTime(Date.now())
   }
 
@@ -87,39 +92,64 @@ export default function TwinWordsGrid({
   const handlePairClick = (index) => {
     if (gameState !== 'playing' || selectedPairs.has(index)) return
     
-    const newSelected = new Set(selectedPairs)
-    newSelected.add(index)
-    setSelectedPairs(newSelected)
+    const clickedPair = currentPairs[index]
     
-    // If we've selected 2 pairs, check if they match
-    if (newSelected.size === 2) {
-      const [first, second] = Array.from(newSelected)
-      const pair1 = currentPairs[first]
-      const pair2 = currentPairs[second]
+    // Only select pairs that are NOT identical (targets)
+    if (!clickedPair.identical) {
+      const newSelected = new Set(selectedPairs)
+      const newFoundTargets = new Set(foundTargets)
       
-      const isCorrectMatch = pair1.identical === pair2.identical
+      newSelected.add(index)
+      newFoundTargets.add(index)
+      
+      setSelectedPairs(newSelected)
+      setFoundTargets(newFoundTargets)
+      
       const reactionTime = Date.now() - roundStartTime
-      
       setReactionTimes(prev => [...prev, reactionTime])
       
-      if (isCorrectMatch) {
-        setTotalScore(prev => prev + 10)
-        setConsecutiveCorrect(prev => prev + 1)
-        setRoundScores(prev => [...prev, { round: currentRound, score: 10, correct: true, time: reactionTime }])
-      } else {
-        setConsecutiveCorrect(0)
-        setRoundScores(prev => [...prev, { round: currentRound, score: 0, correct: false, time: reactionTime }])
-      }
+      // Correct selection - add points
+      setTotalScore(prev => prev + 10)
+      setConsecutiveCorrect(prev => prev + 1)
+      setRoundScores(prev => [...prev, { 
+        round: currentRound, 
+        score: 10, 
+        correct: true, 
+        time: reactionTime,
+        pairIndex: index
+      }])
       
-      // Move to next round after brief delay
-      setTimeout(() => {
-        if (currentRound < 20) { // Max 20 rounds
-          setCurrentRound(prev => prev + 1)
-          generateRound()
-        } else {
-          endGame()
-        }
-      }, 1500)
+      // Check if all targets (incorrect pairs) have been found
+      const targets = currentPairs.filter(p => !p.identical)
+      const targetsTotal = targets.length
+      const targetsFound = newFoundTargets.size
+      
+      if (targetsFound === targetsTotal) {
+        // Round complete! All incorrect pairs found
+        setTimeout(() => {
+          if (currentRound < 20) { // Max 20 rounds
+            setCurrentRound(prev => prev + 1)
+            setLevel(prev => prev + 1) // Increase level for GameTopBar
+            generateRound()
+          } else {
+            endGame()
+          }
+        }, 1500)
+      }
+    } else {
+      // Wrong selection - clicked an identical pair
+      const reactionTime = Date.now() - roundStartTime
+      setReactionTimes(prev => [...prev, reactionTime])
+      
+      setConsecutiveCorrect(0)
+      setTotalScore(prev => Math.max(0, prev - 5)) // Penalty for wrong selection
+      setRoundScores(prev => [...prev, { 
+        round: currentRound, 
+        score: -5, 
+        correct: false, 
+        time: reactionTime,
+        pairIndex: index
+      }])
     }
   }
 
@@ -163,18 +193,17 @@ export default function TwinWordsGrid({
         <Card className="w-full max-w-md">
           <CardContent className="p-6">
             <div className="text-center space-y-4">
-              <h1 className="text-2xl font-bold">Twin Words</h1>
+              <h1 className="text-2xl font-bold">{t('twinwords.title')}</h1>
               <p className="text-gray-600">
-                Select pairs of words that are identical or different. 
-                Look carefully for subtle differences!
+                {t('twinwords.instruction')} ¡Busca las diferencias sutiles entre las palabras!
               </p>
               <div className="space-y-2 text-sm text-gray-500">
-                <p>• Accents: esta vs está</p>
-                <p>• Look-alikes: rn vs m</p>
-                <p>• Minimal pairs: casa vs caza</p>
+                <p>• {t('twinwords.examples.accents')}</p>
+                <p>• {t('twinwords.examples.similar')}</p>
+                <p>• {t('twinwords.examples.minimal')}</p>
               </div>
               <Button onClick={startGame} className="w-full">
-                Start Game ({formatTime(durationMs)})
+                {t('twinwords.startGame')} ({formatTime(durationMs)})
               </Button>
             </div>
           </CardContent>
@@ -193,30 +222,30 @@ export default function TwinWordsGrid({
         <Card className="w-full max-w-md">
           <CardContent className="p-6">
             <div className="text-center space-y-4">
-              <h1 className="text-2xl font-bold">Game Complete!</h1>
+              <h1 className="text-2xl font-bold">¡Juego Completado!</h1>
               
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-blue-50 rounded-lg p-3">
                   <div className="text-2xl font-bold text-blue-600">{totalScore}</div>
-                  <div className="text-sm text-blue-800">Score</div>
+                  <div className="text-sm text-blue-800">Puntuación</div>
                 </div>
                 <div className="bg-green-50 rounded-lg p-3">
                   <div className="text-2xl font-bold text-green-600">{accuracy.toFixed(1)}%</div>
-                  <div className="text-sm text-green-800">Accuracy</div>
+                  <div className="text-sm text-green-800">Precisión</div>
                 </div>
               </div>
               
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span>Rounds:</span>
+                  <span>Rondas:</span>
                   <span className="font-semibold">{currentRound}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Final Difficulty:</span>
-                  <Badge variant="outline">Level {subtletyLevel}</Badge>
+                  <span>Dificultad Final:</span>
+                  <Badge variant="outline">Nivel {subtletyLevel}</Badge>
                 </div>
                 <div className="flex justify-between">
-                  <span>Best Streak:</span>
+                  <span>Mejor Racha:</span>
                   <span className="font-semibold">{Math.max(...[0, ...roundScores.map((_, i) => {
                     let streak = 0
                     for (let j = i; j >= 0 && roundScores[j].correct; j--) streak++
@@ -227,10 +256,10 @@ export default function TwinWordsGrid({
               
               <div className="flex gap-2">
                 <Button onClick={startGame} className="flex-1">
-                  Play Again
+                  Jugar de Nuevo
                 </Button>
                 <Button onClick={onExit} variant="outline" className="flex-1">
-                  Exit
+                  Salir
                 </Button>
               </div>
             </div>
@@ -242,36 +271,39 @@ export default function TwinWordsGrid({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="mx-auto max-w-4xl p-4">
+      <div className="w-full">
+        {/* GameTopBar */}
+        <div className="py-4">
+          <GameTopBar
+            onBack={onExit}
+            level={level}
+            timeLeftSec={Math.ceil(timeRemaining / 1000)}
+            score={totalScore}
+          />
+        </div>
+      </div>
+      
+      <div className="mx-auto max-w-[480px] px-3 overflow-x-hidden">
         
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6 bg-white rounded-lg shadow-sm p-4">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Timer className="w-5 h-5" />
-              <span className="font-mono text-lg">{formatTime(timeRemaining)}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Target className="w-5 h-5" />
-              <span className="font-semibold">{totalScore}</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="outline">Round {currentRound}</Badge>
-            <Badge variant="outline">Level {subtletyLevel}</Badge>
-            <Badge variant="outline">Streak {consecutiveCorrect}</Badge>
-          </div>
+        {/* Progress indicators */}
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <Badge variant="outline">Ronda {currentRound}</Badge>
+          <Badge variant="outline">Dificultad {subtletyLevel}</Badge>
+          <Badge variant="outline">Racha {consecutiveCorrect}</Badge>
         </div>
 
         {/* Instructions */}
-        <div className="mb-4 text-center">
-          <p className="text-gray-600">
-            Select two pairs that are both <strong>identical</strong> or both <strong>different</strong>
+        <div className="mb-4 text-center p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border">
+          <p className="text-lg font-medium text-muted-foreground">
+            {t('twinwords.instruction')}
+          </p>
+          <p className="text-sm text-gray-500 mt-2">
+            Encontrados: {foundTargets.size}/{currentPairs.filter(p => !p.identical).length}
           </p>
         </div>
 
         {/* Word Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
+        <div className="grid gap-3 grid-cols-[repeat(auto-fit,minmax(clamp(120px,25vw,160px),1fr))]">
           <AnimatePresence mode="wait">
             {currentPairs.map((pair, index) => (
               <motion.div
@@ -282,14 +314,17 @@ export default function TwinWordsGrid({
                 transition={{ delay: index * 0.1 }}
               >
                 <Card 
-                  className={`cursor-pointer transition-all duration-200 min-h-[120px] ${
-                    selectedPairs.has(index) 
-                      ? 'ring-2 ring-blue-500 bg-blue-50' 
-                      : 'hover:shadow-md hover:scale-105'
+                  className={`cursor-pointer transition-all duration-200 min-h-[clamp(100px,20vw,120px)] ${
+                    foundTargets.has(index)
+                      ? 'ring-2 ring-green-500 bg-green-50' 
+                      : !pair.identical
+                      ? 'border-orange-300 hover:shadow-md hover:scale-105'
+                      : 'border-gray-200 hover:shadow-md hover:scale-105'
                   }`}
                   onClick={() => handlePairClick(index)}
+                  style={{ touchAction: 'manipulation' }}
                 >
-                  <CardContent className="p-4 h-full flex flex-col justify-center items-center text-center">
+                  <CardContent className="p-4 h-full flex flex-col justify-center items-center text-center relative">
                     <div className={`${fontStyling.fontSize} ${fontStyling.fontWeight} ${fontStyling.letterSpacing} ${fontStyling.lineHeight} space-y-2`}>
                       <div className="border-b border-gray-200 pb-2">
                         {pair.left}
@@ -303,6 +338,9 @@ export default function TwinWordsGrid({
                         {pair.kind}
                       </Badge>
                     )}
+                    {foundTargets.has(index) && (
+                      <CheckCircle className="absolute top-2 right-2 w-5 h-5 text-green-500" />
+                    )}
                   </CardContent>
                 </Card>
               </motion.div>
@@ -310,14 +348,12 @@ export default function TwinWordsGrid({
           </AnimatePresence>
         </div>
 
-        {/* Selected indicator */}
-        {selectedPairs.size > 0 && (
-          <div className="text-center mt-4">
-            <p className="text-sm text-gray-600">
-              Selected {selectedPairs.size}/2 pairs
-            </p>
-          </div>
-        )}
+        {/* Progress display */}
+        <div className="text-center mt-4">
+          <p className="text-sm text-gray-600">
+            Progreso: {foundTargets.size}/{currentPairs.filter(p => !p.identical).length} objetivos encontrados
+          </p>
+        </div>
 
         {/* Round feedback */}
         {roundScores.length > 0 && (

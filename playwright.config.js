@@ -57,6 +57,24 @@ export default defineConfig({
       name: 'Mobile Safari',
       use: { ...devices['iPhone 12'] },
     },
+    
+    /* Mobile games tests with specific viewports */
+    {
+      name: 'Mobile Games - Small',
+      use: { 
+        ...devices['Pixel 5'],
+        viewport: { width: 360, height: 800 }
+      },
+      testMatch: '**/mobile-games.spec.js',
+    },
+    {
+      name: 'Mobile Games - Medium',
+      use: { 
+        ...devices['iPhone 12'],
+        viewport: { width: 375, height: 812 }
+      },
+      testMatch: '**/mobile-games.spec.js',
+    },
 
     /* Test against branded browsers. */
     // {

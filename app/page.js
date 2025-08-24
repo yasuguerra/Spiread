@@ -26,6 +26,7 @@ import {
 
 import { useAppStore, useRSVPStore } from '@/lib/store'
 import { APP_NAME } from '@/lib/constants'
+import { t } from '@/locales/es'
 
 // Import only essential components immediately
 import GamificationHeader from '@/components/GamificationHeader'
@@ -436,14 +437,14 @@ export default function HomePage() {
 
                   {/* Twin Words */}
                   <GameCard
-                    title="Palabras Gemelas"
-                    description="Detecta diferencias sutiles entre palabras"
+                    title={t('games.cardTitle.twinwords')}
+                    description={t('games.cardDescription.twinwords')}
                     icon={<Eye className="w-6 h-6 text-purple-600" />}
-                    badges={["Discriminación", "Precisión"]}
+                    badges={[t('games.badges.discrimination'), t('games.badges.precision')]}
                     features={[
-                      "Grid de pares por pantalla",
-                      "Diferencias micro (m/n, acentos)",
-                      "Selección múltiple"
+                      t('games.features.gridPairs'),
+                      t('games.features.microDifferences'),
+                      t('games.features.multipleSelection')
                     ]}
                     gameKey="twinwords"
                     onClick={() => setActiveGame('twin_words')}
@@ -451,14 +452,14 @@ export default function HomePage() {
 
                   {/* Par/Impar */}
                   <GameCard
-                    title="Par / Impar"
-                    description="Decisiones rápidas bajo presión temporal"
+                    title={t('games.cardTitle.parimpar')}
+                    description={t('games.cardDescription.parimpar')}
                     icon={<Calculator className="w-6 h-6 text-orange-600" />}
-                    badges={["Go/No-Go", "Velocidad"]}
+                    badges={[t('games.badges.goNoGo'), t('games.badges.speed')]}
                     features={[
-                      "ISI adaptativo",
-                      "Números 1-9999",
-                      "Distractores de color"
+                      t('games.features.adaptiveISI'),
+                      t('games.features.numbers1to9999'),
+                      t('games.features.colorDistractors')
                     ]}
                     gameKey="parimpar"
                     onClick={() => setActiveGame('par_impar')}
@@ -663,7 +664,7 @@ function GameCard({ title, description, icon, badges, features, onClick, gameKey
             </div>
             <Button className="w-full" data-testid={`start-btn-${gameKey}`}>
               <Play className="w-4 h-4 mr-2" />
-              Comenzar
+              {t('games.start')}
             </Button>
           </div>
         </CardContent>
